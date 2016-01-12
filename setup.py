@@ -9,7 +9,7 @@ setup(
     url='https://phabricator.wikimedia.org/diffusion/THMBREXT/',
     license='MIT',
     author='Gilles Dubuc, Wikimedia Foundation',
-    description='Wikimedia Thumbor extensions',
+    description='Wikimedia Thumbor plugins',
     packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
