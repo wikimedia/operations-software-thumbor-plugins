@@ -11,7 +11,7 @@
 
 # Ghostscript engine
 
-from wikimedia_thumbor_base_engine import BaseWikimediaEngine
+from wikimedia_thumbor.engine import BaseWikimediaEngine
 
 
 BaseWikimediaEngine.add_format(
