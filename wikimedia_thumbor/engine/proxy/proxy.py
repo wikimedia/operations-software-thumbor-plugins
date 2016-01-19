@@ -14,8 +14,14 @@
 
 import datetime
 import importlib
+import resource
 
 from thumbor.engines import BaseEngine
+
+
+def utime():
+    return resource.getrusage(resource.RUSAGE_SELF).ru_utime
+    + resource.getrusage(resource.RUSAGE_CHILDREN).ru_utime
 
 
 class Engine(BaseEngine):
@@ -65,9 +71,28 @@ class Engine(BaseEngine):
             'Unable to find a suitable engine, tried %r' % self.lcl['engines']
         )
 
+    def record_timing(self, timing, header, end):
+        duration = end - self.lcl[timing]
+
+        if isinstance(duration, datetime.timedelta):
+            duration = duration.total_seconds()
+
+        duration = int(round(duration * 1000, 0))
+
+        self.lcl['context'].metrics.timing(
+            'engine.' + timing + '.' + self.select_engine(),
+            duration
+        )
+
+        self.lcl['context'].request_handler.set_header(
+            header,
+            duration
+        )
+
     # This is our entry point for the proxy, it's the first call to the engine
     def load(self, buffer, extension):
-        self.lcl['start'] = datetime.datetime.now()
+        self.lcl['processing_time'] = datetime.datetime.now()
+        self.lcl['processing_utime'] = utime()
 
         # buffer and extension are needed by select_engine
         self.lcl['extension'] = extension
@@ -110,22 +135,16 @@ class Engine(BaseEngine):
     def read(self, extension=None, quality=None):
         ret = self.__getattr__('read')(extension, quality)
 
-        finish = datetime.datetime.now()
-        duration = int(
-            round(
-                (finish - self.lcl['start']).total_seconds() * 1000,
-                0
-            )
+        self.record_timing(
+            'processing_time',
+            'Processing-Time',
+            datetime.datetime.now()
         )
 
-        self.lcl['context'].metrics.timing(
-            'engine.process_time.' + self.select_engine(),
-            duration
-        )
-
-        self.lcl['context'].request_handler.set_header(
-            'ProcessingTime',
-            duration
+        self.record_timing(
+            'processing_utime',
+            'Processing-Utime',
+            utime()
         )
 
         return ret
