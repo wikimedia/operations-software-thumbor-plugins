@@ -48,6 +48,34 @@ class BaseWikimediaEngine(PilEngine):
 
         BaseEngine.get_mimetype = new_get_mimetype
 
+    @classmethod
+    def wrap_command(cls, command, context):
+        wrapped_command = command
+
+        try:
+            cgroup = context.config.SUBPROCESS_CGROUP
+            cgexec_path = context.config.SUBPROCESS_CGEXEC_PATH
+            wrapped_command = [
+                cgexec_path,
+                '-g',
+                cgroup
+            ] + wrapped_command
+        except AttributeError:
+            pass
+
+        try:
+            timeout = context.config.SUBPROCESS_TIMEOUT
+            timeout_path = context.config.SUBPROCESS_TIMEOUT_PATH
+            wrapped_command = [
+                timeout_path,
+                '--foreground',
+                '%s' % timeout
+            ] + wrapped_command
+        except AttributeError:
+            pass
+
+        return wrapped_command
+
     def prepare_temp_files(self, buffer):
         self.destination = NamedTemporaryFile(delete=False)
         self.source = NamedTemporaryFile(delete=False)
@@ -69,28 +97,10 @@ class BaseWikimediaEngine(PilEngine):
         return result
 
     def command(self, command):
-        wrapped_command = command
-
-        try:
-            cgroup = self.context.config.SUBPROCESS_CGROUP
-            cgexec_path = self.context.config.SUBPROCESS_CGEXEC_PATH
-            wrapped_command = [
-                cgexec_path,
-                '-g',
-                cgroup
-            ] + wrapped_command
-        except AttributeError:
-            pass
-
-        try:
-            timeout = self.context.config.SUBPROCESS_TIMEOUT
-            timeout_path = self.context.config.SUBPROCESS_TIMEOUT_PATH
-            wrapped_command = [
-                timeout_path,
-                '%s' % timeout
-            ] + wrapped_command
-        except AttributeError:
-            pass
+        wrapped_command = BaseWikimediaEngine.wrap_command(
+            command,
+            self.context
+        )
 
         logger.debug('Command: %r' % wrapped_command)
 
