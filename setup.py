@@ -16,6 +16,7 @@ setup(
     platforms='any',
     install_requires=[
         'thumbor',
+        'wand',
     ],
     extras_require={
         'tests': [

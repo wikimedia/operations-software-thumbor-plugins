@@ -22,7 +22,8 @@ from tempfile import NamedTemporaryFile
 from thumbor.loaders import LoaderResult
 from tornado.process import Subprocess
 from thumbor.utils import logger
-from wikimedia_thumbor.engine import BaseWikimediaEngine
+
+from wikimedia_thumbor.shell_runner import ShellRunner
 
 
 uri_scheme = 'http://'
@@ -49,7 +50,7 @@ def load_sync(context, url, callback):
 
     unquoted_url = unquote(url)
 
-    command = BaseWikimediaEngine.wrap_command([
+    command = ShellRunner.wrap_command([
         context.config.FFPROBE_PATH,
         '-v',
         'error',
@@ -101,7 +102,7 @@ def _parse_time(context, url, callback, output):
 
     destination = NamedTemporaryFile(delete=False)
 
-    command = BaseWikimediaEngine.wrap_command([
+    command = ShellRunner.wrap_command([
         context.config.FFMPEG_PATH,
         # Order is important, for fast seeking -ss has to come before -i
         # As explained on https://trac.ffmpeg.org/wiki/Seeking

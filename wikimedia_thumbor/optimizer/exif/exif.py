@@ -13,10 +13,11 @@
 # while retaining some critical metadata
 
 import os
-import subprocess
 
 from thumbor.optimizers import BaseOptimizer
 from thumbor.utils import logger
+
+from wikimedia_thumbor.shell_runner import ShellRunner
 
 
 class Optimizer(BaseOptimizer):
@@ -60,16 +61,17 @@ class Optimizer(BaseOptimizer):
         # Only works if icc_profile is configured to be preserved in
         # EXIF_FIELDS_TO_KEEP
         if (self.tinyrgb_path):
-            output = subprocess.check_output([
+            command = [
                 self.exiftool_path,
                 '-DeviceModelDesc',
                 '-S',
                 '-T',
                 input_file
-            ])
-            logger.debug("[EXIFTOOL] exiftool output: " + output)
+            ]
 
-            if (output.rstrip().lower() == self.tinyrgb_icc_replace.lower()):
+            code, stderr, stdout = ShellRunner.command(command, self.context)
+
+            if (stdout.rstrip().lower() == self.tinyrgb_icc_replace.lower()):
                 new_icc = 'icc_profile<=%s' % (
                     self.tinyrgb_path
                 )
@@ -90,8 +92,9 @@ class Optimizer(BaseOptimizer):
         command += [
             '-m',
             '-o',
-            '-'
+            output_file
         ]
 
-        output = open(output_file, 'w')
-        subprocess.call(command, stdout=output)
+        # exiftool can't overwrite files, and thumbor has already created it
+        os.remove(output_file)
+        ShellRunner.command(command, self.context)

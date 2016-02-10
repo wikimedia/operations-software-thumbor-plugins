@@ -29,14 +29,21 @@ class Engine(BaseWikimediaEngine):
         self.tiff_buffer = buffer
         img = super(Engine, self).create_image(buffer)
 
+        self.extension = '.jpg'
+
         try:
             page = self.context.request.page
-            img.seek(page - 1)
-        except (AttributeError, EOFError):
-            page = 1
-            img.seek(0)
 
-        self.extension = '.jpg'
+            if page <= len(img.sequence):
+                for i in range(0, page - 1):
+                    # Remove any page before the one we want
+                    del(img.sequence[0])
+        except AttributeError:
+            pass
+
+        # Remove any page after the one we want
+        while len(img.sequence) > 1:
+            del(img.sequence[1])
 
         return img
 

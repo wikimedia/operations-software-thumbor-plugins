@@ -13,11 +13,10 @@
 
 import errno
 import os
-import subprocess
 from tempfile import NamedTemporaryFile
 
-from thumbor.engines.pil import Engine as PilEngine
-from thumbor.utils import logger
+from wikimedia_thumbor.shell_runner import ShellRunner
+from wikimedia_thumbor.engine.imagemagick import Engine as IMEngine
 
 
 def rm_f(path):
@@ -29,7 +28,7 @@ def rm_f(path):
             raise
 
 
-class BaseWikimediaEngine(PilEngine):
+class BaseWikimediaEngine(IMEngine):
     @classmethod
     def add_format(cls, mime, ext, fn):
         # Unfortunately there is no elegant way to extend Thumbor to support
@@ -48,34 +47,6 @@ class BaseWikimediaEngine(PilEngine):
 
         BaseEngine.get_mimetype = new_get_mimetype
 
-    @classmethod
-    def wrap_command(cls, command, context):
-        wrapped_command = command
-
-        try:
-            cgroup = context.config.SUBPROCESS_CGROUP
-            cgexec_path = context.config.SUBPROCESS_CGEXEC_PATH
-            wrapped_command = [
-                cgexec_path,
-                '-g',
-                cgroup
-            ] + wrapped_command
-        except AttributeError:
-            pass
-
-        try:
-            timeout = context.config.SUBPROCESS_TIMEOUT
-            timeout_path = context.config.SUBPROCESS_TIMEOUT_PATH
-            wrapped_command = [
-                timeout_path,
-                '--foreground',
-                '%s' % timeout
-            ] + wrapped_command
-        except AttributeError:
-            pass
-
-        return wrapped_command
-
     def prepare_temp_files(self, buffer):
         self.destination = NamedTemporaryFile(delete=False)
         self.source = NamedTemporaryFile(delete=False)
@@ -86,6 +57,21 @@ class BaseWikimediaEngine(PilEngine):
         rm_f(self.source.name)
         rm_f(self.destination.name)
 
+    def command(self, command):
+        returncode, stderr, stdout = ShellRunner.command(command, self.context)
+
+        if returncode != 0:
+            self.cleanup_temp_files()
+            raise Exception(
+                'CommandError',
+                command,
+                stdout,
+                stderr,
+                returncode
+            )
+
+        return stdout
+
     def exec_command(self, command):
         self.command(command)
 
@@ -95,33 +81,3 @@ class BaseWikimediaEngine(PilEngine):
         self.cleanup_temp_files()
 
         return result
-
-    def command(self, command):
-        wrapped_command = BaseWikimediaEngine.wrap_command(
-            command,
-            self.context
-        )
-
-        logger.debug('Command: %r' % wrapped_command)
-
-        p = subprocess.Popen(
-            wrapped_command,
-            stdout=subprocess.PIPE
-        )
-        stdout, stderr = p.communicate()
-
-        logger.debug('Stdout: %s' % stdout)
-        logger.debug('Stderr: %s' % stderr)
-        logger.debug('Return code: %d' % p.returncode)
-
-        if p.returncode != 0:
-            self.cleanup_temp_files()
-            raise Exception(
-                'CommandError',
-                wrapped_command,
-                stdout,
-                stderr,
-                p.returncode
-            )
-
-        return stdout

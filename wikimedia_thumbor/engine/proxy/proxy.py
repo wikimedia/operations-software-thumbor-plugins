@@ -117,19 +117,6 @@ class Engine(BaseEngine):
     def __setattr__(self, name, value):
         return setattr(self.lcl[self.select_engine()], name, value)
 
-    # The following have to be redefined because their fallbacks in BaseEngine
-    # don't have the right amount of parameters
-    # They call __getattr__ because the calls still need to be proxied
-    # (otherwise they would just loop back to their own definition right here)
-    def create_image(self, buffer):
-        return self.__getattr__('create_image')(buffer)
-
-    def crop(self, left, top, right, bottom):
-        return self.__getattr__('crop')(left, top, right, bottom)
-
-    def image_data_as_rgb(self, update_image=True):
-        return self.__getattr__('image_data_as_rgb')(update_image)
-
     # This is the exit point for requests, where the generated image is
     # converted to the target format
     def read(self, extension=None, quality=None):
@@ -149,8 +136,33 @@ class Engine(BaseEngine):
 
         return ret
 
+    # The following have to be redefined because their fallbacks in BaseEngine
+    # don't have the right amount of parameters
+    # They call __getattr__ because the calls still need to be proxied
+    # (otherwise they would just loop back to their own definition right here)
+    def create_image(self, buffer):
+        return self.__getattr__('create_image')(buffer)
+
+    def crop(self, left, top, right, bottom):
+        return self.__getattr__('crop')(left, top, right, bottom)
+
+    def flip_horizontally(self):
+        return self.__getattr__('flip_horizontally')()
+
+    def flip_vertically(self):
+        return self.__getattr__('flip_vertically')()
+
+    def image_data_as_rgb(self, update_image=True):
+        return self.__getattr__('image_data_as_rgb')(update_image)
+
     def resize(self, width, height):
         return self.__getattr__('resize')(width, height)
+
+    def rotate(self, degrees):
+        return self.__getattr__('rotate')(degrees)
+
+    def reorientate(self):
+        return self.__getattr__('reorientate')()
 
     def set_image_data(self, data):
         return self.__getattr__('set_image_data')(data)
