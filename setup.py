@@ -16,6 +16,7 @@ setup(
     platforms='any',
     install_requires=[
         'thumbor',
+        'python-swiftclient',
         'wand',
     ],
     extras_require={

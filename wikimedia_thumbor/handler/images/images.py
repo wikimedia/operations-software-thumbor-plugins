@@ -24,8 +24,30 @@ class ImagesHandler(ImagingHandler):
             r'(?:page(?P<page>\d+)-)?'
             r'(?P<width>\d+)px-'
             r'(?:(?P<seek>\d+)-)?'
-            r'.*'
+            r'(?P<end>.*)'
         )
+
+    def reconstruct_path(self, kw):
+        path = kw['filepath']
+        path += kw['filename'] + '.' + kw['extension'] + '/'
+
+        if kw['qlow'] == 'qlow-':
+            path += kw['qlow']
+
+        if kw['lossy'] == 'lossy-':
+            path += kw['lossy']
+
+        if kw['page']:
+            path += 'page' + kw['page'] + '-'
+
+        path += kw['width'] + 'px-'
+
+        if kw['seek']:
+            path += kw['seek'] + '-'
+
+        path += kw['end']
+
+        return path
 
     @tornado.web.asynchronous
     def get(self, **kw):
@@ -77,5 +99,8 @@ class ImagesHandler(ImagingHandler):
             'xkey',
             u'File:' + filename
         )
+
+        # Save wikimedia-specific path, to be used by result storage
+        self.context.wikimedia_path = self.reconstruct_path(kw)
 
         return translated
