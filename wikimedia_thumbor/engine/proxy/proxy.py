@@ -15,7 +15,9 @@
 import datetime
 import importlib
 import resource
+from collections import OrderedDict
 
+from thumbor.utils import logger
 from thumbor.engines import BaseEngine
 
 
@@ -26,7 +28,7 @@ def utime():
 
 class Engine(BaseEngine):
     def __init__(self, context):
-        engines = context.config.PROXY_ENGINE_ENGINES
+        engines = OrderedDict(context.config.PROXY_ENGINE_ENGINES)
 
         # Create an object that will store local values
         # Setting it this way avoids hitting the __setattr__
@@ -49,23 +51,21 @@ class Engine(BaseEngine):
         if self.lcl['selected_engine'] is not None:
             return self.lcl['selected_engine']
 
-        for enginename in self.lcl['engines']:
+        ext = self.lcl['extension'].lstrip('.')
+
+        logger.debug('[Proxy] Looking for a %s engine' % ext)
+
+        for enginename, extensions in self.lcl['engines'].iteritems():
             engine = self.lcl[enginename]
-            try:
-                if engine.should_run(
-                    self.lcl['extension'],
-                    self.lcl['buffer']
-                ):
+
+            if ext in extensions:
+                if hasattr(engine, 'should_run'):
+                    if engine.should_run(self.lcl['buffer']):
+                        self.lcl['selected_engine'] = enginename
+                        return enginename
+                else:
                     self.lcl['selected_engine'] = enginename
                     return enginename
-
-            # Not implementing should_run means that the engine
-            # should run unconditionally.
-            # This is required for the stock PIL engine to act as a
-            # fallback.
-            except AttributeError:
-                self.lcl['selected_engine'] = enginename
-                return enginename
 
         raise Exception(
             'Unable to find a suitable engine, tried %r' % self.lcl['engines']

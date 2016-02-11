@@ -28,9 +28,6 @@ BaseWikimediaEngine.add_format(
 
 
 class Engine(BaseWikimediaEngine):
-    def should_run(self, extension, buffer):
-        return extension == '.djvu'
-
     def create_image(self, buffer):
         self.prepare_temp_files(buffer)
 

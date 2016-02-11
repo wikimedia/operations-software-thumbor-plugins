@@ -60,9 +60,6 @@ image.Image.read_blob = read_blob
 
 
 class Engine(BaseEngine):
-    def should_run(self, extension, buffer):
-        return extension in ('.jpg', '.png')
-
     def create_image(self, buffer):
         im = image.Image()
 

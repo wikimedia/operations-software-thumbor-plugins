@@ -22,9 +22,6 @@ BaseWikimediaEngine.add_format(
 
 
 class Engine(BaseWikimediaEngine):
-    def should_run(self, extension, buffer):
-        return extension == '.tiff'
-
     def create_image(self, buffer):
         self.original_buffer = buffer
         img = super(Engine, self).create_image(buffer)

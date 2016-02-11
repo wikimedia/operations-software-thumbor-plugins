@@ -29,10 +29,7 @@ BaseWikimediaEngine.add_format(
 
 
 class Engine(BaseWikimediaEngine):
-    def should_run(self, extension, buffer):
-        if extension not in ('.png', '.tiff'):
-            return False
-
+    def should_run(self, buffer):
         self.context.vips = {}
 
         self.prepare_temp_files(buffer)
@@ -126,10 +123,3 @@ class Engine(BaseWikimediaEngine):
         self.extension = original_ext
 
         return super(Engine, self).create_image(result)
-
-    def read(self, extension=None, quality=None):
-        if extension == '.tiff' and quality is None:
-            # We're saving the source, let's save the original
-            return self.original_buffer
-
-        return super(Engine, self).read(extension, quality)

@@ -36,9 +36,6 @@ class Engine(BaseWikimediaEngine):
 
         return False
 
-    def should_run(self, extension, buffer):
-        return extension == '.svg'
-
     def create_image(self, buffer):
         self.original_buffer = buffer
         self.prepare_temp_files(buffer)
