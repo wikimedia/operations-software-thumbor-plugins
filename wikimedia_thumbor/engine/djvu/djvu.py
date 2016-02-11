@@ -29,6 +29,7 @@ BaseWikimediaEngine.add_format(
 
 class Engine(BaseWikimediaEngine):
     def create_image(self, buffer):
+        self.original_buffer = buffer
         self.prepare_temp_files(buffer)
 
         try:
