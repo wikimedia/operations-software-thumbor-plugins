@@ -81,14 +81,11 @@ class Engine(BaseEngine):
         return im
 
     def read(self, extension=None, quality=None):
-        if quality is not None:
-            self.image.compression_quality = quality
-
         # Sometimes Thumbor needs to read() the original as-is
         if hasattr(self, 'buffer'):
             return self.buffer
 
-        return self.image.make_blob(format=self.extension.lstrip('.'))
+        return self.image.make_blob(format=extension.lstrip('.'))
 
     def crop(self, crop_left, crop_top, crop_right, crop_bottom):
         # Sometimes thumbor's resize algorithm will try to pre-crop
@@ -119,7 +116,7 @@ class Engine(BaseEngine):
             if self.context.config.RESPECT_ORIENTATION:
                 self.reorientate()
 
-        self.image.resize(int(width), int(height))
+        self.image.resize(width=int(width), height=int(height))
 
     def flip_horizontally(self):
         self.image.flop()

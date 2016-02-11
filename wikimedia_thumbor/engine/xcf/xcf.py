@@ -26,7 +26,7 @@ class Engine(BaseWikimediaEngine):
         return extension == '.xcf'
 
     def create_image(self, buffer):
-        self.xcf_buffer = buffer
+        self.original_buffer = buffer
         self.prepare_temp_files(buffer)
 
         command = [
@@ -37,17 +37,5 @@ class Engine(BaseWikimediaEngine):
         ]
 
         png = self.exec_command(command)
-        self.extension = '.png'
 
         return super(Engine, self).create_image(png)
-
-    def read(self, extension=None, quality=None):
-        if extension == '.xcf' and quality is None:
-            # We're saving the source, let's save the XCF
-            return self.xcf_buffer
-
-        # Beyond this point we're saving the PNG result
-        if extension == '.xcf':
-            extension = '.png'
-
-        return super(Engine, self).read(extension, quality)

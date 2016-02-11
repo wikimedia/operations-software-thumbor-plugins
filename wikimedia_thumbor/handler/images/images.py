@@ -17,19 +17,20 @@ class ImagesHandler(ImagingHandler):
     def regex(cls):
         return (
             r'/images/thumb/'
-            r'(?P<filepath>[0-9a-z]+/[0-9a-z]+/)'
-            r'(?P<filename>.*)\.(?P<extension>.*)/'
+            r'(?P<filepath>[0-9a-zA-Z]+/[0-9a-zA-Z]+/)'
+            r'(?P<filename>.*)/'
             r'(?:(?P<qlow>qlow-))?'
             r'(?:(?P<lossy>lossy-))?'
             r'(?:page(?P<page>\d+)-)?'
             r'(?P<width>\d+)px-'
             r'(?:(?P<seek>\d+)-)?'
             r'(?P<end>.*)'
+            r'\.(?P<format>[a-zA-Z]+)'
         )
 
     def reconstruct_path(self, kw):
         path = kw['filepath']
-        path += kw['filename'] + '.' + kw['extension'] + '/'
+        path += kw['filename'] + '/'
 
         if kw['qlow'] == 'qlow-':
             path += kw['qlow']
@@ -47,6 +48,8 @@ class ImagesHandler(ImagingHandler):
 
         path += kw['end']
 
+        path += '.' + kw['format']
+
         return path
 
     @tornado.web.asynchronous
@@ -60,8 +63,7 @@ class ImagesHandler(ImagingHandler):
         return super(ImagesHandler, self).head(**translated_kw)
 
     def translate(self, kw):
-        filename = '%(filename)s.%(extension)s' % kw
-        filepath = kw['filepath'] + filename
+        filepath = kw['filepath'] + kw['filename']
 
         translated = {'unsafe': 'unsafe'}
         translated['width'] = kw['width']
@@ -77,7 +79,10 @@ class ImagesHandler(ImagingHandler):
 
         filters = []
 
-        if kw['extension'] in ('jpg', 'jpe', 'jpeg'):
+        if kw['format'] in ('jpe', 'jpeg'):
+            kw['format'] = 'jpg'
+
+        if kw['format'] == 'jpg':
             if (
                 kw['qlow'] == 'qlow-' and
                 hasattr(self.context.config, 'QUALITY_LOW')
@@ -86,6 +91,8 @@ class ImagesHandler(ImagingHandler):
 
             if hasattr(self.context.config, 'DEFAULT_FILTERS_JPEG'):
                 filters.append(self.context.config.DEFAULT_FILTERS_JPEG)
+
+        filters.append('format(%s)' % kw['format'])
 
         page = kw.get('page', kw['seek'])
 
@@ -97,7 +104,7 @@ class ImagesHandler(ImagingHandler):
 
         self.context.request_handler.set_header(
             'xkey',
-            u'File:' + filename
+            u'File:' + kw['filename']
         )
 
         # Save wikimedia-specific path, to be used by result storage

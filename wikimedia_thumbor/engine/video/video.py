@@ -32,7 +32,7 @@ class Engine(BaseWikimediaEngine):
         return extension in ('.ogv', '.webm')
 
     def create_image(self, buffer):
-        self.video_buffer = buffer
+        self.original_buffer = buffer
         self.prepare_temp_files(buffer)
 
         command = [
@@ -74,17 +74,5 @@ class Engine(BaseWikimediaEngine):
         ]
 
         jpg = self.exec_command(command)
-        self.extension = '.jpg'
 
         return super(Engine, self).create_image(jpg)
-
-    def read(self, extension=None, quality=None):
-        if extension in ('.ogv', '.webm') and quality is None:
-            # We're saving the source, let's save the video
-            return self.video_buffer
-
-        # Beyond this point we're saving the JPG result
-        if extension in ('.ogv', '.webm'):
-            extension = '.jpg'
-
-        return super(Engine, self).read(extension, quality)

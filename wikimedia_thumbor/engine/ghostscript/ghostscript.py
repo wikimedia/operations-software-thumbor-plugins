@@ -26,7 +26,7 @@ class Engine(BaseWikimediaEngine):
         return extension == '.pdf'
 
     def create_image(self, buffer):
-        self.pdf_buffer = buffer
+        self.original_buffer = buffer
         self.prepare_temp_files(buffer)
 
         try:
@@ -36,7 +36,7 @@ class Engine(BaseWikimediaEngine):
 
         command = [
             self.context.config.GHOSTSCRIPT_PATH,
-            "-sDEVICE=jpeg",
+            "-sDEVICE=tiff24nc",
             "-sOutputFile=%s" % self.destination.name,
             "-dFirstPage=%d" % page,
             "-dLastPage=%d" % page,
@@ -47,18 +47,6 @@ class Engine(BaseWikimediaEngine):
             "-f%s" % self.source.name
         ]
 
-        jpg = self.exec_command(command)
-        self.extension = '.jpg'
+        tiff = self.exec_command(command)
 
-        return super(Engine, self).create_image(jpg)
-
-    def read(self, extension=None, quality=None):
-        if extension == '.pdf' and quality is None:
-            # We're saving the source, let's save the PDF
-            return self.pdf_buffer
-
-        # Beyond this point we're saving the JPG result
-        if extension == '.pdf':
-            extension = '.jpg'
-
-        return super(Engine, self).read(extension, quality)
+        return super(Engine, self).create_image(tiff)

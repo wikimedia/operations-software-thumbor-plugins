@@ -71,7 +71,7 @@ class Engine(BaseWikimediaEngine):
 
     def create_image(self, buffer):
         try:
-            extension = self.context.request.extension
+            original_ext = self.context.request.extension
         except AttributeError:
             # If there is no extension in the request, it means that we
             # are serving a cached result. In which case no VIPS processing
@@ -101,7 +101,10 @@ class Engine(BaseWikimediaEngine):
             else:
                 raise e
 
-        self.destination = NamedTemporaryFile(delete=False, suffix=extension)
+        self.destination = NamedTemporaryFile(
+            delete=False,
+            suffix=original_ext
+        )
 
         shrink_factor = int(math.floor(
             float(self.context.vips['width'])
@@ -119,7 +122,8 @@ class Engine(BaseWikimediaEngine):
             "%d" % shrink_factor
         ]
         result = self.exec_command(command)
-        self.extension = extension
+
+        self.extension = original_ext
 
         return super(Engine, self).create_image(result)
 
@@ -127,12 +131,5 @@ class Engine(BaseWikimediaEngine):
         if extension == '.tiff' and quality is None:
             # We're saving the source, let's save the original
             return self.original_buffer
-
-        # Beyond this point we're saving the result
-        if extension == '.tiff':
-            if self.context.request.extension == '.png':
-                extension = '.png'
-            else:
-                extension = '.jpg'
 
         return super(Engine, self).read(extension, quality)

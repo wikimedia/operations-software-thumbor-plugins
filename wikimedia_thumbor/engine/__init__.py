@@ -14,6 +14,7 @@
 import errno
 import os
 from tempfile import NamedTemporaryFile
+from thumbor.utils import logger
 
 from wikimedia_thumbor.shell_runner import ShellRunner
 from wikimedia_thumbor.engine.imagemagick import Engine as IMEngine
@@ -81,3 +82,30 @@ class BaseWikimediaEngine(IMEngine):
         self.cleanup_temp_files()
 
         return result
+
+    def read(self, extension=None, quality=None):
+        # read() is sometimes used to read back the original.
+        # This relies on the convention that any engine extending
+        # BaseWikimediaEngine should set original_buffer inside its
+        # create_image method
+        if (
+            hasattr(self, 'original_buffer') and
+            quality is None and
+            extension == self.extension
+        ):
+            logger.debug('[BWE] Reading the original')
+            return self.original_buffer
+
+        if quality is not None:
+            self.image.compression_quality = quality
+
+        # When requests don't come through the wikimedia url handler
+        # and the format isn't specified, we default to JPG output
+        if self.context.request.format is None:
+            logger.debug('[BWE] Defaulting to .jpg')
+            extension = '.jpg'
+        else:
+            extension = self.context.request.format
+            logger.debug('[BWE] Rendering %s' % extension)
+
+        return super(BaseWikimediaEngine, self).read(extension, quality)

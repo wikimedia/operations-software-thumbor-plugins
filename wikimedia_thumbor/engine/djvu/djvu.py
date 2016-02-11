@@ -11,10 +11,10 @@
 
 # DjVu engine
 
-from wikimedia_thumbor.engine.tiff import Engine as TiffEngine
+from wikimedia_thumbor.engine import BaseWikimediaEngine
 
 
-TiffEngine.add_format(
+BaseWikimediaEngine.add_format(
     'image/vnd.djvu',
     '.djvu',
     lambda buffer: buffer.startswith('FORM', 4, 8) and
@@ -27,12 +27,11 @@ TiffEngine.add_format(
 )
 
 
-class Engine(TiffEngine):
+class Engine(BaseWikimediaEngine):
     def should_run(self, extension, buffer):
         return extension == '.djvu'
 
     def create_image(self, buffer):
-        self.djvu_buffer = buffer
         self.prepare_temp_files(buffer)
 
         try:
@@ -42,29 +41,20 @@ class Engine(TiffEngine):
 
         command = [
             self.context.config.DDJVU_PATH,
-            '-format=tiff',
+            '-format=pbm',
             '-page=%d' % page,
             self.source.name,
             self.destination.name
         ]
 
-        tiff = self.exec_command(command)
-        self.extension = '.tiff'
+        pbm = self.exec_command(command)
 
-        # TiffEngine reads page a well, but by that point
-        # there's only one page left
-        self.context.request.page = 1
+        # Pass the PBM to the base engine and in turn to the
+        # imagemagick engine
+        im = super(Engine, self).create_image(pbm)
+        # ddjvu seems to have a bug where it sets a depth of 1
+        # when the DjVu is grayscale, making the image interpreted
+        # as bilevel by wand when it shouldn't be
+        im.depth = 8
 
-        # Pass the TIFF to TiffEngine
-        return super(Engine, self).create_image(tiff)
-
-    def read(self, extension=None, quality=None):
-        if extension == '.djvu' and quality is None:
-            # We're saving the source, let's save the DJVU
-            return self.djvu_buffer
-
-        # Beyond this point we're saving the JPG result
-        if extension == '.djvu':
-            extension = '.jpg'
-
-        return super(Engine, self).read(extension, quality)
+        return im

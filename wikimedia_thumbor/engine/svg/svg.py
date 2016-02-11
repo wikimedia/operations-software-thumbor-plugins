@@ -40,7 +40,7 @@ class Engine(BaseWikimediaEngine):
         return extension == '.svg'
 
     def create_image(self, buffer):
-        self.svg_buffer = buffer
+        self.original_buffer = buffer
         self.prepare_temp_files(buffer)
 
         command = [
@@ -59,17 +59,5 @@ class Engine(BaseWikimediaEngine):
             command += ['-h', '%d' % self.context.request.height]
 
         png = self.exec_command(command)
-        self.extension = '.png'
 
         return super(Engine, self).create_image(png)
-
-    def read(self, extension=None, quality=None):
-        if extension == '.svg' and quality is None:
-            # We're saving the source, let's save the SVG
-            return self.svg_buffer
-
-        # Beyond this point we're saving the PNG result
-        if extension == '.svg':
-            extension = '.png'
-
-        return super(Engine, self).read(extension, quality)

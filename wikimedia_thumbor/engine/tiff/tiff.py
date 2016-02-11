@@ -26,10 +26,8 @@ class Engine(BaseWikimediaEngine):
         return extension == '.tiff'
 
     def create_image(self, buffer):
-        self.tiff_buffer = buffer
+        self.original_buffer = buffer
         img = super(Engine, self).create_image(buffer)
-
-        self.extension = '.jpg'
 
         try:
             page = self.context.request.page
@@ -46,14 +44,3 @@ class Engine(BaseWikimediaEngine):
             del(img.sequence[1])
 
         return img
-
-    def read(self, extension=None, quality=None):
-        if extension == '.tiff' and quality is None:
-            # We're saving the source, let's save the TIFF
-            return self.tiff_buffer
-
-        # Beyond this point we're saving the JPG result
-        if extension == '.tiff':
-            extension = '.jpg'
-
-        return super(Engine, self).read(extension, quality)
