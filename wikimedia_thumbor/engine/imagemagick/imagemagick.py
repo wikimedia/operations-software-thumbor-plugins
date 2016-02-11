@@ -82,6 +82,9 @@ class Engine(BaseEngine):
         if hasattr(self, 'buffer'):
             return self.buffer
 
+        if quality is not None:
+            self.image.compression_quality = quality
+
         return self.image.make_blob(format=extension.lstrip('.'))
 
     def crop(self, crop_left, crop_top, crop_right, crop_bottom):

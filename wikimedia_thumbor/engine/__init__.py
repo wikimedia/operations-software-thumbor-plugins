@@ -96,9 +96,6 @@ class BaseWikimediaEngine(IMEngine):
             logger.debug('[BWE] Reading the original')
             return self.original_buffer
 
-        if quality is not None:
-            self.image.compression_quality = quality
-
         # When requests don't come through the wikimedia url handler
         # and the format isn't specified, we default to JPG output
         if self.context.request.format is None:
