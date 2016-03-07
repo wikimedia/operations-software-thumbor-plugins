@@ -11,22 +11,11 @@
 
 # Base engine, not to be used directly, has to be extended
 
-import errno
-import os
 from tempfile import NamedTemporaryFile
 from thumbor.utils import logger
 
 from wikimedia_thumbor.shell_runner import ShellRunner
 from wikimedia_thumbor.engine.imagemagick import Engine as IMEngine
-
-
-def rm_f(path):
-    """Remove a file if it exists."""
-    try:
-        os.unlink(path)
-    except OSError as e:
-        if e.errno != errno.ENOENT:
-            raise
 
 
 class BaseWikimediaEngine(IMEngine):
@@ -55,8 +44,8 @@ class BaseWikimediaEngine(IMEngine):
         self.source.close()
 
     def cleanup_temp_files(self):
-        rm_f(self.source.name)
-        rm_f(self.destination.name)
+        ShellRunner.rm_f(self.source.name)
+        ShellRunner.rm_f(self.destination.name)
 
     def command(self, command):
         returncode, stderr, stdout = ShellRunner.command(command, self.context)

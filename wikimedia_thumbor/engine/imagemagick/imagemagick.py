@@ -11,7 +11,7 @@
 
 # ImageMagick engine
 
-import subprocess
+from tempfile import NamedTemporaryFile
 import wand.image as image
 from wand.api import library, ctypes
 
@@ -61,31 +61,150 @@ image.Image.read_blob = read_blob
 
 class Engine(BaseEngine):
     def create_image(self, buffer):
+        self.im_original_buffer = buffer
+        self.exif = {}
+
         im = image.Image()
 
-        # If some resizing is going to happen, we need to lazy-load
-        # the image later in resize() in order to be able to apply
-        # jpeg:size
-        if self.extension == '.jpg' and (
-            self.context.request.width > 0 or
-            self.context.request.height > 0
-        ):
-            self.buffer = buffer
-        else:
-            logger.debug('[IM] jpeg:size not required')
-            im.read(blob=buffer)
+        # Read EXIF data from buffer first. This will get us the
+        # size if we need it for the jpeg:size option, as well as the
+        # ICC profile name in case we need to do profile swapping and
+        # the various EXIF fields we want to keep
+        if self.extension == '.jpg':
+            self.read_exif(buffer)
+            if 'ImageSize' in self.exif:
+                im.options['jpeg:size'] = self.exif['ImageSize']
+                logger.debug('[IM] Set jpeg:size hint')
+            else:
+                logger.debug('[IM] Failed to read EXIF ImageSize')
+
+        im.read(blob=buffer)
 
         return im
 
+    def read_exif(self, buffer):
+        fields = [
+            'ImageSize',
+            'DeviceModelDesc',
+        ]
+
+        fields += self.context.config.EXIF_FIELDS_TO_KEEP
+
+        command = [
+            self.context.config.EXIFTOOL_PATH,
+            '-s',
+            '-s',
+            '-s',
+        ]
+
+        command += ['-{0}'.format(i) for i in fields]
+        command += ['-']  # Read from stdin
+
+        code, stderr, stdout = ShellRunner.command(
+            command,
+            self.context,
+            buffer
+        )
+
+        i = 0
+
+        for s in stdout.splitlines():
+            field = fields[i]
+            self.exif[field] = s
+            i += 1
+
+        logger.debug('[IM] EXIF: %r' % self.exif)
+
+        # If we encounter any non-sRGB ICC profile, we save it to re-apply
+        # it to the result
+
+        if 'DeviceModelDesc' not in self.exif:
+            logger.debug('[IM] File has no ICC profile')
+            return
+
+        expected_profile = self.context.config.EXIF_TINYRGB_ICC_REPLACE.lower()
+        profile = self.exif['DeviceModelDesc'].lower()
+
+        if profile == expected_profile:
+            self.icc_profile = self.context.config.EXIF_TINYRGB_PATH
+            logger.debug('[IM] File has sRGB profile')
+            return
+
+        logger.debug('[IM] File has non-sRGB profile')
+
+        command = [
+            self.context.config.EXIFTOOL_PATH,
+            '-icc_profile',
+            '-b',
+            '-m',
+            '-',
+        ]
+
+        code, stderr, stdout = ShellRunner.command(
+            command,
+            self.context,
+            buffer
+        )
+
+        profile_file = NamedTemporaryFile(delete=False)
+        profile_file.write(stdout)
+        profile_file.close()
+
+        self.icc_profile = profile_file.name
+
+    def process_exif(self, buffer):
+        command = [
+            self.context.config.EXIFTOOL_PATH,
+            '-m',
+            '-all=',  # Strip all existing metadata
+        ]
+
+        # Convert the ICC profile if sRGB is recognized
+        if hasattr(self, 'icc_profile'):
+            command += ['-icc_profile<=%s' % self.icc_profile]
+
+        # TODO: Copy over non-sRGB profiles. For it to work with
+        # filters, we will need to read it in read_exif and save it
+
+        for field in self.context.config.EXIF_FIELDS_TO_KEEP:
+            if field in self.exif:
+                value = self.exif[field]
+                command += ['-%s=%s' % (field, value)]
+
+        command += [
+            '-',  # Read from stdin
+            '-o',
+            '-'  # Write to stdout
+        ]
+
+        code, stderr, stdout = ShellRunner.command(
+            command,
+            self.context,
+            buffer
+        )
+
+        # Clean up saved non-sRGB profile if needed
+        if self.icc_profile != self.context.config.EXIF_TINYRGB_PATH:
+            ShellRunner.rm_f(self.icc_profile)
+
+        return stdout
+
     def read(self, extension=None, quality=None):
-        # Sometimes Thumbor needs to read() the original as-is
-        if hasattr(self, 'buffer'):
-            return self.buffer
+        if quality is None:
+            return self.im_original_buffer
 
-        if quality is not None:
-            self.image.compression_quality = quality
+        self.image.compression_quality = quality
 
-        return self.image.make_blob(format=extension.lstrip('.'))
+        logger.debug('[IM] Generating image with quality %r' % quality)
+
+        extension = extension.lstrip('.')
+
+        result = self.image.make_blob(format=extension)
+
+        if extension == 'jpg':
+            result = self.process_exif(result)
+
+        return result
 
     def crop(self, crop_left, crop_top, crop_right, crop_bottom):
         # Sometimes thumbor's resize algorithm will try to pre-crop
@@ -101,21 +220,6 @@ class Engine(BaseEngine):
             )
 
     def resize(self, width, height):
-        if hasattr(self, 'buffer'):
-            logger.debug('[IM] jpeg:size read')
-            self.image.options['jpeg:size'] = '%dx%d' % (
-                width,
-                height
-            )
-            self.image.read(blob=self.buffer)
-            # No override of size() needed anymore
-            del self.buffer
-
-            # Run reorientate again, as it might have be blocked
-            # earlier because the image wasn't there
-            if self.context.config.RESPECT_ORIENTATION:
-                self.reorientate()
-
         self.image.resize(width=int(width), height=int(height))
 
     def flip_horizontally(self):
@@ -153,7 +257,7 @@ class Engine(BaseEngine):
             height=height
         )
 
-        self.image = rgb.convert(self.extension.lstrip('.'))
+        self.image = rgb
 
     @property
     def mode(self):
@@ -164,37 +268,4 @@ class Engine(BaseEngine):
 
     @property
     def size(self):
-        if not hasattr(self, 'buffer'):
-            return self.image.size
-
-        # The size might be requested several times
-        # while the image hasn't been read yet, we cache
-        # that value for those situations
-        if hasattr(self, 'saved_size'):
-            return self.saved_size
-
-        # In order to make use of jpeg:size, we need to
-        # know the aspect ratio of the image without
-        # ImageMagick reading the whole file (jpeg:size
-        # has to be set *before* reading the file contents)
-        command = ShellRunner.wrap_command([
-            self.context.config.EXIFTOOL_PATH,
-            '-s',
-            '-s',
-            '-s',
-            '-ImageSize',
-            '-'
-        ], self.context)
-
-        p = subprocess.Popen(
-            command,
-            stdout=subprocess.PIPE,
-            stdin=subprocess.PIPE
-        )
-        p.stdin.write(self.buffer)
-        stdout, stderr = p.communicate()
-
-        size = stdout.rstrip().split('x')
-        self.saved_size = [int(dimension) for dimension in size]
-
-        return self.saved_size
+        return self.image.size

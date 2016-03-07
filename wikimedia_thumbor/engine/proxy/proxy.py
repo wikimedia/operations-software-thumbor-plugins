@@ -122,6 +122,10 @@ class Engine(BaseEngine):
     def read(self, extension=None, quality=None):
         ret = self.__getattr__('read')(extension, quality)
 
+        # The original can be re-read during the request
+        if quality is None:
+            return ret
+
         self.record_timing(
             'processing_time',
             'Processing-Time',

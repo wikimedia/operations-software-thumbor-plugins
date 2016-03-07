@@ -11,6 +11,9 @@
 
 # Utility class to run shell commands safely
 
+import datetime
+import errno
+import os
 import subprocess
 
 from thumbor.utils import logger
@@ -46,7 +49,9 @@ class ShellRunner:
         return wrapped_command
 
     @classmethod
-    def command(cls, command, context):
+    def command(cls, command, context, stdin=None):
+        start = datetime.datetime.now()
+
         wrapped_command = ShellRunner.wrap_command(
             command,
             context
@@ -54,14 +59,42 @@ class ShellRunner:
 
         logger.debug('Command: %r' % wrapped_command)
 
-        p = subprocess.Popen(
-            wrapped_command,
-            stdout=subprocess.PIPE
-        )
+        if stdin is None:
+            p = subprocess.Popen(
+                wrapped_command,
+                stdout=subprocess.PIPE
+            )
+        else:
+            p = subprocess.Popen(
+                wrapped_command,
+                stdout=subprocess.PIPE,
+                stdin=subprocess.PIPE
+            )
+            p.stdin.write(stdin)
+
         stdout, stderr = p.communicate()
 
-        logger.debug('Stdout: %s' % stdout)
+        duration = datetime.datetime.now() - start
+        duration = duration.total_seconds() * 1000
+
+        length = len(stdout)
+
+        if length > 1000:
+            logger.debug('Stdout: <too long to display (%d bytes)>' % length)
+        else:
+            logger.debug('Stdout: %s' % stdout)
+
         logger.debug('Stderr: %s' % stderr)
         logger.debug('Return code: %d' % p.returncode)
+        logger.debug('Duration: %r' % duration)
 
         return p.returncode, stderr, stdout
+
+    @classmethod
+    def rm_f(cls, path):
+        """Remove a file if it exists."""
+        try:
+            os.unlink(path)
+        except OSError as e:
+            if e.errno != errno.ENOENT:
+                raise
