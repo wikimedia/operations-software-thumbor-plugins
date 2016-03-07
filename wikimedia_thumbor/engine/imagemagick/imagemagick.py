@@ -36,11 +36,25 @@ library.MagickConstituteImage.argtypes = [
     ctypes.c_void_p
 ]
 
-ALPHA_TYPES = [
+# similarly, wand doesn't support setting the interlacing scheme
+
+library.MagickSetInterlaceScheme.argtypes = [
+    ctypes.c_void_p,
+    ctypes.c_int,
+]
+
+ALPHA_TYPES = (
     'grayscalematte',
     'palettematte',
     'truecolormatte'
-]
+)
+
+INTERLACE_SCHEMES = (
+    'NoInterlace',
+    'LineInterlace',
+    'PlaneInterlace',
+    'PartitionInterlace'
+)
 
 
 def read_blob(self, blob, format, width, height):
@@ -56,7 +70,24 @@ def read_blob(self, blob, format, width, height):
     if not r:
         self.raise_exception()
 
+
+def set_interlace_scheme(self, scheme):
+    try:
+        s = INTERLACE_SCHEMES.index(scheme)
+    except IndexError:
+        raise IndexError(
+            repr(scheme) + ' is an invalid interlace scheme')
+
+    r = library.MagickSetInterlaceScheme(
+        self.wand,
+        s
+    )
+
+    if not r:
+        self.raise_exception()
+
 image.Image.read_blob = read_blob
+image.Image.set_interlace_scheme = set_interlace_scheme
 
 
 class Engine(BaseEngine):
@@ -198,6 +229,9 @@ class Engine(BaseEngine):
         logger.debug('[IM] Generating image with quality %r' % quality)
 
         extension = extension.lstrip('.')
+
+        if extension == 'jpg' and self.context.config.PROGRESSIVE_JPEG:
+            self.image.set_interlace_scheme('PlaneInterlace')
 
         result = self.image.make_blob(format=extension)
 
