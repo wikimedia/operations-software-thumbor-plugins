@@ -226,6 +226,12 @@ class Engine(BaseEngine):
 
         self.image.compression_quality = quality
 
+        config = self.context.config
+
+        if hasattr(config, 'CHROMA_SUBSAMPLING') and config.CHROMA_SUBSAMPLING:
+            self.image.options['jpeg:sampling-factor'] \
+                = config.CHROMA_SUBSAMPLING
+
         logger.debug('[IM] Generating image with quality %r' % quality)
 
         extension = extension.lstrip('.')
