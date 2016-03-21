@@ -157,7 +157,7 @@ class Engine(BaseEngine):
         profile = self.exif['DeviceModelDesc'].lower()
 
         if profile == expected_profile:
-            self.icc_profile = self.context.config.EXIF_TINYRGB_PATH
+            self.icc_profile_path = self.context.config.EXIF_TINYRGB_PATH
             logger.debug('[IM] File has sRGB profile')
             return
 
@@ -181,7 +181,7 @@ class Engine(BaseEngine):
         profile_file.write(stdout)
         profile_file.close()
 
-        self.icc_profile = profile_file.name
+        self.icc_profile_path = profile_file.name
 
     def process_exif(self, buffer):
         command = [
@@ -191,8 +191,8 @@ class Engine(BaseEngine):
         ]
 
         # Convert the ICC profile if sRGB is recognized
-        if hasattr(self, 'icc_profile'):
-            command += ['-icc_profile<=%s' % self.icc_profile]
+        if hasattr(self, 'icc_profile_path'):
+            command += ['-icc_profile<=%s' % self.icc_profile_path]
 
         # TODO: Copy over non-sRGB profiles. For it to work with
         # filters, we will need to read it in read_exif and save it
@@ -214,9 +214,12 @@ class Engine(BaseEngine):
             buffer
         )
 
+        tinyrgb_path = self.context.config.EXIF_TINYRGB_PATH
+
         # Clean up saved non-sRGB profile if needed
-        if self.icc_profile != self.context.config.EXIF_TINYRGB_PATH:
-            ShellRunner.rm_f(self.icc_profile)
+        if (hasattr(self, 'icc_profile_path')
+                and self.icc_profile_path != tinyrgb_path):
+            ShellRunner.rm_f(self.icc_profile_path)
 
         return stdout
 

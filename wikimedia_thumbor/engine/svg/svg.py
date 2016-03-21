@@ -11,8 +11,7 @@
 
 # SVG engine
 
-from io import BytesIO
-import xml.etree.cElementTree as cElementTree
+from bs4 import BeautifulSoup
 
 from wikimedia_thumbor.engine import BaseWikimediaEngine
 
@@ -26,15 +25,9 @@ BaseWikimediaEngine.add_format(
 class Engine(BaseWikimediaEngine):
     @classmethod
     def is_svg(cls, buffer):
-        try:
-            for event, element in cElementTree.iterparse(
-                BytesIO(buffer), ('start',)
-            ):
-                return element.tag == '{http://www.w3.org/2000/svg}svg'
-        except cElementTree.ParseError:
-            pass
+        soup = BeautifulSoup(buffer, 'xml')
 
-        return False
+        return soup.svg is not None
 
     def create_image(self, buffer):
         self.original_buffer = buffer

@@ -18,6 +18,8 @@ setup(
         'thumbor',
         'python-swiftclient',
         'wand',
+        'bs4',
+        'lxml',
     ],
     extras_require={
         'tests': [
