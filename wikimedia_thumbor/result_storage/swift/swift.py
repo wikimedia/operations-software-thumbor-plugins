@@ -52,5 +52,5 @@ class Storage(BaseStorage):
                 self.context.wikimedia_path
             )
             callback(data)
-        except client.ClientException:
+        except (client.ClientException, AttributeError):
             callback(None)
