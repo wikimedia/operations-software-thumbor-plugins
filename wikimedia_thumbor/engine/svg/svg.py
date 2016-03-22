@@ -48,6 +48,11 @@ class Engine(BaseWikimediaEngine):
         if self.context.request.height > 0:
             command += ['-h', '%d' % self.context.request.height]
 
-        png = self.exec_command(command)
+        env = None
+
+        if hasattr(self.context.request, 'lang'):
+            env = {'LANG': self.context.request.lang.upper()}
+
+        png = self.exec_command(command, env)
 
         return super(Engine, self).create_image(png)

@@ -47,8 +47,12 @@ class BaseWikimediaEngine(IMEngine):
         ShellRunner.rm_f(self.source.name)
         ShellRunner.rm_f(self.destination.name)
 
-    def command(self, command):
-        returncode, stderr, stdout = ShellRunner.command(command, self.context)
+    def command(self, command, env=None):
+        returncode, stderr, stdout = ShellRunner.command(
+            command,
+            self.context,
+            env=env
+        )
 
         if returncode != 0:
             self.cleanup_temp_files()
@@ -62,8 +66,8 @@ class BaseWikimediaEngine(IMEngine):
 
         return stdout
 
-    def exec_command(self, command):
-        self.command(command)
+    def exec_command(self, command, env=None):
+        self.command(command, env)
 
         with open(self.destination.name, 'rb') as f:
             result = f.read()

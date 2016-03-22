@@ -22,6 +22,7 @@ class ImagesHandler(ImagingHandler):
             r'(?:(?P<qlow>qlow-))?'
             r'(?:(?P<lossy>lossy-))?'
             r'(?:page(?P<page>\d+)-)?'
+            r'(?:lang(?P<lang>[a-zA-Z]+)-)?'
             r'(?P<width>\d+)px-'
             r'(?:(?P<seek>\d+)-)?'
             r'(?P<end>.*)'
@@ -40,6 +41,9 @@ class ImagesHandler(ImagingHandler):
 
         if kw['page']:
             path += 'page' + kw['page'] + '-'
+
+        if kw['lang']:
+            path += 'lang' + kw['lang'] + '-'
 
         path += kw['width'] + 'px-'
 
@@ -98,6 +102,11 @@ class ImagesHandler(ImagingHandler):
 
         if page:
             filters.append('page(%s)' % page)
+
+        lang = kw.get('lang')
+
+        if lang:
+            filters.append('lang(%s)' % lang)
 
         if filters:
             translated['filters'] = ':'.join(filters)

@@ -49,7 +49,7 @@ class ShellRunner:
         return wrapped_command
 
     @classmethod
-    def command(cls, command, context, stdin=None):
+    def command(cls, command, context, stdin=None, env=None):
         start = datetime.datetime.now()
 
         wrapped_command = ShellRunner.wrap_command(
@@ -59,16 +59,23 @@ class ShellRunner:
 
         logger.debug('Command: %r' % wrapped_command)
 
+        combined_env = os.environ.copy()
+
+        if env is not None:
+            combined_env.update(env)
+
         if stdin is None:
             p = subprocess.Popen(
                 wrapped_command,
-                stdout=subprocess.PIPE
+                stdout=subprocess.PIPE,
+                env=combined_env
             )
         else:
             p = subprocess.Popen(
                 wrapped_command,
                 stdout=subprocess.PIPE,
-                stdin=subprocess.PIPE
+                stdin=subprocess.PIPE,
+                env=combined_env
             )
             p.stdin.write(stdin)
 
