@@ -38,10 +38,21 @@ class Storage(BaseStorage):
         )
 
     def put(self, bytes):
+        # We store the xkey alongside the object if it's set.
+        # This way when an thumbnail falls our of Varnish and is picked
+        # up from Swift again, it will have an xkey. Which lets us avoid
+        # computing the xkey in Varnish. It always comes from Thumbor.
+        headers = None
+        xkey = self.context.request_handler._headers.get_list('xkey')
+
+        if len(xkey):
+            headers = {'xkey': xkey[0]}
+
         self.swift.put_object(
             self.context.config.SWIFT_THUMBNAIL_CONTAINER,
             self.context.wikimedia_path,
-            bytes
+            bytes,
+            headers=headers
         )
 
     @return_future
