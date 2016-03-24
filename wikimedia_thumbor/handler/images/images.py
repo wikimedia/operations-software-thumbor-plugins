@@ -16,7 +16,7 @@ class ImagesHandler(ImagingHandler):
     @classmethod
     def regex(cls):
         return (
-            r'/images/thumb/'
+            r'(?P<wiki>/[a-zA-Z]+)?/images/thumb/'
             r'(?P<filepath>[0-9a-zA-Z]+/[0-9a-zA-Z]+/)'
             r'(?P<filename>.*)/'
             r'(?:(?P<qlow>qlow-))?'
