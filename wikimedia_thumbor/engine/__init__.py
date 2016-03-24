@@ -11,7 +11,8 @@
 
 # Base engine, not to be used directly, has to be extended
 
-from tempfile import NamedTemporaryFile
+import os
+from tempfile import NamedTemporaryFile, mkdtemp
 from thumbor.utils import logger
 
 from wikimedia_thumbor.shell_runner import ShellRunner
@@ -39,12 +40,17 @@ class BaseWikimediaEngine(IMEngine):
 
     def prepare_temp_files(self, buffer):
         self.destination = NamedTemporaryFile(delete=False)
-        self.source = NamedTemporaryFile(delete=False)
+
+        # Put source into its own folder to avoid exploits where converters
+        # might access other files in the same folder (eg. rsvg)
+        self.source_dir = mkdtemp()
+        self.source = NamedTemporaryFile(delete=False, dir=self.source_dir)
         self.source.write(buffer)
         self.source.close()
 
     def cleanup_temp_files(self):
         ShellRunner.rm_f(self.source.name)
+        os.removedirs(self.source_dir)
         ShellRunner.rm_f(self.destination.name)
 
     def command(self, command, env=None):
