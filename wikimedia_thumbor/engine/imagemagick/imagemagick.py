@@ -19,6 +19,7 @@ from thumbor.utils import logger
 from thumbor.engines import BaseEngine
 
 from wikimedia_thumbor.shell_runner import ShellRunner
+from wikimedia_thumbor.exiftool_runner import ExiftoolRunner
 
 image.OPTIONS = frozenset(
     ['fill', 'jpeg:sampling-factor', 'pdf:use-cropbox', 'jpeg:size']
@@ -91,6 +92,8 @@ image.Image.set_interlace_scheme = set_interlace_scheme
 
 
 class Engine(BaseEngine):
+    exiftool = ExiftoolRunner()
+
     def create_image(self, buffer):
         self.im_original_buffer = buffer
         self.exif = {}
@@ -122,19 +125,22 @@ class Engine(BaseEngine):
         fields += self.context.config.EXIF_FIELDS_TO_KEEP
 
         command = [
-            self.context.config.EXIFTOOL_PATH,
             '-s',
             '-s',
             '-s',
         ]
 
         command += ['-{0}'.format(i) for i in fields]
-        command += ['-']  # Read from stdin
 
-        code, stderr, stdout = ShellRunner.command(
+        temp_file = NamedTemporaryFile(suffix='.jpg')
+        temp_file.write(buffer)
+        temp_file.flush()
+
+        command += [temp_file.name]
+
+        stdout = Engine.exiftool.command(
             command,
-            self.context,
-            buffer
+            self.context
         )
 
         i = 0
@@ -151,6 +157,7 @@ class Engine(BaseEngine):
 
         if 'DeviceModelDesc' not in self.exif:
             logger.debug('[IM] File has no ICC profile')
+            temp_file.close()
             return
 
         expected_profile = self.context.config.EXIF_TINYRGB_ICC_REPLACE.lower()
@@ -159,23 +166,24 @@ class Engine(BaseEngine):
         if profile == expected_profile:
             self.icc_profile_path = self.context.config.EXIF_TINYRGB_PATH
             logger.debug('[IM] File has sRGB profile')
+            temp_file.close()
             return
 
         logger.debug('[IM] File has non-sRGB profile')
 
         command = [
-            self.context.config.EXIFTOOL_PATH,
             '-icc_profile',
             '-b',
             '-m',
-            '-',
+            temp_file.name,
         ]
 
-        code, stderr, stdout = ShellRunner.command(
+        stdout = Engine.exiftool.command(
             command,
-            self.context,
-            buffer
+            self.context
         )
+
+        temp_file.close()
 
         profile_file = NamedTemporaryFile(delete=False)
         profile_file.write(stdout)
@@ -185,34 +193,35 @@ class Engine(BaseEngine):
 
     def process_exif(self, buffer):
         command = [
-            self.context.config.EXIFTOOL_PATH,
             '-m',
             '-all=',  # Strip all existing metadata
         ]
 
-        # Convert the ICC profile if sRGB is recognized
+        # Copy the ICC profile
         if hasattr(self, 'icc_profile_path'):
             command += ['-icc_profile<=%s' % self.icc_profile_path]
-
-        # TODO: Copy over non-sRGB profiles. For it to work with
-        # filters, we will need to read it in read_exif and save it
 
         for field in self.context.config.EXIF_FIELDS_TO_KEEP:
             if field in self.exif:
                 value = self.exif[field]
                 command += ['-%s=%s' % (field, value)]
 
+        temp_file = NamedTemporaryFile(suffix='.jpg')
+        temp_file.write(buffer)
+        temp_file.flush()
+
         command += [
-            '-',  # Read from stdin
+            temp_file.name,
             '-o',
             '-'  # Write to stdout
         ]
 
-        code, stderr, stdout = ShellRunner.command(
+        stdout = Engine.exiftool.command(
             command,
-            self.context,
-            buffer
+            self.context
         )
+
+        temp_file.close()
 
         tinyrgb_path = self.context.config.EXIF_TINYRGB_PATH
 
