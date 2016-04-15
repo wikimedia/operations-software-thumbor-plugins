@@ -59,9 +59,8 @@ class ExiftoolRunner:
         )
 
         duration = datetime.datetime.now() - start
-        duration = duration.total_seconds() * 1000
 
-        logger.debug('[ExiftoolRunner] process started in %r' % duration)
+        cls.add_duration_header(context, duration)
 
     @classmethod
     def stay_open_command(cls, command, context):
@@ -88,9 +87,8 @@ class ExiftoolRunner:
                 stdout += line
 
         duration = datetime.datetime.now() - start
-        duration = duration.total_seconds() * 1000
 
-        logger.debug('[ExiftoolRunner] ran in: %r' % duration)
+        cls.add_duration_header(context, duration)
 
         return stdout
 
@@ -104,11 +102,19 @@ class ExiftoolRunner:
         code, stderr, stdout = ShellRunner.command(command, context)
 
         duration = datetime.datetime.now() - start
-        duration = duration.total_seconds() * 1000
 
-        logger.debug('[ExiftoolRunner] ran in: %r' % duration)
+        cls.add_duration_header(context, duration)
 
         return stdout
+
+    @classmethod
+    def add_duration_header(cls, context, duration):
+        duration = int(round(duration.total_seconds() * 1000, 0))
+
+        context.request_handler.add_header(
+            'Exiftool-Time',
+            duration
+        )
 
     @classmethod
     def command(cls, command, context):
