@@ -116,6 +116,11 @@ class ImagesHandler(ImagingHandler):
             u'File:' + kw['filename']
         )
 
+        self.context.request_handler.set_header(
+            'Content-Disposition',
+            u'inline;filename*=UTF-8\'\'' + kw['filename']
+        )
+
         # Save wikimedia-specific path, to be used by result storage
         self.context.wikimedia_path = self.reconstruct_path(kw)
 
