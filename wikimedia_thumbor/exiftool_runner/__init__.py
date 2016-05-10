@@ -20,16 +20,20 @@
 
 
 import datetime
+import errno
+import os
 import subprocess
 from tempfile import NamedTemporaryFile
-from wikimedia_thumbor.shell_runner import ShellRunner
 
 from thumbor.utils import logger
+
+from wikimedia_thumbor.shell_runner import ShellRunner
 
 
 class ExiftoolRunner:
     process = None
-    command_file = None
+    fifo = None
+    fifo_name = None
 
     @classmethod
     def start_process(cls, context):
@@ -42,14 +46,20 @@ class ExiftoolRunner:
 
         start = datetime.datetime.now()
 
-        cls.command_file = NamedTemporaryFile(delete=False)
+        # Create a temp file just to get a proper temp file name
+        temp_file = NamedTemporaryFile()
+        cls.fifo_name = temp_file.name
+        # Close the temp file, which deletes it
+        temp_file.close()
+        # Create a named pipe in place of the old temp file
+        os.mkfifo(cls.fifo_name)
 
         command = [
             context.config.EXIFTOOL_PATH,
             '-stay_open',
             'True',
             '-@',
-            cls.command_file.name,
+            cls.fifo_name,
         ]
 
         cls.process = subprocess.Popen(
@@ -62,6 +72,13 @@ class ExiftoolRunner:
 
         cls.add_duration_header(context, duration)
 
+        # We need to wait until exiftool is reading before we
+        # open the fifo as write-only. Otherwise open() hangs, waiting
+        # for a reader to show up.
+        cls.fifo = open(cls.fifo_name, 'w', 0)
+
+        logger.debug('[ExiftoolRunner] process started in %r' % duration)
+
     @classmethod
     def stay_open_command(cls, command, context):
         cls.start_process(context)
@@ -70,10 +87,9 @@ class ExiftoolRunner:
         start = datetime.datetime.now()
 
         for line in command:
-            cls.command_file.write('%s\n' % line)
+            cls.fifo.write('%s\n' % line)
 
-        cls.command_file.write('-execute\n')
-        cls.command_file.flush()
+        cls.fifo.write('-execute\n')
 
         stdout = ''
         line = ''
@@ -125,3 +141,26 @@ class ExiftoolRunner:
             pass
 
         return cls.classic_command(command, context)
+
+    @classmethod
+    def cleanup(cls):
+        if cls.process:
+            logger.debug('[ExiftoolRunner] killing process')
+            cls.process.kill()
+            cls.process = None
+
+        if cls.fifo:
+            logger.debug('[ExiftoolRunner] closing named pipe')
+            cls.fifo.close()
+            cls.fifo = None
+
+        if cls.fifo_name:
+            if os.path.exists(cls.fifo_name):
+                try:
+                    os.unlink(cls.fifo_name)
+                    logger.debug('[ExiftoolRunner] unlinking named pipe')
+                except OSError as e:
+                    if e.errno != errno.ENOENT:
+                        raise
+
+            cls.fifo_name = None

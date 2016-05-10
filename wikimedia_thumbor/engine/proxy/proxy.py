@@ -174,3 +174,9 @@ class Engine(BaseEngine):
     @property
     def size(self):
         return self.__getattr__('size')
+
+    def cleanup(self):
+        # Call cleanup on all the engines
+        for enginename, extensions in self.lcl['engines'].iteritems():
+            engine = self.lcl[enginename]
+            engine.cleanup()

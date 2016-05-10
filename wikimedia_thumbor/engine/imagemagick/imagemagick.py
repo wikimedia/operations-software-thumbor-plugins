@@ -321,3 +321,6 @@ class Engine(BaseEngine):
     @property
     def size(self):
         return self.image.size
+
+    def cleanup(self):
+        Engine.exiftool.cleanup()
