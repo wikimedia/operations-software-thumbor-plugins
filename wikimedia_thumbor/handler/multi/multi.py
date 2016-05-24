@@ -14,7 +14,7 @@ from tornado import gen
 from tornado.httputil import HTTPServerRequest
 
 from thumbor.handlers.imaging import ImagingHandler
-from thumbor.url import Url
+from libthumbor.url import Url
 
 
 class MultiHandler(ImagingHandler):
