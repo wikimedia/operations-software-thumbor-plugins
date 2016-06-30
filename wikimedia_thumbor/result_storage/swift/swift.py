@@ -40,6 +40,9 @@ class Storage(BaseStorage):
         )
 
     def put(self, bytes):
+        if not hasattr(self.context, 'wikimedia_thumbnail_container'):
+            return
+
         # We store the xkey alongside the object if it's set.
         # This way when an thumbnail falls our of Varnish and is picked
         # up from Swift again, it will have an xkey. Which lets us avoid

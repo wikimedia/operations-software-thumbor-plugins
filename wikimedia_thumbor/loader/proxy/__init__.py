@@ -14,7 +14,7 @@
 
 import importlib
 
-from thumbor.loaders import http_loader
+from thumbor.loaders import http_loader, https_loader
 from tornado.concurrent import return_future
 from thumbor.utils import logger
 
@@ -23,7 +23,7 @@ modules = {}
 
 
 def _normalize_url(url):
-    return http_loader._normalize_url(url)
+    return https_loader._normalize_url(url)
 
 
 def validate(context, url):
