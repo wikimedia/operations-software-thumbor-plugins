@@ -34,7 +34,7 @@ class Storage(BaseStorage):
     def uri(self):
         return (
             self.context.config.SWIFT_HOST +
-            self.context.config.SWIFT_THUMBNAIL_CONTAINER +
+            self.context.wikimedia_thumbnail_container +
             '/' +
             self.context.wikimedia_path
         )
@@ -51,7 +51,7 @@ class Storage(BaseStorage):
             headers = {'xkey': xkey[0]}
 
         self.swift.put_object(
-            self.context.config.SWIFT_THUMBNAIL_CONTAINER,
+            self.context.wikimedia_thumbnail_container,
             self.context.wikimedia_path,
             bytes,
             headers=headers
@@ -67,7 +67,7 @@ class Storage(BaseStorage):
             start = datetime.datetime.now()
 
             headers, data = self.swift.get_object(
-                self.context.config.SWIFT_THUMBNAIL_CONTAINER,
+                self.context.wikimedia_thumbnail_container,
                 self.context.wikimedia_path
             )
 

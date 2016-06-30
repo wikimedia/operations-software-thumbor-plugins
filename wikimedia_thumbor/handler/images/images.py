@@ -16,8 +16,12 @@ class ImagesHandler(ImagingHandler):
     @classmethod
     def regex(cls):
         return (
-            r'(?P<wiki>/[a-zA-Z]+)?/images/thumb/'
-            r'(?P<filepath>[0-9a-zA-Z]+/[0-9a-zA-Z]+/)'
+            r'/'
+            r'(?P<project>[^-/]+)/'
+            r'(?P<language>[^/]+)/'
+            r'thumb/'
+            r'(?P<shard1>[0-9a-zA-Z]+)/'
+            r'(?P<shard2>[0-9a-zA-Z]+)/'
             r'(?P<filename>.*)/'
             r'(?:(?P<qlow>qlow-))?'
             r'(?:(?P<lossy>lossy-))?'
@@ -30,8 +34,7 @@ class ImagesHandler(ImagingHandler):
         )
 
     def reconstruct_path(self, kw):
-        path = kw['filepath']
-        path += kw['filename'] + '/'
+        path = '/'.join((kw['shard1'], kw['shard2'], kw['filename'], ''))
 
         if kw['qlow'] == 'qlow-':
             path += kw['qlow']
@@ -67,17 +70,46 @@ class ImagesHandler(ImagingHandler):
         return super(ImagesHandler, self).head(**translated_kw)
 
     def translate(self, kw):
-        filepath = kw['filepath'] + kw['filename']
+        filepath = '/'.join((kw['shard1'], kw['shard2'], kw['filename']))
 
         translated = {'unsafe': 'unsafe'}
         translated['width'] = kw['width']
 
+        sharded_containers = []
+
+        if hasattr(self.context.config, 'SWIFT_SHARDED_CONTAINERS'):
+            sharded_containers = self.context.config.SWIFT_SHARDED_CONTAINERS
+
+        project = kw['project']
+        language = kw['language']
+
+        # Legacy special cases taken from rewrite.py
+        if project == 'wikipedia':
+            if language in ('meta', 'commons', 'internal', 'grants'):
+                project = 'wikimedia'
+            if language == 'mediawiki':
+                project = 'mediawiki'
+                language = 'www'
+
+        projlang = '-'.join((project, language))
+        original_container = projlang + '-local-public'
+        thumbnail_container = projlang + '-local-thumb'
+
+        shard = '.' + kw['shard2']
+
+        if original_container in sharded_containers:
+            original_container += shard
+
+        if thumbnail_container in sharded_containers:
+            thumbnail_container += shard
+
         swift_uri = (
             self.context.config.SWIFT_HOST +
             self.context.config.SWIFT_API_PATH +
-            self.context.config.SWIFT_ORIGINAL_CONTAINER +
-            '/'
+            original_container
         )
+
+        swift_uri += '/'
 
         translated['image'] = swift_uri + filepath
 
@@ -121,7 +153,15 @@ class ImagesHandler(ImagingHandler):
             u'inline;filename*=UTF-8\'\'' + kw['filename']
         )
 
-        # Save wikimedia-specific path, to be used by result storage
+        # Save wikimedia-specific save path information
+        # Which will later be used by result storage
+        self.context.wikimedia_thumbnail_container = thumbnail_container
         self.context.wikimedia_path = self.reconstruct_path(kw)
+
+        if hasattr(self.context.config, 'SWIFT_PATH_PREFIX'):
+            self.context.wikimedia_path = (
+                self.context.config.SWIFT_PATH_PREFIX +
+                self.context.wikimedia_path
+            )
 
         return translated
