@@ -23,7 +23,7 @@ import datetime
 import errno
 import os
 import subprocess
-from tempfile import NamedTemporaryFile
+from tempfile import mkdtemp, NamedTemporaryFile
 
 from thumbor.utils import logger
 
@@ -33,7 +33,8 @@ from wikimedia_thumbor.shell_runner import ShellRunner
 class ExiftoolRunner:
     process = None
     fifo = None
-    fifo_name = None
+    fifo_dir = None
+    fifo_name = 'exiftool_command_fifo'
 
     @classmethod
     def start_process(cls, context):
@@ -46,20 +47,16 @@ class ExiftoolRunner:
 
         start = datetime.datetime.now()
 
-        # Create a temp file just to get a proper temp file name
-        temp_file = NamedTemporaryFile()
-        cls.fifo_name = temp_file.name
-        # Close the temp file, which deletes it
-        temp_file.close()
-        # Create a named pipe in place of the old temp file
-        os.mkfifo(cls.fifo_name)
+        cls.fifo_dir = mkdtemp()
+        fifo_name = os.path.join(cls.fifo_dir, cls.fifo_name)
+        os.mkfifo(fifo_name)
 
         command = [
             context.config.EXIFTOOL_PATH,
             '-stay_open',
             'True',
             '-@',
-            cls.fifo_name,
+            fifo_name,
         ]
 
         cls.process = subprocess.Popen(
@@ -75,21 +72,32 @@ class ExiftoolRunner:
         # We need to wait until exiftool is reading before we
         # open the fifo as write-only. Otherwise open() hangs, waiting
         # for a reader to show up.
-        cls.fifo = open(cls.fifo_name, 'w', 0)
+        cls.fifo = open(fifo_name, 'w', 0)
 
         logger.debug('[ExiftoolRunner] process started in %r' % duration)
 
     @classmethod
-    def stay_open_command(cls, command, context):
+    def stay_open_command(cls, preCommand, postCommand, context, buffer):
+        start = datetime.datetime.now()
+
         cls.start_process(context)
 
+        input_fifo_name = os.path.join(cls.fifo_dir, 'exiftool_input_fifo')
+        os.mkfifo(input_fifo_name)
+
+        command = preCommand
+        command.append(input_fifo_name)
+        command += postCommand
+        command.append('-execute')
+
         logger.debug('[ExiftoolRunner] stay_open_command: %r' % command)
-        start = datetime.datetime.now()
 
         for line in command:
             cls.fifo.write('%s\n' % line)
 
-        cls.fifo.write('-execute\n')
+        input_fifo = open(input_fifo_name, 'w', 0)
+        input_fifo.write(buffer)
+        input_fifo.close()
 
         stdout = ''
         line = ''
@@ -102,6 +110,12 @@ class ExiftoolRunner:
             else:
                 stdout += line
 
+        try:
+            os.remove(input_fifo_name)
+        except OSError as e:
+            if e.errno != errno.ENOENT:
+                raise
+
         duration = datetime.datetime.now() - start
 
         cls.add_duration_header(context, duration)
@@ -109,13 +123,23 @@ class ExiftoolRunner:
         return stdout
 
     @classmethod
-    def classic_command(cls, command, context):
-        command.insert(0, context.config.EXIFTOOL_PATH)
-
-        logger.debug('[ExiftoolRunner] classic_command: %r' % command)
+    def classic_command(cls, preCommand, postCommand, context, buffer):
         start = datetime.datetime.now()
 
+        input_temp_file = NamedTemporaryFile()
+        input_temp_file.write(buffer)
+        input_temp_file.flush()
+
+        command = [context.config.EXIFTOOL_PATH]
+        command += preCommand
+        command.append(input_temp_file.name)
+        command += postCommand
+
+        logger.debug('[ExiftoolRunner] classic_command: %r' % command)
+
         code, stderr, stdout = ShellRunner.command(command, context)
+
+        input_temp_file.close()
 
         duration = datetime.datetime.now() - start
 
@@ -133,14 +157,14 @@ class ExiftoolRunner:
         )
 
     @classmethod
-    def command(cls, command, context):
+    def command(cls, pre=[], post=[], context=None, buffer=''):
         try:
             if context.config.EXIFTOOL_STAY_OPEN:
-                return cls.stay_open_command(command, context)
+                return cls.stay_open_command(pre, post, context, buffer)
         except AttributeError:
             pass
 
-        return cls.classic_command(command, context)
+        return cls.classic_command(pre, post, context, buffer)
 
     @classmethod
     def cleanup(cls):
@@ -154,13 +178,15 @@ class ExiftoolRunner:
             cls.fifo.close()
             cls.fifo = None
 
-        if cls.fifo_name:
-            if os.path.exists(cls.fifo_name):
+        if cls.fifo_dir:
+            if os.path.exists(cls.fifo_dir):
+                fifo_name = os.path.join(cls.fifo_dir, cls.fifo_name)
                 try:
-                    os.unlink(cls.fifo_name)
+                    os.remove(fifo_name)
+                    os.rmdir(cls.fifo_dir)
                     logger.debug('[ExiftoolRunner] unlinking named pipe')
                 except OSError as e:
                     if e.errno != errno.ENOENT:
                         raise
 
-            cls.fifo_name = None
+            cls.fifo_dir = None

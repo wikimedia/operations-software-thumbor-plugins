@@ -49,15 +49,13 @@ class ShellRunner:
         return wrapped_command
 
     @classmethod
-    def command(cls, command, context, stdin=None, env=None):
-        start = datetime.datetime.now()
-
+    def popen(cls, command, context, stdin=None, env=None):
         wrapped_command = ShellRunner.wrap_command(
             command,
             context
         )
 
-        logger.debug('Command: %r' % wrapped_command)
+        logger.debug('[ShellRunner] Command: %r' % wrapped_command)
 
         combined_env = os.environ.copy()
 
@@ -65,21 +63,31 @@ class ShellRunner:
             combined_env.update(env)
 
         if stdin is None:
-            p = subprocess.Popen(
+            proc = subprocess.Popen(
                 wrapped_command,
                 stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
                 env=combined_env
             )
         else:
-            p = subprocess.Popen(
+            proc = subprocess.Popen(
                 wrapped_command,
                 stdout=subprocess.PIPE,
                 stdin=subprocess.PIPE,
+                stderr=subprocess.PIPE,
                 env=combined_env
             )
-            p.stdin.write(stdin)
+            proc.stdin.write(stdin)
 
-        stdout, stderr = p.communicate()
+        return proc
+
+    @classmethod
+    def command(cls, command, context, stdin=None, env=None):
+        start = datetime.datetime.now()
+
+        proc = cls.popen(command, context, stdin, env)
+
+        stdout, stderr = proc.communicate()
 
         duration = datetime.datetime.now() - start
         duration = duration.total_seconds() * 1000
@@ -92,10 +100,10 @@ class ShellRunner:
             logger.debug('Stdout: %s' % stdout)
 
         logger.debug('Stderr: %s' % stderr)
-        logger.debug('Return code: %d' % p.returncode)
+        logger.debug('Return code: %d' % proc.returncode)
         logger.debug('Duration: %r' % duration)
 
-        return p.returncode, stderr, stdout
+        return proc.returncode, stderr, stdout
 
     @classmethod
     def rm_f(cls, path):

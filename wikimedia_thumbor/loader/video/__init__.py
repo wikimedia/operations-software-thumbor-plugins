@@ -14,19 +14,14 @@
 # otherwise the first frame requested will be stored as the
 # original for subsequent requests
 
-import os
 from urllib import unquote
 from functools import partial
-from tempfile import NamedTemporaryFile
 
 from thumbor.loaders import LoaderResult
 from tornado.process import Subprocess
 from thumbor.utils import logger
 
 from wikimedia_thumbor.shell_runner import ShellRunner
-
-
-uri_scheme = 'http://'
 
 
 def should_run(url):
@@ -58,10 +53,10 @@ def load_sync(context, url, callback):
         'format=duration',
         '-of',
         'default=noprint_wrappers=1:nokey=1',
-        '%s%s' % (uri_scheme, unquoted_url)
+        '%s' % unquoted_url
     ], context)
 
-    logger.debug('Command: %r' % command)
+    logger.debug('[Video] load_sync: %r' % command)
 
     process = Subprocess(command, stdout=Subprocess.STREAM)
     process.set_exit_callback(
@@ -100,8 +95,6 @@ def _parse_time(context, url, callback, output):
     except AttributeError:
         seek = duration / 2
 
-    destination = NamedTemporaryFile(delete=False)
-
     command = ShellRunner.wrap_command([
         context.config.FFMPEG_PATH,
         # Order is important, for fast seeking -ss has to come before -i
@@ -109,7 +102,7 @@ def _parse_time(context, url, callback, output):
         '-ss',
         '%d' % seek,
         '-i',
-        '%s%s' % (uri_scheme, unquoted_url),
+        '%s' % unquoted_url,
         '-y',
         '-vframes',
         '1',
@@ -119,30 +112,39 @@ def _parse_time(context, url, callback, output):
         '-nostats',
         '-loglevel',
         'error',
-        destination.name
+        '-'
     ], context)
 
-    logger.debug('Command: %r' % command)
+    logger.debug('[Video] _parse_time: %r' % command)
 
-    process = Subprocess(command)
+    process = Subprocess(command, stdout=Subprocess.STREAM)
     process.set_exit_callback(
         partial(
-            _process_output,
+            _process_done,
             callback,
-            destination.name
+            process
         )
     )
 
 
-def _process_output(callback, destination_name, status):
+def _process_done(callback, process, status):
     result = LoaderResult()
 
     if status != 0:
         result.successful = False
+        callback(result)
     else:
-        result.successful = True
-        with open(destination_name, 'rb') as f:
-            result.buffer = f.read()
-        os.remove(destination_name)
 
+        process.stdout.read_until_close(
+            partial(
+                _process_stdout,
+                callback
+            )
+        )
+
+
+def _process_stdout(callback, stdout):
+    result = LoaderResult()
+    result.successful = True
+    result.buffer = stdout
     callback(result)

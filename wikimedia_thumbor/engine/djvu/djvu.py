@@ -11,6 +11,11 @@
 
 # DjVu engine
 
+# Otherwise Python thinks that djvu is the local module
+from __future__ import absolute_import
+
+import djvu.decode
+
 from wikimedia_thumbor.engine import BaseWikimediaEngine
 
 
@@ -28,31 +33,48 @@ BaseWikimediaEngine.add_format(
 
 
 class Engine(BaseWikimediaEngine):
+    pixel_format = djvu.decode.PixelFormatPackedBits('>')
+    pixel_format.rows_top_to_bottom = 1
+    pixel_format.y_top_to_bottom = 1
+
     def create_image(self, buffer):
         self.original_buffer = buffer
-        self.prepare_temp_files(buffer)
+        # Unfortunately the djvu python bindings don't support reading
+        # file contents from memory, nor from a fifo. Which means we have to
+        # store the input in a temporary file
+        self.prepare_source(buffer)
 
         try:
-            page = self.context.request.page
+            page = self.context.request.page - 1
         except AttributeError:
-            page = 1
+            page = 0
 
-        command = [
-            self.context.config.DDJVU_PATH,
-            '-format=pbm',
-            '-page=%d' % page,
-            self.source.name,
-            self.destination.name
-        ]
+        context = djvu.decode.Context()
+        file_uri = djvu.decode.FileURI(self.source)
+        document = context.new_document(file_uri, cache=False)
+        document.decoding_job.wait()
 
-        pbm = self.exec_command(command)
+        # If we try to read a page out of bounds, use the first page
+        if page < 0 or page > len(document.pages) - 1:
+            page = 0
 
-        # Pass the PBM to the base engine and in turn to the
-        # imagemagick engine
-        im = super(Engine, self).create_image(pbm)
-        # ddjvu seems to have a bug where it sets a depth of 1
-        # when the DjVu is grayscale, making the image interpreted
-        # as bilevel by wand when it shouldn't be
-        im.depth = 8
+        document_page = document.pages[page]
+        page_job = document_page.decode(wait=True)
 
-        return im
+        width, height = page_job.size
+        rect = (0, 0, width, height)
+
+        data = page_job.render(
+            djvu.decode.RENDER_COLOR,
+            rect,
+            rect,
+            self.pixel_format
+        )
+
+        # PBM is a very simple file format, which ImageMagick can consume
+        pbm = 'P4 %d %d\n' % (width, height)
+        pbm += data
+
+        self.cleanup_source()
+
+        return super(Engine, self).create_image(pbm)

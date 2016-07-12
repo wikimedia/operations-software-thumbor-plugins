@@ -11,6 +11,9 @@
 
 # SVG engine
 
+import cairosvg
+import locale
+
 from bs4 import BeautifulSoup
 
 from wikimedia_thumbor.engine import BaseWikimediaEngine
@@ -31,28 +34,22 @@ class Engine(BaseWikimediaEngine):
 
     def create_image(self, buffer):
         self.original_buffer = buffer
-        self.prepare_temp_files(buffer)
 
-        command = [
-            self.context.config.RSVG_CONVERT_PATH,
-            self.source.name,
-            '-f',
-            'png',
-            '-o',
-            self.destination.name
-        ]
-
-        if self.context.request.width > 0:
-            command += ['-w', '%d' % self.context.request.width]
-
-        if self.context.request.height > 0:
-            command += ['-h', '%d' % self.context.request.height]
-
-        env = None
+        cairosvg.features.LOCALE = 'en_US'
 
         if hasattr(self.context.request, 'lang'):
-            env = {'LANG': self.context.request.lang.upper()}
+            request_locale = self.context.request.lang.upper()
+            normalized_locale = locale.normalize(request_locale)
+            cairosvg.features.LOCALE = normalized_locale
 
-        png = self.exec_command(command, env)
+        png = cairosvg.svg2png(
+            bytestring=buffer,
+            dpi=self.context.config.SVG_DPI
+        )
 
         return super(Engine, self).create_image(png)
+
+    # Disable this method in BaseEngine, do the conversion in create_image
+    # instead
+    def convert_svg_to_png(self, buffer):
+        return buffer

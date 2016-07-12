@@ -119,7 +119,7 @@ class Engine(BaseEngine):
     def read_exif(self, buffer):
         fields = [
             'ImageSize',
-            'DeviceModelDesc',
+            'ProfileDescription',
         ]
 
         fields += self.context.config.EXIF_FIELDS_TO_KEEP
@@ -132,15 +132,10 @@ class Engine(BaseEngine):
 
         command += ['-{0}'.format(i) for i in fields]
 
-        temp_file = NamedTemporaryFile(suffix='.jpg')
-        temp_file.write(buffer)
-        temp_file.flush()
-
-        command += [temp_file.name]
-
         stdout = Engine.exiftool.command(
-            command,
-            self.context
+            preCommand=command,
+            context=self.context,
+            buffer=buffer
         )
 
         i = 0
@@ -155,18 +150,16 @@ class Engine(BaseEngine):
         # If we encounter any non-sRGB ICC profile, we save it to re-apply
         # it to the result
 
-        if 'DeviceModelDesc' not in self.exif:
+        if 'ProfileDescription' not in self.exif:
             logger.debug('[IM] File has no ICC profile')
-            temp_file.close()
             return
 
         expected_profile = self.context.config.EXIF_TINYRGB_ICC_REPLACE.lower()
-        profile = self.exif['DeviceModelDesc'].lower()
+        profile = self.exif['ProfileDescription'].lower()
 
         if profile == expected_profile:
             self.icc_profile_path = self.context.config.EXIF_TINYRGB_PATH
             logger.debug('[IM] File has sRGB profile')
-            temp_file.close()
             return
 
         logger.debug('[IM] File has non-sRGB profile')
@@ -175,15 +168,13 @@ class Engine(BaseEngine):
             '-icc_profile',
             '-b',
             '-m',
-            temp_file.name,
         ]
 
         stdout = Engine.exiftool.command(
-            command,
-            self.context
+            preCommand=command,
+            context=self.context,
+            buffer=buffer
         )
-
-        temp_file.close()
 
         profile_file = NamedTemporaryFile(delete=False)
         profile_file.write(stdout)
@@ -206,22 +197,17 @@ class Engine(BaseEngine):
                 value = self.exif[field]
                 command += ['-%s=%s' % (field, value)]
 
-        temp_file = NamedTemporaryFile(suffix='.jpg')
-        temp_file.write(buffer)
-        temp_file.flush()
-
-        command += [
-            temp_file.name,
+        postCommand = [
             '-o',
             '-'  # Write to stdout
         ]
 
         stdout = Engine.exiftool.command(
-            command,
-            self.context
+            preCommand=command,
+            postCommand=postCommand,
+            context=self.context,
+            buffer=buffer
         )
-
-        temp_file.close()
 
         tinyrgb_path = self.context.config.EXIF_TINYRGB_PATH
 

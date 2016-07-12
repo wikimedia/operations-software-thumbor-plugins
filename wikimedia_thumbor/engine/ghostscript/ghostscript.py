@@ -12,6 +12,7 @@
 # Ghostscript engine
 
 from wikimedia_thumbor.engine import BaseWikimediaEngine
+from wikimedia_thumbor.shell_runner import ShellRunner
 
 
 BaseWikimediaEngine.add_format(
@@ -24,26 +25,53 @@ BaseWikimediaEngine.add_format(
 class Engine(BaseWikimediaEngine):
     def create_image(self, buffer):
         self.original_buffer = buffer
-        self.prepare_temp_files(buffer)
+        self.prepare_source(buffer)
 
         try:
             page = self.context.request.page
         except AttributeError:
             page = 1
 
+        # We use the command and not the python bindings because those can't
+        # use the %stdout option properly. The bindings version writes to
+        # stdout forcibly, and that can't be captured with sys.stdout nor the
+        # bindings' set_stdio().
+        # Using the bindings would therefore force us to use a second temporary
+        # file for the destination.
         command = [
             self.context.config.GHOSTSCRIPT_PATH,
-            "-sDEVICE=tiff24nc",
-            "-sOutputFile=%s" % self.destination.name,
+            "-sDEVICE=png16m",
+            "-sOutputFile=%stdout",
             "-dFirstPage=%d" % page,
             "-dLastPage=%d" % page,
             "-r150",
             "-dBATCH",
             "-dNOPAUSE",
             "-q",
-            "-f%s" % self.source.name
+            "-f%s" % self.source
         ]
 
-        tiff = self.exec_command(command)
+        png = self.command(command)
 
-        return super(Engine, self).create_image(tiff)
+        return super(Engine, self).create_image(png)
+
+    def command(self, command, env=None):
+        returncode, stderr, stdout = ShellRunner.command(
+            command,
+            self.context,
+            env=env
+        )
+
+        if returncode != 0:
+            self.cleanup_source()
+            raise Exception(
+                'CommandError',
+                command,
+                stdout,
+                stderr,
+                returncode
+            )
+
+        self.cleanup_source()
+
+        return stdout

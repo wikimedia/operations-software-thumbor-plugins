@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='wikimedia_thumbor',
-    version='0.1.3',
+    version='0.1.4',
     url='https://phabricator.wikimedia.org/diffusion/THMBREXT/',
     license='MIT',
     author='Gilles Dubuc, Wikimedia Foundation',
@@ -15,12 +15,15 @@ setup(
     zip_safe=False,
     platforms='any',
     install_requires=[
-        'libthumbor>=1.3.2',
-        'thumbor>=6.0.1',
-        'python-swiftclient',
-        'wand',
         'bs4',
+        'cairosvg',
+        'gi',
+        'libthumbor>=1.3.2',
         'lxml',
+        'python-djvulibre',
+        'python-swiftclient',
+        'thumbor>=6.0.1',
+        'wand'
     ],
     classifiers=[
         'Development Status :: 4 - Beta',

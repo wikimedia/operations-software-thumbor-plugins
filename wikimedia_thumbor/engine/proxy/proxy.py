@@ -99,14 +99,16 @@ class Engine(BaseEngine):
         self.lcl['buffer'] = buffer
         self.lcl['selected_engine'] = None
 
+        enginename = self.select_engine()
+
         # Now that we'll select the right engine, let's initialize it
         self.lcl['context'].request_handler.set_header(
             'Engine',
-            self.select_engine()
+            enginename
         )
 
-        super(Engine, self).__init__(self.lcl['context'])
-        super(Engine, self).load(buffer, extension)
+        self.lcl[enginename].__init__(self.lcl['context'])
+        self.lcl[enginename].load(buffer, extension)
 
     def __getattr__(self, name):
         return getattr(self.lcl[self.select_engine()], name)

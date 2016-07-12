@@ -11,8 +11,10 @@
 
 # Base engine, not to be used directly, has to be extended
 
+import shutil
 import os
-from tempfile import NamedTemporaryFile, mkdtemp
+
+from tempfile import mkdtemp
 from thumbor.utils import logger
 
 from wikimedia_thumbor.shell_runner import ShellRunner
@@ -20,6 +22,10 @@ from wikimedia_thumbor.engine.imagemagick import Engine as IMEngine
 
 
 class BaseWikimediaEngine(IMEngine):
+    # Put temp files and fifos into their own temp folder to avoid
+    # exploits where converters might access other files in the same folder
+    temp_dir = mkdtemp()
+
     @classmethod
     def add_format(cls, mime, ext, fn):
         # Unfortunately there is no elegant way to extend Thumbor to support
@@ -37,50 +43,6 @@ class BaseWikimediaEngine(IMEngine):
             return old_get_mimetype(buffer)
 
         BaseEngine.get_mimetype = new_get_mimetype
-
-    def prepare_temp_files(self, buffer):
-        self.destination = NamedTemporaryFile(delete=False)
-
-        # Put source into its own folder to avoid exploits where converters
-        # might access other files in the same folder (eg. rsvg)
-        self.source_dir = mkdtemp()
-        self.source = NamedTemporaryFile(delete=False, dir=self.source_dir)
-        self.source.write(buffer)
-        self.source.close()
-
-    def cleanup_temp_files(self):
-        ShellRunner.rm_f(self.source.name)
-        os.removedirs(self.source_dir)
-        ShellRunner.rm_f(self.destination.name)
-
-    def command(self, command, env=None):
-        returncode, stderr, stdout = ShellRunner.command(
-            command,
-            self.context,
-            env=env
-        )
-
-        if returncode != 0:
-            self.cleanup_temp_files()
-            raise Exception(
-                'CommandError',
-                command,
-                stdout,
-                stderr,
-                returncode
-            )
-
-        return stdout
-
-    def exec_command(self, command, env=None):
-        self.command(command, env)
-
-        with open(self.destination.name, 'rb') as f:
-            result = f.read()
-
-        self.cleanup_temp_files()
-
-        return result
 
     def read(self, extension=None, quality=None):
         # read() is sometimes used to read back the original.
@@ -105,3 +67,16 @@ class BaseWikimediaEngine(IMEngine):
             logger.debug('[BWE] Rendering %s' % extension)
 
         return super(BaseWikimediaEngine, self).read(extension, quality)
+
+    def prepare_source(self, buffer):
+        self.source = os.path.join(self.temp_dir, 'source_file')
+
+        with open(self.source, 'w') as source:
+            source.write(buffer)
+
+    def cleanup_source(self):
+        if hasattr(self, 'source'):
+            ShellRunner.rm_f(self.source)
+
+    def cleanup(self):
+        shutil.rmtree(self.temp_dir, True)

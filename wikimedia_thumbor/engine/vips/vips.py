@@ -11,10 +11,16 @@
 
 # VIPS engine
 
-import errno
-import os
+import gi
+import logging
 import math
-from tempfile import NamedTemporaryFile
+
+gi.require_version('Vips', '8.0')
+
+# VIPS is very chatty in the debug logs
+logging.disable(logging.DEBUG)
+from gi.repository import Vips
+logging.disable(logging.NOTSET)
 
 from wikimedia_thumbor.engine import BaseWikimediaEngine
 
@@ -32,37 +38,31 @@ class Engine(BaseWikimediaEngine):
     def should_run(self, buffer):
         self.context.vips = {}
 
-        self.prepare_temp_files(buffer)
-
         command = [
-            self.context.config.VIPS_PATH,
-            'im_header_int',
-            'Xsize',
-            self.source.name
+            '-ImageSize',
+            '-s',
+            '-s',
+            '-s'
         ]
 
-        width = int(self.command(command))
-        self.context.vips['width'] = width
+        stdout = Engine.exiftool.command(
+            preCommand=command,
+            context=self.context,
+            buffer=buffer
+        )
 
-        command = [
-            self.context.config.VIPS_PATH,
-            'im_header_int',
-            'Ysize',
-            self.source.name
-        ]
+        size = stdout.strip().split('x')
 
-        height = int(self.command(command))
-        self.context.vips['height'] = height
+        self.context.vips['width'] = int(size[0])
+        self.context.vips['height'] = int(size[1])
 
-        pixels = width * height
+        pixels = self.context.vips['width'] * self.context.vips['height']
 
         if self.context.config.VIPS_ENGINE_MIN_PIXELS is None:
             return True
         else:
             if pixels > self.context.config.VIPS_ENGINE_MIN_PIXELS:
                 return True
-
-        self.cleanup_temp_files()
 
         return False
 
@@ -77,31 +77,14 @@ class Engine(BaseWikimediaEngine):
 
         self.original_buffer = buffer
 
-        try:
-            source = "%s[page=%d]" % (
-                self.source.name,
-                self.context.request.page - 1
-            )
-        except AttributeError:
-            source = self.source.name
-
-        # Replace the extension-less destination by one that has the
-        # png extension. This is necessary because the vips command line
-        # figures out the export format based on the destination filename.
-        # It doesn't have any option to specify it.
+        # VIPS is very chatty in the debug logs
+        logging.disable(logging.DEBUG)
 
         try:
-            os.remove(self.destination.name)
-        except OSError, e:
-            if e.errno == errno.ENOENT:
-                pass
-            else:
-                raise e
-
-        self.destination = NamedTemporaryFile(
-            delete=False,
-            suffix=original_ext
-        )
+            page = self.context.request.page - 1
+            source = Vips.Image.new_from_buffer(buffer, 'page=%d' % page)
+        except AttributeError, gi.overrides.Vips.Error:
+            source = Vips.Image.new_from_buffer(buffer, '')
 
         shrink_factor = int(math.floor(
             float(self.context.vips['width'])
@@ -109,16 +92,10 @@ class Engine(BaseWikimediaEngine):
             float(self.context.request.width)
         ))
 
-        # Send a resized (but not cropped) image to PIL
-        command = [
-            self.context.config.VIPS_PATH,
-            'shrink',
-            source,
-            self.destination.name,
-            "%d" % shrink_factor,
-            "%d" % shrink_factor
-        ]
-        result = self.exec_command(command)
+        source = source.shrink(shrink_factor, shrink_factor)
+        result = source.write_to_buffer('.png')
+
+        logging.disable(logging.NOTSET)
 
         self.extension = original_ext
 
