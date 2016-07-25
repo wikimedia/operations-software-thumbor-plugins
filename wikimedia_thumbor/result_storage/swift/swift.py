@@ -20,7 +20,6 @@ class Storage(BaseStorage):
         super(Storage, self).__init__(context)
 
         authurl = (
-            'http://' +
             self.context.config.SWIFT_HOST +
             self.context.config.SWIFT_AUTH_PATH
         )
