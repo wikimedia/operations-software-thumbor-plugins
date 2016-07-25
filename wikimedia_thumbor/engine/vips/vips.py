@@ -46,7 +46,7 @@ class Engine(BaseWikimediaEngine):
         ]
 
         stdout = Engine.exiftool.command(
-            preCommand=command,
+            pre=command,
             context=self.context,
             buffer=buffer
         )

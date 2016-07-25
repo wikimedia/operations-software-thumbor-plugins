@@ -133,7 +133,7 @@ class Engine(BaseEngine):
         command += ['-{0}'.format(i) for i in fields]
 
         stdout = Engine.exiftool.command(
-            preCommand=command,
+            pre=command,
             context=self.context,
             buffer=buffer
         )
@@ -171,7 +171,7 @@ class Engine(BaseEngine):
         ]
 
         stdout = Engine.exiftool.command(
-            preCommand=command,
+            pre=command,
             context=self.context,
             buffer=buffer
         )
@@ -203,8 +203,8 @@ class Engine(BaseEngine):
         ]
 
         stdout = Engine.exiftool.command(
-            preCommand=command,
-            postCommand=postCommand,
+            pre=command,
+            post=postCommand,
             context=self.context,
             buffer=buffer
         )
