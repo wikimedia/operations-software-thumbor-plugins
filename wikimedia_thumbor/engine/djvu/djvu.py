@@ -33,7 +33,7 @@ BaseWikimediaEngine.add_format(
 
 
 class Engine(BaseWikimediaEngine):
-    pixel_format = djvu.decode.PixelFormatPackedBits('>')
+    pixel_format = djvu.decode.PixelFormatRgb('RGB')
     pixel_format.rows_top_to_bottom = 1
     pixel_format.y_top_to_bottom = 1
 
@@ -72,9 +72,9 @@ class Engine(BaseWikimediaEngine):
         )
 
         # PBM is a very simple file format, which ImageMagick can consume
-        pbm = 'P4 %d %d\n' % (width, height)
-        pbm += data
+        ppm = 'P6 %d %d 255\n' % (width, height)
+        ppm += data
 
         self.cleanup_source()
 
-        return super(Engine, self).create_image(pbm)
+        return super(Engine, self).create_image(ppm)
