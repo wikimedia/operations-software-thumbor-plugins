@@ -123,6 +123,4 @@ class Engine(BaseWikimediaEngine):
                         os.close(os_fifo)
                         raise
 
-            os.fsync(os_fifo)
-
         os.close(os_fifo)
