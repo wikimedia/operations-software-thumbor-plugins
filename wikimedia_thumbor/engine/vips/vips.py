@@ -11,9 +11,14 @@
 
 # VIPS engine
 
-import pgi
+import gi
 import logging
 import math
+
+if hasattr(gi, 'require_version'):
+    pgi = gi
+else:
+    import pgi
 
 pgi.require_version('Vips', '8.0')
 

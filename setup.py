@@ -17,7 +17,7 @@ setup(
     install_requires=[
         'bs4',
         'cairosvg',
-        'pgi',
+        'gi',
         'libthumbor>=1.3.2',
         'lxml',
         'python-djvulibre',
