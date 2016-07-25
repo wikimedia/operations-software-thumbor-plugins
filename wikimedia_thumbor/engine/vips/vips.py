@@ -19,7 +19,7 @@ pgi.require_version('Vips', '8.0')
 
 # VIPS is very chatty in the debug logs
 logging.disable(logging.DEBUG)
-from gi.repository import Vips
+from pgi.repository import Vips
 logging.disable(logging.NOTSET)
 
 from wikimedia_thumbor.engine import BaseWikimediaEngine
