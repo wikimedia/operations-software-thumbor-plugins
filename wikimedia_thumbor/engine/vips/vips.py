@@ -11,11 +11,11 @@
 
 # VIPS engine
 
-import gi
+import pgi
 import logging
 import math
 
-gi.require_version('Vips', '8.0')
+pgi.require_version('Vips', '8.0')
 
 # VIPS is very chatty in the debug logs
 logging.disable(logging.DEBUG)
