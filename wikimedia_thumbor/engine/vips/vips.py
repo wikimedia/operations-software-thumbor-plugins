@@ -45,24 +45,6 @@ except ImportError:
     logger.debug('[VIPS] gi not found')
 
 if use_command_line:
-    try:
-        import pgi
-        logger.debug('[VIPS] pgi found')
-        try:
-            pgi.require_version('Vips', '8.0')
-            logging.disable(logging.DEBUG)
-            from pgi.repository import Vips  # noqa
-            logging.disable(logging.NOTSET)
-            logger.debug('[VIPS] VIPS found in pgi repository')
-            use_command_line = False
-        except ImportError:
-            logger.debug('[VIPS] VIPS not found in pgi repository')
-        except ValueError:
-            logger.debug('[VIPS] VIPS 8.0+ not found in pgi repository')
-    except ImportError:
-        logger.debug('[VIPS] pgi not found')
-
-if use_command_line:
     logger.debug('[VIPS] Will use command line')
 else:
     logger.debug('[VIPS] Will use bindings')
