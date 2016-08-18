@@ -23,7 +23,7 @@ class WikimediaTestCase(AsyncHTTPTestCase):
 
     def retrieve(self, url):
         self.http_client.fetch(self.get_url(url), self.stop)
-        return self.wait(timeout=30)
+        return self.wait(timeout=300)
 
     def get_config(self):
         cfg = Config(SECURITY_KEY='ACME-SEC')

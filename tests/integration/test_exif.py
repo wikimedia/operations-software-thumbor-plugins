@@ -63,7 +63,7 @@ class WikimediaExifTest(WikimediaTestCase):
             'unsafe/300x/filters:conditional_sharpen(0.6,0.01,false,0.85)/'
             + 'Physical_map_tagged_AdobeRGB.jpg',
             '300px-Physical_map_tagged_AdobeRGB.jpg',
-            0.98,
+            0.97,
             1.0,
             None,
             '\x00\x00\x02HADBE\x02\x10\x00\x00mntrRGB XYZ \x07\xcf\x00\x06\x00'

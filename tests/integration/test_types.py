@@ -47,8 +47,9 @@ class WikimediaTest(WikimediaTestCase):
         self.run_and_check_ssim_and_size(
             'unsafe/200x/filters:lang(fr)/Speech_bubbles.svg',
             'langfr-200px-Speech_bubbles.svg.png',
-            # SVG rendering is broken on OS X, probably due to cairosvg bugs
-            (0.7 if platform.system() == 'Darwin' else 0.9),
+            # SVG rendering is broken for this file
+            # probably due to cairosvg bugs
+            0.7,
             1.01
         )
 
@@ -91,7 +92,7 @@ class WikimediaTest(WikimediaTestCase):
         self.run_and_check_ssim_and_size(
             'unsafe/400x/0729.tiff',
             'lossy-page1-400px-0729.tiff.jpg',
-            0.97,
+            0.96,
             1.0
         )
 
