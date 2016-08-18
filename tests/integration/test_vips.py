@@ -44,6 +44,6 @@ class WikimediaVipsTest(WikimediaTestCase):
         self.run_and_check_ssim_and_size(
             'unsafe/400x/WorldMap-A_non-Frame.png',
             '400px-WorldMap-A_non-Frame.png',
-            0.95,
+            0.94,
             1.0
         )

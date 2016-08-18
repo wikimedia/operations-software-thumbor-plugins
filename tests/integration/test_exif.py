@@ -105,7 +105,7 @@ class WikimediaExifTest(WikimediaTestCase):
             # The "low" score is due to the sharpening algorithm being
             # different between Mediawiki and Thumbor. Mediawiki generates
             # visual artifacts not seen in the Thumbor version
-            0.93,
+            0.92,
             1.0,
             {
                 'Artist': 'Martin Falbisoner',
