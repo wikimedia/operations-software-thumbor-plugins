@@ -1,4 +1,3 @@
-import copy
 import logging
 import platform
 import os.path
@@ -135,8 +134,6 @@ class WikimediaTestCase(AsyncHTTPTestCase):
         if result is None or result.code != 200:
             failed = True
 
-        copied_result = copy.deepcopy(result)
-
         assert not failed, 'Failed case:\n%s' % url
 
         generated = Image.open(result.buffer)
@@ -167,4 +164,4 @@ class WikimediaTestCase(AsyncHTTPTestCase):
         assert generated_filesize <= expected_filesize * size_tolerance, \
             'Generated file bigger than size tolerance: %d vs %d ' % sizes
 
-        return copied_result
+        return generated
