@@ -1,5 +1,3 @@
-import platform
-
 from . import WikimediaTestCase
 
 
@@ -10,7 +8,7 @@ class WikimediaTest(WikimediaTestCase):
                 'Christophe_Henner_-_June_2016.jpg'),
             '400px-Christophe_Henner_-_June_2016.jpg',
             0.98,
-            1.00
+            1.0
         )
 
     def test_djvu(self):
@@ -20,7 +18,7 @@ class WikimediaTest(WikimediaTestCase):
             # Mediawiki generates incorrect dimensions in this test case
             # resulting in soft djvu thumbs
             0.88,
-            1.00
+            1.0
         )
 
     def test_djvu_without_page_filter(self):
@@ -45,12 +43,11 @@ class WikimediaTest(WikimediaTestCase):
 
     def test_svg(self):
         self.run_and_check_ssim_and_size(
-            'unsafe/200x/filters:lang(fr)/Speech_bubbles.svg',
+            'unsafe/200x/filters:lang(fr):format(png)/Speech_bubbles.svg',
             'langfr-200px-Speech_bubbles.svg.png',
-            # SVG rendering is broken for this file
-            # probably due to cairosvg bugs
-            0.7,
-            1.01
+            # Low score due to font differences
+            0.76,
+            1.1
         )
 
     def test_pdf(self):
@@ -58,7 +55,7 @@ class WikimediaTest(WikimediaTestCase):
             'unsafe/400x/filters:page(3)/Internationalisation.pdf',
             'page3-400px-Internationalisation.pdf.jpg',
             0.95,
-            1.00
+            1.0
         )
 
     def test_pdf_without_page_filter(self):
@@ -66,7 +63,7 @@ class WikimediaTest(WikimediaTestCase):
             'unsafe/400x/Internationalisation.pdf',
             'page1-400px-Internationalisation.pdf.jpg',
             0.95,
-            1.00
+            1.0
         )
 
     def test_pdf_with_out_of_bounds_page(self):
@@ -74,7 +71,7 @@ class WikimediaTest(WikimediaTestCase):
             'unsafe/400x/filters:page(500)/Internationalisation.pdf',
             'page1-400px-Internationalisation.pdf.jpg',
             0.95,
-            1.00
+            1.0
         )
 
     def test_xcf(self):
