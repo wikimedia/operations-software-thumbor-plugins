@@ -264,12 +264,10 @@ class Engine(BaseEngine):
         self.image.rotate(degree=degrees)
 
     def reorientate(self):
-        # We can't reorientate right now because we have no image
-        # For some reason this doesn't happen on OS X
-        if hasattr(self, 'buffer'):  # pragma: no cover
-            return
-
-        self.image.auto_orient()
+        # Wand has an auto_orient() function in 4.1+
+        result = library.MagickAutoOrientImage(self.image.wand)
+        if not result:  # pragma: no cover
+            self.image.raise_exception()
 
     def image_data_as_rgb(self, update_image=True):
         converted = self.image.convert(self.mode)
