@@ -110,6 +110,6 @@ class ShellRunner:
         """Remove a file if it exists."""
         try:
             os.unlink(path)
-        except OSError as e:
-            if e.errno != errno.ENOENT:  # pragma: no cover
+        except OSError as e:  # pragma: no cover
+            if e.errno != errno.ENOENT:
                 raise

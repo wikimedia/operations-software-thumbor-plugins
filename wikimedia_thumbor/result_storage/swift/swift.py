@@ -30,7 +30,7 @@ class Storage(BaseStorage):
             authurl=authurl
         )
 
-    def uri(self):
+    def uri(self):  # pragma: no cover
         return (
             self.context.config.SWIFT_HOST +
             self.context.wikimedia_thumbnail_container +

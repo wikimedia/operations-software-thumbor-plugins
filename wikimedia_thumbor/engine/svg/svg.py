@@ -75,7 +75,7 @@ class Engine(BaseWikimediaEngine):
         if self.context.request.width > 0:
             command += ['-w', '%d' % self.context.request.width]
 
-        if self.context.request.height > 0:
+        if self.context.request.height > 0:  # pragma: no cover
             command += ['-h', '%d' % self.context.request.height]
 
         env = None
