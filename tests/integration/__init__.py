@@ -124,17 +124,13 @@ class WikimediaTestCase(AsyncHTTPTestCase):
         size_tolerance -- maximum file size ratio between reference and result
         exif_fields -- expected EXIF field values
         """
-        failed = False
         try:
             result = self.retrieve("/%s" % url)
-        except Exception:
-            logging.exception('Error in %s' % url)
-            failed = True
+        except Exception as e:
+            assert False, 'Exception occured: %r' % e
 
-        if result is None or result.code != 200:
-            failed = True
-
-        assert not failed, 'Failed case:\n%s' % url
+        assert result is not None, 'No result'
+        assert result.code == 200, 'Response code: %s' % result.code
 
         generated = Image.open(result.buffer)
 
