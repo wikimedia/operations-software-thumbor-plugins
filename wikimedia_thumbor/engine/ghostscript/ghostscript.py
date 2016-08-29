@@ -58,6 +58,7 @@ class Engine(BaseWikimediaEngine):
             "-r150",
             "-dBATCH",
             "-dNOPAUSE",
+            "-dSAFER",
             "-q",
             "-f%s" % self.source
         ]
