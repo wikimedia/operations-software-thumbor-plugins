@@ -101,6 +101,14 @@ class ImagesHandler(ImagingHandler):
         project = kw['project']
         language = kw['language']
 
+        # Handle sharding check before legacy projlang override
+        projlang = '-'.join((project, language))
+        original_container = projlang + '-local-public'
+        thumbnail_container = projlang + '-local-thumb'
+
+        original_sharded = original_container in sharded_containers
+        thumbnail_sharded = thumbnail_container in sharded_containers
+
         # Legacy special cases taken from rewrite.py
         if project == 'wikipedia':
             if language in ('meta', 'commons', 'internal', 'grants'):
@@ -115,10 +123,10 @@ class ImagesHandler(ImagingHandler):
 
         shard = '.' + kw['shard2']
 
-        if original_container in sharded_containers:
+        if original_sharded:
             original_container += shard
 
-        if thumbnail_container in sharded_containers:
+        if thumbnail_sharded:
             thumbnail_container += shard
 
         swift_uri = (
