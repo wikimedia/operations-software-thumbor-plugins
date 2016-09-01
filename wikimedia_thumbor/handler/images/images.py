@@ -7,9 +7,12 @@
 # This handler translates mediawiki thumbnail urls into thumbor urls
 # And sets the xkey for Varnish purging purposes
 
+from urllib import quote
 import json
+import tornado.gen as gen
 import tornado.web
 
+from thumbor.context import RequestParameters
 from thumbor.handlers.imaging import ImagingHandler
 from thumbor.utils import logger
 
@@ -90,8 +93,7 @@ class ImagesHandler(ImagingHandler):
             )
         )
 
-        translated = {'unsafe': 'unsafe'}
-        translated['width'] = kw['width']
+        translated = {'width': kw['width']}
 
         sharded_containers = []
 
@@ -212,3 +214,26 @@ class ImagesHandler(ImagingHandler):
         )
 
         return translated
+
+    @gen.coroutine  # NOQA
+    def check_image(self, kw):
+        if self.context.config.MAX_ID_LENGTH > 0:
+            # Check if an image with an uuid exists in storage
+            truncated_image = kw['image'][:self.context.config.MAX_ID_LENGTH]
+            maybe_future = self.context.modules.storage.exists(truncated_image)
+            exists = yield gen.maybe_future(maybe_future)
+            if exists:  # pragma: no cover
+                kw['image'] = kw['image'][:self.context.config.MAX_ID_LENGTH]
+
+        kw['image'] = quote(kw['image'].encode('utf-8'))
+        if not self.validate(kw['image']):  # pragma: no cover
+            self._error(
+                400,
+                'No original image was specified in the given URL'
+            )
+            return
+
+        kw['request'] = self.request
+        self.context.request = RequestParameters(**kw)
+
+        self.execute_image_operations()
