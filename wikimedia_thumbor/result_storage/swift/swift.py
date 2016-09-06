@@ -13,6 +13,7 @@ from swiftclient import client
 from tornado.concurrent import return_future
 
 from thumbor.result_storages import BaseStorage
+from thumbor.utils import logger
 
 
 class Storage(BaseStorage):
@@ -24,11 +25,14 @@ class Storage(BaseStorage):
             self.context.config.SWIFT_AUTH_PATH
         )
 
+        # Doesn't actually connect, this happens lazily on the first
+        # get_object or put_object call
         self.swift = client.Connection(
             user=self.context.config.SWIFT_USER,
             key=self.context.config.SWIFT_KEY,
             authurl=authurl,
-            timeout=self.context.config.SWIFT_CONNECTION_TIMEOUT
+            timeout=self.context.config.SWIFT_CONNECTION_TIMEOUT,
+            retries=self.context.config.SWIFT_RETRIES
         )
 
     def uri(self):  # pragma: no cover
@@ -42,6 +46,8 @@ class Storage(BaseStorage):
     # Coverage strangely reports lines lacking coverage in that function that
     # don't make sense
     def put(self, bytes):  # pragma: no cover
+        logger.debug('[Swift] put')
+
         if not hasattr(self.context, 'wikimedia_thumbnail_container'):
             return
 
@@ -68,6 +74,8 @@ class Storage(BaseStorage):
 
     @return_future
     def get(self, callback):
+        logger.debug('[Swift] get')
+
         try:
             start = datetime.datetime.now()
 
@@ -84,5 +92,12 @@ class Storage(BaseStorage):
             )
 
             callback(data)
-        except (client.ClientException, AttributeError):
+        # We want this to be exhaustive because not catching an exception here
+        # would result in the request hanging indefinitely
+        except client.ClientException:
+            # No need to log this one, it's expected behavior when the
+            # requested object isn't there
+            callback(None)
+        except Exception as e:
+            logger.error('[Swift] get exception: %r' % e)
             callback(None)
