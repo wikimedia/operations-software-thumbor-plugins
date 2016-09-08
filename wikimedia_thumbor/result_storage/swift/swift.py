@@ -10,6 +10,7 @@
 import datetime
 
 from swiftclient import client
+from swiftclient.exceptions import ClientException
 from tornado.concurrent import return_future
 
 from thumbor.result_storages import BaseStorage
@@ -94,7 +95,7 @@ class Storage(BaseStorage):
             callback(data)
         # We want this to be exhaustive because not catching an exception here
         # would result in the request hanging indefinitely
-        except client.ClientException:
+        except ClientException:
             # No need to log this one, it's expected behavior when the
             # requested object isn't there
             callback(None)
