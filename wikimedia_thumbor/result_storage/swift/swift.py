@@ -8,6 +8,7 @@
 # Stores results in Swift via HTTP
 
 import datetime
+import logging
 
 from swiftclient import client
 from swiftclient.exceptions import ClientException
@@ -80,10 +81,14 @@ class Storage(BaseStorage):
         try:
             start = datetime.datetime.now()
 
+            # swiftclient has this annoying habit of writing an ERROR log
+            # entry for the ClientException, regardless of it being caught
+            logging.disable(logging.ERROR)
             headers, data = self.swift.get_object(
                 self.context.wikimedia_thumbnail_container,
                 self.context.wikimedia_path
             )
+            logging.disable(logging.NOTSET)
 
             duration = datetime.datetime.now() - start
             duration = int(round(duration.total_seconds() * 1000))
@@ -96,9 +101,11 @@ class Storage(BaseStorage):
         # We want this to be exhaustive because not catching an exception here
         # would result in the request hanging indefinitely
         except ClientException:
+            logging.disable(logging.NOTSET)
             # No need to log this one, it's expected behavior when the
             # requested object isn't there
             callback(None)
         except Exception as e:
+            logging.disable(logging.NOTSET)
             logger.error('[Swift] get exception: %r' % e)
             callback(None)
