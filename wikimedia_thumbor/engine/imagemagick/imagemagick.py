@@ -59,6 +59,8 @@ INTERLACE_SCHEMES = (
 
 
 def read_blob(self, blob, format, width, height):
+    logger.debug('[IM] read_blob: %r %r %r' % (format, width, height))
+
     r = library.MagickConstituteImage(
         self.wand,
         int(width),
@@ -73,6 +75,7 @@ def read_blob(self, blob, format, width, height):
 
 
 def set_interlace_scheme(self, scheme):
+    logger.debug('[IM] set_interlace_scheme: %r' % scheme)
     try:
         s = INTERLACE_SCHEMES.index(scheme)
     except IndexError:  # pragma: no cover
@@ -107,8 +110,9 @@ class Engine(BaseEngine):
         if self.extension == '.jpg':
             self.read_exif(buffer)
             if 'ImageSize' in self.exif:
-                im.options['jpeg:size'] = self.exif['ImageSize']
-                logger.debug('[IM] Set jpeg:size hint')
+                size = self.exif['ImageSize']
+                im.options['jpeg:size'] = size
+                logger.debug('[IM] Set jpeg:size hint: %r' % size)
 
         im.read(blob=buffer)
 
@@ -213,6 +217,8 @@ class Engine(BaseEngine):
         return stdout
 
     def read(self, extension=None, quality=None):
+        logger.debug('[IM] read: %r %r' % (extension, quality))
+
         if quality is None:
             return self.im_original_buffer
 
@@ -221,8 +227,9 @@ class Engine(BaseEngine):
         config = self.context.config
 
         if hasattr(config, 'CHROMA_SUBSAMPLING') and config.CHROMA_SUBSAMPLING:
-            self.image.options['jpeg:sampling-factor'] \
-                = config.CHROMA_SUBSAMPLING
+            cs = config.CHROMA_SUBSAMPLING
+            logger.debug('[IM] Chroma subsampling: %r' % cs)
+            self.image.options['jpeg:sampling-factor'] = cs
 
         logger.debug('[IM] Generating image with quality %r' % quality)
 
@@ -239,6 +246,14 @@ class Engine(BaseEngine):
         return result
 
     def crop(self, crop_left, crop_top, crop_right, crop_bottom):
+        logger.debug('[IM] crop: %r %r %r %r' % (
+                crop_left,
+                crop_top,
+                crop_right,
+                crop_bottom
+            )
+        )
+
         # Sometimes thumbor's resize algorithm will try to pre-crop
         # the image. However that gets in the way of the jpeg:size
         # optimization. I presume Thumbor does that to reduce interpolation
@@ -252,18 +267,24 @@ class Engine(BaseEngine):
             )
 
     def resize(self, width, height):
+        logger.debug('[IM] resize: %r %r' % (width, height))
         self.image.resize(width=int(width), height=int(height))
 
     def flip_horizontally(self):
+        logger.debug('[IM] flip_horizontally')
         self.image.flop()
 
     def flip_vertically(self):
+        logger.debug('[IM] flip_vertically')
         self.image.flip()
 
     def rotate(self, degrees):
+        logger.debug('[IM] rotate: %r' % degrees)
         self.image.rotate(degree=degrees)
 
     def reorientate(self):
+        logger.debug('[IM] reorientate')
+
         # Wand has auto_orient() function only in 4.1+
         if hasattr(self.image, 'auto_orient'):
             self.image.auto_orient()
@@ -278,6 +299,8 @@ class Engine(BaseEngine):
             self.image.raise_exception()
 
     def image_data_as_rgb(self, update_image=True):
+        logger.debug('[IM] image_data_as_rgb: %r' % update_image)
+
         converted = self.image.convert(self.mode)
 
         if update_image:
@@ -286,6 +309,8 @@ class Engine(BaseEngine):
         return self.mode, converted.make_blob()
 
     def set_image_data(self, data):
+        logger.debug('[IM] set_image_data')
+
         width, height = self.image.size
 
         rgb = image.Image()
@@ -310,4 +335,5 @@ class Engine(BaseEngine):
         return self.image.size
 
     def cleanup(self):  # pragma: no cover
+        logger.debug('[IM] cleanup')
         Engine.exiftool.cleanup()
