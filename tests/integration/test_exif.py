@@ -137,7 +137,7 @@ class WikimediaExifTest(WikimediaTestCase):
             'unsafe/400x/filters:conditional_sharpen(0.6,0.01,false,0.85)/'
             + 'Christophe_Henner_-_June_2016.jpg',
             '400px-Christophe_Henner_-_June_2016.jpg',
-            0.98,
+            0.97,
             1.0,
             None,
             tinyrgb
