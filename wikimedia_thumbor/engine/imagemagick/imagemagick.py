@@ -110,13 +110,29 @@ class Engine(BaseEngine):
         if self.extension == '.jpg':
             self.read_exif(buffer)
             if 'ImageSize' in self.exif:
-                size = self.exif['ImageSize']
-                im.options['jpeg:size'] = size
-                logger.debug('[IM] Set jpeg:size hint: %r' % size)
+                self.jpeg_size(im, self.exif['ImageSize'])
 
         im.read(blob=buffer)
 
         return im
+
+    def jpeg_size(self, im, exif_image_size):
+        buffer_size = exif_image_size.split('x')
+        buffer_size = [ float(x) for x in buffer_size ]
+        buffer_ratio = buffer_size[0] / buffer_size[1]
+
+        width = float(self.context.request.width)
+        height = float(self.context.request.height)
+
+        if width == 0:
+            width = round(height * buffer_ratio, 0)
+
+        if height == 0:
+            height = round(width / buffer_ratio, 0)
+
+        jpeg_size = '%dx%d' % (width, height)
+        logger.debug('[IM] Set jpeg:size hint: %r' % jpeg_size)
+        im.options['jpeg:size'] = jpeg_size
 
     def read_exif(self, buffer):
         fields = [
