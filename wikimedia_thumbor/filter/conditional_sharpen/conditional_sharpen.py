@@ -20,14 +20,16 @@ class Filter(BaseFilter):
     @filter_method(
         BaseFilter.DecimalNumber,
         BaseFilter.DecimalNumber,
-        BaseFilter.Boolean, # This parameter is now ignored
-        BaseFilter.DecimalNumber
+        BaseFilter.DecimalNumber,
+        BaseFilter.DecimalNumber,
+        BaseFilter.DecimalNumber,
     )
     def conditional_sharpen(
             self,
-            amount,
             radius,
-            luminance_only,
+            sigma,
+            amount,
+            threshold,
             resize_ratio_threshold):
 
         width, height = self.engine.size
@@ -46,9 +48,10 @@ class Filter(BaseFilter):
         resize_ratio = destination_sum / source_sum
 
         if resize_ratio < resize_ratio_threshold:
+            # convert -unsharp (radius)x(sigma)+(amount)+(threshold)
             self.engine.image.unsharp_mask(
                 radius=radius,
+                sigma=sigma,
                 amount=amount,
-                sigma=1.0,
-                threshold=0.05
+                threshold=threshold
             )
