@@ -21,7 +21,6 @@ setup(
     zip_safe=False,
     platforms='any',
     install_requires=[
-        'bs4',
         'cairosvg',
         'gi',
         'libthumbor>=1.3.2',
