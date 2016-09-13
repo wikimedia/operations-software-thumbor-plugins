@@ -349,7 +349,3 @@ class Engine(BaseEngine):
     @property
     def size(self):
         return self.image.size
-
-    def cleanup(self):  # pragma: no cover
-        logger.debug('[IM] cleanup')
-        Engine.exiftool.cleanup()
