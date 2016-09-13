@@ -7,11 +7,6 @@ from . import WikimediaTestCase
 
 
 class WikimediaExifTest(WikimediaTestCase):
-    def get_config(self):
-        cfg = super(WikimediaExifTest, self).get_config()
-        cfg.EXIFTOOL_STAY_OPEN = True
-        return cfg
-
     def run_and_check_ssim_size_and_exif(
         self,
         url,
