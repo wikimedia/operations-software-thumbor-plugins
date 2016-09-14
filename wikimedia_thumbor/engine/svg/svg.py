@@ -19,8 +19,21 @@ from thumbor.utils import logger
 
 from wikimedia_thumbor.engine import BaseWikimediaEngine
 
+BaseWikimediaEngine.add_format(
+    'image/svg+xml',
+    '.svg',
+    lambda buffer: Engine.is_svg(buffer)
+)
+
 
 class Engine(BaseWikimediaEngine):
+    @classmethod
+    def is_svg(cls, buffer):
+        # Quite wide, but it's better to let rsvg give a file a shot
+        # rather than bail without trying
+        return (buffer.startswith('<?xml') and
+            'http://www.w3.org/2000/svg' in buffer[:1024])
+
     def create_image(self, buffer):
         self.original_buffer = buffer
 

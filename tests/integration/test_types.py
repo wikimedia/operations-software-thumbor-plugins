@@ -49,6 +49,13 @@ class WikimediaTest(WikimediaTestCase):
             0.76,
             1.1
         )
+        self.run_and_check_ssim_and_size(
+            'unsafe/200x/filters:format(png)/Television.svg',
+            '200px-Television.svg.png',
+            # This file is only there to test SVG syntax
+            0.36,
+            1.0
+        )
 
     def test_pdf(self):
         self.run_and_check_ssim_and_size(
