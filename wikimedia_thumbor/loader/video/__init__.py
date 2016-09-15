@@ -119,7 +119,7 @@ def _parse_time(context, url, callback, output):
         'image2',
         '-nostats',
         '-loglevel',
-        'error',
+        'fatal',
         '-'
     ], context)
 
@@ -136,9 +136,8 @@ def _parse_time(context, url, callback, output):
 
 
 def _process_done(callback, process, status):
-    result = LoaderResult()
-
     if status != 0:  # pragma: no cover
+        result = LoaderResult()
         result.successful = False
         callback(result)
     else:
