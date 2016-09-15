@@ -90,13 +90,17 @@ class Engine(BaseWikimediaEngine):
 
         return False
 
+    def target_format(self):
+        if self.context.request.format:
+            return '.%s' % self.context.request.format
+
+        return self.context.request.extension
+
     def create_image(self, buffer):
-        try:
-            original_ext = self.context.request.extension
-        except AttributeError:  # pragma: no cover
-            # If there is no extension in the request, it means that we
-            # are serving a cached result. In which case no VIPS processing
-            # is required.
+        # If there is no extension in the request, it means that we
+        # are serving a cached result. In which case no VIPS processing
+        # is required.
+        if not hasattr(self.context.request, 'extension'):
             return super(Engine, self).create_image(buffer)
 
         self.original_buffer = buffer
@@ -112,7 +116,8 @@ class Engine(BaseWikimediaEngine):
         else:  # pragma: no cover
             result = self.shrink_with_bindings(buffer, shrink_factor)
 
-        self.extension = original_ext
+        self.extension = self.target_format()
+        logger.debug('[VIPS] Setting extension to: %s' % self.extension)
 
         return super(Engine, self).create_image(result)
 
@@ -132,7 +137,7 @@ class Engine(BaseWikimediaEngine):
             source = Vips.Image.new_from_buffer(buffer, '')
 
         source = source.shrink(shrink_factor, shrink_factor)
-        result = source.write_to_buffer('.png')
+        result = source.write_to_buffer(self.target_format())
 
         logging.disable(logging.NOTSET)
         return result
@@ -160,7 +165,10 @@ class Engine(BaseWikimediaEngine):
         return self.shrink_with_command_for_page(source, shrink_factor)
 
     def shrink_with_command_for_page(self, source, shrink_factor):
-        destination = os.path.join(self.temp_dir, 'vips_result.png')
+        destination = os.path.join(
+            self.temp_dir,
+            'vips_result%s' % self.target_format()
+        )
 
         command = [
             self.context.config.VIPS_PATH,

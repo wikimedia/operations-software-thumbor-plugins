@@ -84,11 +84,11 @@ class WikimediaTestCase(AsyncHTTPTestCase):
 
         cfg.FILTERS = [
             'wikimedia_thumbor.filter.conditional_sharpen',
+            'wikimedia_thumbor.filter.format',
             'wikimedia_thumbor.filter.lang',
             'wikimedia_thumbor.filter.page',
             'wikimedia_thumbor.filter.crop',
             'wikimedia_thumbor.filter.flip',
-            'thumbor.filters.format',
             'thumbor.filters.quality',
             'thumbor.filters.rotate'
         ]
