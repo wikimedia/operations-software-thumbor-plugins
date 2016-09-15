@@ -14,8 +14,10 @@
 # otherwise the first frame requested will be stored as the
 # original for subsequent requests
 
-from urllib import unquote
+import os
 from functools import partial
+from tempfile import NamedTemporaryFile
+from urllib import unquote
 
 from thumbor.loaders import LoaderResult
 from thumbor.utils import logger
@@ -107,6 +109,8 @@ def _parse_time(context, url, callback, output):
 
 
 def seek_and_screenshot(callback, context, unquoted_url, seek):
+    output_file = NamedTemporaryFile(delete=False)
+
     command = ShellRunner.wrap_command([
         context.config.FFMPEG_PATH,
         # Order is important, for fast seeking -ss has to come before -i
@@ -124,7 +128,7 @@ def seek_and_screenshot(callback, context, unquoted_url, seek):
         '-nostats',
         '-loglevel',
         'fatal',
-        '-'
+        output_file.name
     ], context)
 
     logger.debug('[Video] _parse_time: %r' % command)
@@ -137,31 +141,40 @@ def seek_and_screenshot(callback, context, unquoted_url, seek):
             process,
             context,
             unquoted_url,
-            seek
+            seek,
+            output_file
         )
     )
 
-def _process_done(callback, process, context, unquoted_url, seek, status):
-    # If rendering the desired frame fails, attempt to render the first frame instead
+def _process_done(
+        callback,
+        process,
+        context,
+        unquoted_url,
+        seek,
+        output_file,
+        status
+    ):
+    # If rendering the desired frame fails, attempt to render the
+    # first frame instead
     if status != 0 and seek > 0:
         seek_and_screenshot(callback, context, unquoted_url, 0)
         return
 
-    if status != 0:  # pragma: no cover
-        result = LoaderResult()
-        result.successful = False
-        callback(result)
-    else:
-        process.stdout.read_until_close(
-            partial(
-                _process_stdout,
-                callback
-            )
-        )
-
-
-def _process_stdout(callback, stdout):
     result = LoaderResult()
-    result.successful = True
-    result.buffer = stdout
+
+    if status != 0:  # pragma: no cover
+        result.successful = False
+    else:
+        result.successful = True
+        result.buffer = output_file.read()
+
+    output_file.close()
+
+    try:
+        os.unlink(output_file.name)
+    except OSError as e:  # pragma: no cover
+        if e.errno != errno.ENOENT:
+            raise
+
     callback(result)
