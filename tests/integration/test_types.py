@@ -21,6 +21,16 @@ class WikimediaTest(WikimediaTestCase):
             1.0
         )
 
+    def test_huge_djvu(self):
+        self.run_and_check_ssim_and_size(
+            'unsafe/400x/filters:page(1568)/The_Film_Daily.djvu',
+            'page1568-400px-The_Film_Daily.djvu.jpg',
+            # Mediawiki generates incorrect dimensions in this test case
+            # resulting in soft djvu thumbs
+            0.88,
+            1.2
+        )
+
     def test_djvu_without_page_filter(self):
         self.run_and_check_ssim_and_size(
             'unsafe/400x/Il_cavallarizzo.djvu',
