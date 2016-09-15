@@ -51,3 +51,17 @@ class WikimediaVideoTest(WikimediaTestCase):
             0.99,
             1.0
         )
+
+    def test_webm_with_fallback_seek(self):
+        path = os.path.join(
+            os.path.dirname(__file__),
+            'originals',
+            'Borsch_01.webm'
+        )
+
+        self.run_and_check_ssim_and_size(
+            'unsafe/320x/filters:page(82)/' + path,
+            '320px-seek=0-Borsch_01.webm.jpg',
+            0.98,
+            1.0
+        )

@@ -103,6 +103,10 @@ def _parse_time(context, url, callback, output):
     except AttributeError:
         seek = duration / 2
 
+    seek_and_screenshot(callback, context, unquoted_url, seek)
+
+
+def seek_and_screenshot(callback, context, unquoted_url, seek):
     command = ShellRunner.wrap_command([
         context.config.FFMPEG_PATH,
         # Order is important, for fast seeking -ss has to come before -i
@@ -130,12 +134,19 @@ def _parse_time(context, url, callback, output):
         partial(
             _process_done,
             callback,
-            process
+            process,
+            context,
+            unquoted_url,
+            seek
         )
     )
 
+def _process_done(callback, process, context, unquoted_url, seek, status):
+    # If rendering the desired frame fails, attempt to render the first frame instead
+    if status != 0 and seek > 0:
+        seek_and_screenshot(callback, context, unquoted_url, 0)
+        return
 
-def _process_done(callback, process, status):
     if status != 0:  # pragma: no cover
         result = LoaderResult()
         result.successful = False
