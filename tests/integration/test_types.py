@@ -44,7 +44,7 @@ class WikimediaTest(WikimediaTestCase):
     def test_djvu_with_out_of_bounds_page(self):
         self.run_and_check_ssim_and_size(
             'unsafe/400x/filters:page(500)/Il_cavallarizzo.djvu',
-            'page1-400px-Il_cavallarizzo.djvu.jpg',
+            'page259-400px-Il_cavallarizzo.djvu.jpg',
             # Mediawiki generates incorrect dimensions in this test case
             # resulting in soft djvu thumbs
             0.87,

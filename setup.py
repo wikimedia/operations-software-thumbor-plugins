@@ -25,7 +25,6 @@ setup(
         'gi',
         'libthumbor>=1.3.2',
         'lxml',
-        'python-djvulibre',
         'python-swiftclient',
         'thumbor>=6.0.1',
         'wand'

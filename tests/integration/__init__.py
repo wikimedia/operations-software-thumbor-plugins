@@ -45,6 +45,7 @@ class WikimediaTestCase(AsyncHTTPTestCase):
         cfg.FFPROBE_PATH = which('ffprobe')
         cfg.XCF2PNG_PATH = which('xcf2png')
         cfg.GHOSTSCRIPT_PATH = which('gs')
+        cfg.DDJVU_PATH = which('ddjvu')
         timeout = which(
             'gtimeout' if platform.system() == 'Darwin' else 'timeout'
         )
