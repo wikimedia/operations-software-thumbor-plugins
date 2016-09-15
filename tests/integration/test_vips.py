@@ -12,7 +12,7 @@ class WikimediaVipsTest(WikimediaTestCase):
         self.run_and_check_ssim_and_size(
             'unsafe/400x/filters:format(jpg)/0729.tiff',
             'lossy-page1-400px-0729.tiff.jpg',
-            0.96,
+            0.95,
             1.0
         )
 
