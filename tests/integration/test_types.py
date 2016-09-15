@@ -67,6 +67,14 @@ class WikimediaTest(WikimediaTestCase):
             1.0
         )
 
+    def test_pdf2(self):
+        self.run_and_check_ssim_and_size(
+            'unsafe/400x/filters:page(19)/Jeremy_Bentham.pdf',
+            'page19-400px-Jeremy_Bentham.pdf.jpg',
+            0.97,
+            1.0
+        )
+
     def test_pdf_without_page_filter(self):
         self.run_and_check_ssim_and_size(
             'unsafe/400x/Internationalisation.pdf',
