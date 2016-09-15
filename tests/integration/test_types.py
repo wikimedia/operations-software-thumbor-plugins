@@ -61,7 +61,9 @@ class WikimediaTest(WikimediaTestCase):
         self.run_and_check_ssim_and_size(
             'unsafe/400x/filters:page(3)/Internationalisation.pdf',
             'page3-400px-Internationalisation.pdf.jpg',
-            0.95,
+            # Low score because framing is slightly different, and includes
+            # more content in the Thumbor case
+            0.87,
             1.0
         )
 
@@ -69,7 +71,9 @@ class WikimediaTest(WikimediaTestCase):
         self.run_and_check_ssim_and_size(
             'unsafe/400x/Internationalisation.pdf',
             'page1-400px-Internationalisation.pdf.jpg',
-            0.95,
+            # Low score because framing is slightly different, and includes
+            # more content in the Thumbor case
+            0.86,
             1.0
         )
 
@@ -77,7 +81,9 @@ class WikimediaTest(WikimediaTestCase):
         self.run_and_check_ssim_and_size(
             'unsafe/400x/filters:page(500)/Internationalisation.pdf',
             'page1-400px-Internationalisation.pdf.jpg',
-            0.95,
+            # Low score because framing is slightly different, and includes
+            # more content in the Thumbor case
+            0.86,
             1.0
         )
 
