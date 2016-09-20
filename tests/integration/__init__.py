@@ -1,4 +1,3 @@
-import logging
 import platform
 import os.path
 
@@ -46,13 +45,14 @@ class WikimediaTestCase(AsyncHTTPTestCase):
         cfg.XCF2PNG_PATH = which('xcf2png')
         cfg.GHOSTSCRIPT_PATH = which('gs')
         cfg.DDJVU_PATH = which('ddjvu')
+        cfg.RSVG_CONVERT_PATH = which('rsvg-convert')
         timeout = which(
             'gtimeout' if platform.system() == 'Darwin' else 'timeout'
         )
         cfg.SUBPROCESS_TIMEOUT_PATH = timeout
 
         cfg.SUBPROCESS_USE_TIMEOUT = True
-        cfg.SUBPROCESS_TIMEOUT = 60
+        cfg.SUBPROCESS_TIMEOUT = 5
 
         cfg.CHROMA_SUBSAMPLING = '4:2:0'
         cfg.QUALITY = 79

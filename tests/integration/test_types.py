@@ -1,3 +1,5 @@
+import platform
+
 from . import WikimediaTestCase
 
 
@@ -19,16 +21,6 @@ class WikimediaTest(WikimediaTestCase):
             # resulting in soft djvu thumbs
             0.88,
             1.0
-        )
-
-    def test_huge_djvu(self):
-        self.run_and_check_ssim_and_size(
-            'unsafe/400x/filters:page(1568)/The_Film_Daily.djvu',
-            'page1568-400px-The_Film_Daily.djvu.jpg',
-            # Mediawiki generates incorrect dimensions in this test case
-            # resulting in soft djvu thumbs
-            0.88,
-            1.2
         )
 
     def test_djvu_without_page_filter(self):
@@ -55,8 +47,7 @@ class WikimediaTest(WikimediaTestCase):
         self.run_and_check_ssim_and_size(
             'unsafe/200x/filters:lang(fr):format(png)/Speech_bubbles.svg',
             'langfr-200px-Speech_bubbles.svg.png',
-            # Low score due to font differences
-            0.76,
+            (0.6 if platform.system() == 'Darwin' else 0.99),
             1.1
         )
         self.run_and_check_ssim_and_size(

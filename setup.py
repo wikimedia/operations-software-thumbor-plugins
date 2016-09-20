@@ -21,10 +21,7 @@ setup(
     zip_safe=False,
     platforms='any',
     install_requires=[
-        'cairosvg',
-        'gi',
         'libthumbor>=1.3.2',
-        'lxml',
         'python-swiftclient',
         'thumbor>=6.0.1',
         'wand'

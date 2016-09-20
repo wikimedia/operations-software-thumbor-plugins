@@ -39,6 +39,7 @@ class Engine(BaseWikimediaEngine):
             jpg = self.get_jpg_for_page(buffer, 1)
 
         self.extension = '.jpg'
+
         return super(Engine, self).create_image(jpg)
 
     def get_jpg_for_page(self, buffer, page):
