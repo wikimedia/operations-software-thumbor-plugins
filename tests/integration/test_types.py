@@ -55,7 +55,7 @@ class WikimediaTest(WikimediaTestCase):
             '200px-Television.svg.png',
             # This file is only there to test SVG syntax
             0.36,
-            1.0
+            1.1
         )
 
     def test_pdf(self):
