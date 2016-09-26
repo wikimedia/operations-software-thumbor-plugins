@@ -23,7 +23,7 @@ setup(
     install_requires=[
         'libthumbor>=1.3.2',
         'python-swiftclient',
-        'thumbor>=6.0.1',
+        'thumbor==6.0.1',
         'wand'
     ],
     extras_require={
