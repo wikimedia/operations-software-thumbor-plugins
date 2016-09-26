@@ -20,9 +20,16 @@ import tornado.simple_httpclient
 from thumbor.loaders import http_loader, https_loader
 from thumbor.utils import logger
 
+from wikimedia_thumbor.shell_runner import ShellRunner
+
 
 def should_run(url):  # pragma: no cover
     return True
+
+
+def cleanup_temp_file(path):
+    logger.debug('[HTTPS] cleanup_temp_file: %s' % path)
+    ShellRunner.rm_f(path)
 
 
 def return_contents(response, url, callback, context, f):  # pragma: no cover
@@ -32,6 +39,11 @@ def return_contents(response, url, callback, context, f):  # pragma: no cover
     response._body = f.read(1024)
     context.wikimedia_original_file = f
     f.close()
+    logger.debug('[HTTPS] return_contents: %s' % context.wikimedia_original_file.name)
+    tornado.ioloop.IOLoop.instance().call_later(
+        context.config.HTTP_LOADER_TEMP_FILE_TIMEOUT,
+        partial(cleanup_temp_file, context.wikimedia_original_file.name)
+    )
     return http_loader.return_contents(response, url, callback, context)
 
 
