@@ -33,17 +33,24 @@ def cleanup_temp_file(path):
 
 
 def return_contents(response, url, callback, context, f):  # pragma: no cover
-    # We put the first kb of content into the response body, to let Thumbor's
-    # mime detection work
     f.seek(0)
-    response._body = f.read(1024)
-    context.wikimedia_original_file = f
+    body = f.read(1024)
     f.close()
-    logger.debug('[HTTPS] return_contents: %s' % context.wikimedia_original_file.name)
-    tornado.ioloop.IOLoop.instance().call_later(
-        context.config.HTTP_LOADER_TEMP_FILE_TIMEOUT,
-        partial(cleanup_temp_file, context.wikimedia_original_file.name)
-    )
+
+    if len(body):
+        response._body = body # First kb of the body for MIME detection
+        context.wikimedia_original_file = f
+
+        logger.debug('[HTTPS] return_contents: %s' % context.wikimedia_original_file.name)
+        tornado.ioloop.IOLoop.instance().call_later(
+            context.config.HTTP_LOADER_TEMP_FILE_TIMEOUT,
+            partial(cleanup_temp_file, context.wikimedia_original_file.name)
+        )
+    else:
+        # If the body is empty we can delete the temp file immediately
+        logger.debug('[HTTPS] return_contents: empty body')
+        cleanup_temp_file(f.name)
+
     return http_loader.return_contents(response, url, callback, context)
 
 
