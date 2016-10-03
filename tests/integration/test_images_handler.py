@@ -55,7 +55,7 @@ class WikimediaImagesHandlerTestCase(WikimediaTestCase):
         response = self.retrieve(url)
 
         xkey = response.headers.get_list('xkey')[0]
-        wikimedia_thumnail_save_path = response.headers.get_list(
+        wikimedia_thumbnail_save_path = response.headers.get_list(
             'Wikimedia-Path'
         )[0]
         wikimedia_thumbnail_container = response.headers.get_list(
@@ -66,8 +66,8 @@ class WikimediaImagesHandlerTestCase(WikimediaTestCase):
         )
 
         assert xkey == expected_xkey, 'Incorrect Xkey: %s' % xkey
-        assert wikimedia_thumnail_save_path == expected_path, \
-            'Wikimedia-Path: %s' % wikimedia_thumnail_save_path
+        assert wikimedia_thumbnail_save_path == expected_path, \
+            'Wikimedia-Path: %s' % wikimedia_thumbnail_save_path
         assert wikimedia_thumbnail_container == expected_container, \
             'Wikimedia-Thumbnail-Container: %s' % wikimedia_thumbnail_container
         assert thumbor_parameters['width'] == expected_width, \

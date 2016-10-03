@@ -179,13 +179,13 @@ class ImagesHandler(ImagingHandler):
         # Save wikimedia-specific save path information
         # Which will later be used by result storage
         self.context.wikimedia_thumbnail_container = thumbnail_container
-        self.context.wikimedia_thumnail_save_path = \
+        self.context.wikimedia_thumbnail_save_path = \
             self.generate_save_swift_path(kw)
 
         if hasattr(self.context.config, 'SWIFT_PATH_PREFIX'):
-            self.context.wikimedia_thumnail_save_path = (
+            self.context.wikimedia_thumbnail_save_path = (
                 self.context.config.SWIFT_PATH_PREFIX +
-                self.context.wikimedia_thumnail_save_path
+                self.context.wikimedia_thumbnail_save_path
             )
 
         self.context.request_handler.set_header(
@@ -195,7 +195,7 @@ class ImagesHandler(ImagingHandler):
 
         self.context.request_handler.set_header(
             'Wikimedia-Path',
-            self.context.wikimedia_thumnail_save_path
+            self.context.wikimedia_thumbnail_save_path
         )
 
         self.context.request_handler.set_header(
