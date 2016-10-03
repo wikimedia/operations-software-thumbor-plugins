@@ -38,10 +38,10 @@ def return_contents(response, url, callback, context, f):  # pragma: no cover
     f.close()
 
     if len(body):
-        response._body = body # First kb of the body for MIME detection
+        response._body = body  # First kb of the body for MIME detection
         context.wikimedia_original_file = f
 
-        logger.debug('[HTTPS] return_contents: %s' % context.wikimedia_original_file.name)
+        logger.debug('[HTTPS] return_contents: %s' % f.name)
         tornado.ioloop.IOLoop.instance().call_later(
             context.config.HTTP_LOADER_TEMP_FILE_TIMEOUT,
             partial(cleanup_temp_file, context.wikimedia_original_file.name)
