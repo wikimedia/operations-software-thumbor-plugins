@@ -33,22 +33,26 @@ def cleanup_temp_file(path):
 
 
 def return_contents(response, url, callback, context, f):  # pragma: no cover
+    excerpt_length = 1024
+
     f.seek(0)
-    body = f.read(1024)
+    body = f.read(excerpt_length)
     f.close()
 
-    if len(body):
-        response._body = body  # First kb of the body for MIME detection
+    # First kb of the body for MIME detection
+    response._body = body
+
+    if len(body) == excerpt_length:
+        logger.debug('[HTTPS] return_contents: %s' % f.name)
         context.wikimedia_original_file = f
 
-        logger.debug('[HTTPS] return_contents: %s' % f.name)
         tornado.ioloop.IOLoop.instance().call_later(
             context.config.HTTP_LOADER_TEMP_FILE_TIMEOUT,
             partial(cleanup_temp_file, context.wikimedia_original_file.name)
         )
     else:
-        # If the body is empty we can delete the temp file immediately
-        logger.debug('[HTTPS] return_contents: empty body')
+        # If the body is small we can delete the temp file immediately
+        logger.debug('[HTTPS] return_contents: small body')
         cleanup_temp_file(f.name)
 
     return http_loader.return_contents(response, url, callback, context)
