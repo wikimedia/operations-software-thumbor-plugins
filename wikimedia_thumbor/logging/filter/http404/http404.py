@@ -18,8 +18,8 @@ class Http404Filter(logging.Filter):
             matches = None
 
         if self.flag == 'exclude':
-            return not matches
+            return not bool(matches)
         elif self.flag == 'only':
-            return matches
+            return bool(matches)
 
         return True
