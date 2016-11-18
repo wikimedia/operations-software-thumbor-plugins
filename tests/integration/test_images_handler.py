@@ -189,3 +189,16 @@ class WikimediaImagesHandlerTestCase(WikimediaTestCase):
             + 'archive/d/d3/20160729183014!1Mcolors.jpg',
             'conditional_sharpen(0.0,0.8,1.0,0.0,0.85):format(jpg)'
         )
+
+    def test_lossless_tiff(self):
+        self.run_and_check_headers(
+            '/wikipedia/en/thumb/d/d3/1Mcolors.tif/'
+            + 'lossless-page1-400px-1Mcolors.tif.png',
+            'File:1Mcolors.tif',
+            'wikipedia-en-local-thumb.d3',
+            'thumbor/d/d3/1Mcolors.tif/lossless-page1-400px-1Mcolors.tif.png',
+            '400',
+            'http://swifthost/swift/v1/api/path/wikipedia-en-local-public.d3/'
+            + 'd/d3/1Mcolors.tif',
+            'format(png):page(1)'
+        )

@@ -35,6 +35,7 @@ class ImagesHandler(ImagingHandler):
             r'(?P<extension>.*)/'
             r'(?:(?P<qlow>qlow-))?'
             r'(?:(?P<lossy>lossy-))?'
+            r'(?:(?P<lossless>lossless-))?'
             r'(?:page(?P<page>\d+)-)?'
             r'(?:lang(?P<lang>[a-zA-Z]+)-)?'
             r'(?P<width>\d+)px-'
@@ -61,6 +62,9 @@ class ImagesHandler(ImagingHandler):
 
         if kw['lossy'] == 'lossy-':  # pragma: no cover
             path += kw['lossy']
+
+        if kw['lossless'] == 'lossless-':
+            path += kw['lossless']
 
         if kw['page']:
             path += 'page' + kw['page'] + '-'
