@@ -57,6 +57,12 @@ class WikimediaTest(WikimediaTestCase):
             0.36,
             1.1
         )
+        self.run_and_check_ssim_and_size(
+            'unsafe/200x/filters:format(png)/Lori_in_Armenia.svg',
+            '200px-Lori_in_Armenia.svg.png',
+            0.94,
+            1.0
+        )
 
     def test_pdf(self):
         self.run_and_check_ssim_and_size(
