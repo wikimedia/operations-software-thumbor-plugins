@@ -202,3 +202,9 @@ class WikimediaTest(WikimediaTestCase):
             0.98,
             1.1
         )
+        self.run_and_check_ssim_and_size(
+            'unsafe/300x/Jokie.gif',
+            '300px-Jokie.gif',
+            1.0,
+            1.1
+        )

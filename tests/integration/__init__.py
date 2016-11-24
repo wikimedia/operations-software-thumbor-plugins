@@ -151,7 +151,7 @@ class WikimediaTestCase(AsyncHTTPTestCase):
 
         ssim = compute_ssim(generated, expected)
 
-        assert ssim > expected_ssim, 'Images too dissimilar: %f\n' % ssim
+        assert ssim >= expected_ssim, 'Images too dissimilar: %f\n' % ssim
 
         expected_filesize = os.path.getsize(expected_path)
         generated_filesize = len(result.buffer.getvalue())
