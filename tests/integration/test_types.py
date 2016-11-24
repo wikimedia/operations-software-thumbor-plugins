@@ -120,6 +120,18 @@ class WikimediaTest(WikimediaTestCase):
             0.96,
             1.0
         )
+        self.run_and_check_ssim_and_size(
+            'unsafe/300x/Lejeune.TIF',
+            'lossy-page1-300px-Lejeune.TIF.jpg',
+            0.97,
+            1.0
+        )
+        self.run_and_check_ssim_and_size(
+            'unsafe/300x/Hafnia_alvei.tif',
+            'lossy-page1-300px-Hafnia_alvei.tif.jpg',
+            0.96,
+            1.0
+        )
 
     def test_multipage_tiff(self):
         self.run_and_check_ssim_and_size(

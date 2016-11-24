@@ -21,9 +21,9 @@ from thumbor.engines import BaseEngine
 from wikimedia_thumbor.shell_runner import ShellRunner
 from wikimedia_thumbor.exiftool_runner import ExiftoolRunner
 
-image.OPTIONS = frozenset(
-    ['fill', 'jpeg:sampling-factor', 'pdf:use-cropbox', 'jpeg:size']
-)
+# wand artificially limits the options you can set on the image object
+
+image.OPTIONS |= {'jpeg:sampling-factor', 'jpeg:size', 'tiff:exif-properties'}
 
 # wand doesn't support reading pixel blobs out of the box,
 # only file blobs, so we have to monkey-patch that in
@@ -110,6 +110,7 @@ class Engine(BaseEngine):
         self.exif = {}
 
         im = image.Image()
+        im.options['tiff:exif-properties'] = 'no'
 
         # Read EXIF data from buffer first. This will get us the
         # size if we need it for the jpeg:size option, as well as the
