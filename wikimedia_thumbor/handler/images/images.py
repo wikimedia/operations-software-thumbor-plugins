@@ -167,18 +167,21 @@ class ImagesHandler(ImagingHandler):
         if filters:
             translated['filters'] = ':'.join(filters)
 
-        self.context.request_handler.set_header(
-            'xkey',
-            u'File:' + kw['filename'] + u'.' + kw['extension']
-        )
-
-        self.context.request_handler.set_header(
-            'Content-Disposition',
-            u'inline;filename*=UTF-8\'\'%s.%s' % (
-                kw['filename'],
-                kw['extension']
+        try:
+            self.context.request_handler.set_header(
+                'xkey',
+                u'File:' + kw['filename'] + u'.' + kw['extension']
             )
-        )
+
+            self.context.request_handler.set_header(
+                'Content-Disposition',
+                u'inline;filename*=UTF-8\'\'%s.%s' % (
+                    kw['filename'],
+                    kw['extension']
+                )
+            )
+        except ValueError as e:
+            logger.debug('[ImagesHandler] Skip setting invalid header: %r', e)
 
         # Save wikimedia-specific save path information
         # Which will later be used by result storage
@@ -192,20 +195,23 @@ class ImagesHandler(ImagingHandler):
                 self.context.wikimedia_thumbnail_save_path
             )
 
-        self.context.request_handler.set_header(
-            'Wikimedia-Thumbnail-Container',
-            self.context.wikimedia_thumbnail_container
-        )
+        try:
+            self.context.request_handler.set_header(
+                'Wikimedia-Thumbnail-Container',
+                self.context.wikimedia_thumbnail_container
+            )
 
-        self.context.request_handler.set_header(
-            'Wikimedia-Path',
-            self.context.wikimedia_thumbnail_save_path
-        )
+            self.context.request_handler.set_header(
+                'Wikimedia-Path',
+                self.context.wikimedia_thumbnail_save_path
+            )
 
-        self.context.request_handler.set_header(
-            'Thumbor-Parameters',
-            json.dumps(translated)
-        )
+            self.context.request_handler.set_header(
+                'Thumbor-Parameters',
+                json.dumps(translated)
+            )
+        except ValueError as e:
+            logger.debug('[ImagesHandler] Skip setting invalid header: %r', e)
 
         return translated
 

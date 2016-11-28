@@ -54,22 +54,42 @@ class WikimediaImagesHandlerTestCase(WikimediaTestCase):
         """
         response = self.retrieve(url)
 
-        xkey = response.headers.get_list('xkey')[0]
-        wikimedia_thumbnail_save_path = response.headers.get_list(
-            'Wikimedia-Path'
-        )[0]
-        wikimedia_thumbnail_container = response.headers.get_list(
-            'Wikimedia-Thumbnail-Container'
-        )[0]
-        thumbor_parameters = json.loads(
-            response.headers.get_list('Thumbor-Parameters')[0]
-        )
+        try:
+            xkey = response.headers.get_list('xkey')[0]
+        except IndexError:
+            xkey = None
+
+        try:
+            wikimedia_thumbnail_save_path = response.headers.get_list(
+                'Wikimedia-Path'
+            )[0]
+        except IndexError:
+            wikimedia_thumbnail_save_path = None
+
+        try:
+            wikimedia_thumbnail_container = response.headers.get_list(
+                'Wikimedia-Thumbnail-Container'
+            )[0]
+        except IndexError:
+            wikimedia_thumbnail_container = None
+
+        try:
+            thumbor_parameters = json.loads(
+                response.headers.get_list('Thumbor-Parameters')[0]
+            )
+        except IndexError:
+            thumbor_parameters = {
+                'width': None,
+                'image': None,
+                'filters': None
+            }
 
         assert xkey == expected_xkey, 'Incorrect Xkey: %s' % xkey
         assert wikimedia_thumbnail_save_path == expected_path, \
             'Wikimedia-Path: %s' % wikimedia_thumbnail_save_path
         assert wikimedia_thumbnail_container == expected_container, \
             'Wikimedia-Thumbnail-Container: %s' % wikimedia_thumbnail_container
+
         assert thumbor_parameters['width'] == expected_width, \
             'Thumbor-Parameters width: %s' % thumbor_parameters['width']
         assert thumbor_parameters['image'] == expected_image, \
@@ -201,4 +221,16 @@ class WikimediaImagesHandlerTestCase(WikimediaTestCase):
             'http://swifthost/swift/v1/api/path/wikipedia-en-local-public.d3/'
             + 'd/d3/1Mcolors.tif',
             'format(png):page(1)'
+        )
+
+    def test_broken_request(self):
+        self.run_and_check_headers(
+            '/wikipedia/en/thumb/d/d3/1M%0Acolors.tif/'
+            + 'lossless-page1-400px-1Mcolors.tif.png',
+            None,
+            'wikipedia-en-local-thumb.d3',
+            None,
+            None,
+            None,
+            None
         )
