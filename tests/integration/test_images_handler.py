@@ -234,3 +234,16 @@ class WikimediaImagesHandlerTestCase(WikimediaTestCase):
             None,
             None
         )
+
+    def test_question_mark_original(self):
+        self.run_and_check_headers(
+            '/wikipedia/en/thumb/d/d3/1M%3Fcolors.tif/'
+            + 'lossless-page1-400px-1Mcolors.tif.png',
+            'File:1M?colors.tif',
+            'wikipedia-en-local-thumb.d3',
+            'thumbor/d/d3/1M?colors.tif/lossless-page1-400px-1Mcolors.tif.png',
+            '400',
+            'http://swifthost/swift/v1/api/path/wikipedia-en-local-public.d3/'
+            + 'd/d3/1M?colors.tif',
+            'format(png):page(1)'
+        )

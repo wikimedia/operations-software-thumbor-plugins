@@ -115,3 +115,13 @@ class WikimediaHttpsLoaderTest(WikimediaTestCase):
             0.98,
             1.1
         )
+
+    def test_question_mark_original(self):
+        self.run_and_check_ssim_and_size(
+            'unsafe/300x/https://upload.wikimedia.org/wikipedia/commons/c/'
+            + 'c4/Interieur,_overzicht_tijdens_restauratie_%28%3F%29_-'
+            + '_Rolduc_-_20357536_-_RCE.jpg',
+            '300px-Interieur.jpg',
+            0.95,
+            1.0
+        )
