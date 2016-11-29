@@ -64,7 +64,15 @@ def stream_contents(response, f):
 
 
 def _normalize_url(url):
-    return re.sub(r'^(https?)%3A//', r'\1://', url)
+    rewritten_parts = []
+    parts = url.split('/')
+
+    for part in parts[:-1]:
+        rewritten_parts.append(re.sub(r'%3A', r':', part))
+
+    rewritten_parts.append(parts[-1])
+
+    return '/'.join(rewritten_parts)
 
 
 def load_sync(context, url, callback):
