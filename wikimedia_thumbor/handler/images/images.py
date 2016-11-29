@@ -12,8 +12,35 @@ import json
 import tornado.gen as gen
 
 from thumbor.context import RequestParameters
+from thumbor.handlers import BaseHandler
 from thumbor.handlers.imaging import ImagingHandler
 from thumbor.utils import logger
+
+
+old_error = BaseHandler._error
+
+
+# We need to monkey-patch BaseHandler because otherwise we
+# wouldn't apply the Cache-Control headers to 400 errors that
+# don't make it to ImagesHandler since they don't match the
+# handlers' regexp.
+def _error(self, status, msg=None):
+    # Errors should explicitely not be cached
+    self.set_header(
+        'Cache-Control',
+        'no-cache'
+    )
+    self.clear_header('xkey')
+    self.clear_header('Content-Disposition')
+    self.clear_header('Wikimedia-Original-Container')
+    self.clear_header('Wikimedia-Thumbnail-Container')
+    self.clear_header('Wikimedia-Original-Path')
+    self.clear_header('Wikimedia-Thumbnail-Path')
+    self.clear_header('Thumbor-Parameters')
+    old_error(self, status, msg)
+
+
+BaseHandler._error = _error
 
 
 class TranslateError(Exception):
