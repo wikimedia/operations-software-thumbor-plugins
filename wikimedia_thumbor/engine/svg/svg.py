@@ -29,8 +29,6 @@ class Engine(BaseWikimediaEngine):
                 'http://www.w3.org/2000/svg' in buffer[:4096])
 
     def create_image(self, buffer):
-        self.original_buffer = buffer
-
         self.prepare_source(buffer)
 
         command = [

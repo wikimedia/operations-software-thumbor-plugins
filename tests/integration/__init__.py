@@ -27,7 +27,7 @@ class WikimediaTestCase(AsyncHTTPTestCase):
     def get_config(self):
         cfg = Config(SECURITY_KEY='ACME-SEC')
 
-        cfg.STORAGE = 'wikimedia_thumbor.storage.request'
+        cfg.STORAGE = 'thumbor.storages.no_storage'
         cfg.LOADER = 'thumbor.loaders.file_loader'
 
         cfg.FILE_LOADER_ROOT_PATH = os.path.join(

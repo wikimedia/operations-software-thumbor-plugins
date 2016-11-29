@@ -106,7 +106,6 @@ class Engine(BaseEngine):
                 buffer = content_file.read()
             ShellRunner.rm_f(fname)
 
-        self.im_original_buffer = buffer
         self.exif = {}
 
         im = image.Image()
@@ -250,8 +249,7 @@ class Engine(BaseEngine):
     def read(self, extension=None, quality=None):
         logger.debug('[IM] read: %r %r' % (extension, quality))
 
-        if quality is None:
-            return self.im_original_buffer
+        extension = extension.lstrip('.')
 
         self.image.compression_quality = quality
 
@@ -263,8 +261,6 @@ class Engine(BaseEngine):
             self.image.options['jpeg:sampling-factor'] = cs
 
         logger.debug('[IM] Generating image with quality %r' % quality)
-
-        extension = extension.lstrip('.')
 
         if extension == 'jpg' and self.context.config.PROGRESSIVE_JPEG:
             self.image.set_interlace_scheme('PlaneInterlace')
