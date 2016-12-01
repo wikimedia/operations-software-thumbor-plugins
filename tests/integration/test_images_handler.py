@@ -10,7 +10,8 @@ class WikimediaImagesHandlerTestCase(WikimediaTestCase):
         cfg = Config(SECURITY_KEY='ACME-SEC')
 
         cfg.COMMUNITY_EXTENSIONS = [
-            'wikimedia_thumbor.handler.images'
+            'wikimedia_thumbor.handler.images',
+            'wikimedia_thumbor.handler.core'
         ]
 
         cfg.SWIFT_HOST = 'http://swifthost'
@@ -104,8 +105,7 @@ class WikimediaImagesHandlerTestCase(WikimediaTestCase):
             'wikipedia-en-local-thumb.d3',
             'thumbor/d/d3/1Mcolors.png/400px-1Mcolors.png',
             '400',
-            'http://swifthost/swift/v1/api/path/wikipedia-en-local-public.d3/'
-            + 'd/d3/1Mcolors.png',
+            'http://swifthost/swift/v1/api/path/wikipedia-en-local-public.d3/d/d3/1Mcolors.png',
             'format(png)'
         )
 
@@ -116,47 +116,40 @@ class WikimediaImagesHandlerTestCase(WikimediaTestCase):
             'wikipedia-en-local-thumb.d3',
             'thumbor/d/d3/1Mcolors.jpg/qlow-400px-1Mcolors.jpg',
             '400',
-            'http://swifthost/swift/v1/api/path/wikipedia-en-local-public.d3/'
-            + 'd/d3/1Mcolors.jpg',
+            'http://swifthost/swift/v1/api/path/wikipedia-en-local-public.d3/d/d3/1Mcolors.jpg',
             'quality(10):conditional_sharpen(0.0,0.8,1.0,0.0,0.85):format(jpg)'
         )
 
     def test_page(self):
         self.run_and_check_headers(
-            '/wikipedia/en/thumb/d/d3/1Mcolors.pdf/'
-            + 'page3-400px-1Mcolors.pdf.jpg',
+            '/wikipedia/en/thumb/d/d3/1Mcolors.pdf/page3-400px-1Mcolors.pdf.jpg',
             'File:1Mcolors.pdf',
             'wikipedia-en-local-thumb.d3',
             'thumbor/d/d3/1Mcolors.pdf/page3-400px-1Mcolors.pdf.jpg',
             '400',
-            'http://swifthost/swift/v1/api/path/wikipedia-en-local-public.d3/'
-            + 'd/d3/1Mcolors.pdf',
+            'http://swifthost/swift/v1/api/path/wikipedia-en-local-public.d3/d/d3/1Mcolors.pdf',
             'format(jpg):page(3)'
         )
 
     def test_lang(self):
         self.run_and_check_headers(
-            '/wikipedia/en/thumb/d/d3/1Mcolors.svg/'
-            + 'langfr-400px-1Mcolors.svg.png',
+            '/wikipedia/en/thumb/d/d3/1Mcolors.svg/langfr-400px-1Mcolors.svg.png',
             'File:1Mcolors.svg',
             'wikipedia-en-local-thumb.d3',
             'thumbor/d/d3/1Mcolors.svg/langfr-400px-1Mcolors.svg.png',
             '400',
-            'http://swifthost/swift/v1/api/path/wikipedia-en-local-public.d3/'
-            + 'd/d3/1Mcolors.svg',
+            'http://swifthost/swift/v1/api/path/wikipedia-en-local-public.d3/d/d3/1Mcolors.svg',
             'format(png):lang(fr)'
         )
 
     def test_seek(self):
         self.run_and_check_headers(
-            '/wikipedia/en/thumb/d/d3/1Mcolors.webm/'
-            + '400px-seek=10-1Mcolors.webm.jpg',
+            '/wikipedia/en/thumb/d/d3/1Mcolors.webm/400px-seek=10-1Mcolors.webm.jpg',
             'File:1Mcolors.webm',
             'wikipedia-en-local-thumb.d3',
             'thumbor/d/d3/1Mcolors.webm/400px-seek=10-1Mcolors.webm.jpg',
             '400',
-            'http://swifthost/swift/v1/api/path/wikipedia-en-local-public.d3/'
-            + 'd/d3/1Mcolors.webm',
+            'http://swifthost/swift/v1/api/path/wikipedia-en-local-public.d3/d/d3/1Mcolors.webm',
             'format(jpg):page(10)'
         )
 
@@ -167,8 +160,7 @@ class WikimediaImagesHandlerTestCase(WikimediaTestCase):
             'wikipedia-en-local-thumb.d3',
             'thumbor/d/d3/1Mcolors.jpe/400px-1Mcolors.jpg',
             '400',
-            'http://swifthost/swift/v1/api/path/wikipedia-en-local-public.d3/'
-            + 'd/d3/1Mcolors.jpe',
+            'http://swifthost/swift/v1/api/path/wikipedia-en-local-public.d3/d/d3/1Mcolors.jpe',
             'conditional_sharpen(0.0,0.8,1.0,0.0,0.85):format(jpg)'
         )
 
@@ -179,8 +171,7 @@ class WikimediaImagesHandlerTestCase(WikimediaTestCase):
             'wikipedia-meta-local-thumb',
             'thumbor/d/d3/1Mcolors.png/400px-1Mcolors.png',
             '400',
-            'http://swifthost/swift/v1/api/path/wikipedia-meta-local-public/'
-            + 'd/d3/1Mcolors.png',
+            'http://swifthost/swift/v1/api/path/wikipedia-meta-local-public/d/d3/1Mcolors.png',
             'format(png)'
         )
 
@@ -191,42 +182,35 @@ class WikimediaImagesHandlerTestCase(WikimediaTestCase):
             'wikipedia-mediawiki-local-thumb',
             'thumbor/d/d3/1Mcolors.png/400px-1Mcolors.png',
             '400',
-            'http://swifthost/swift/v1/api/path/'
-            + 'wikipedia-mediawiki-local-public/d/d3/1Mcolors.png',
+            'http://swifthost/swift/v1/api/path/wikipedia-mediawiki-local-public/d/d3/1Mcolors.png',
             'format(png)'
         )
 
     def test_archive(self):
         self.run_and_check_headers(
-            '/wikipedia/en/thumb/archive/d/d3/20160729183014!1Mcolors.jpg/'
-            + '400px-1Mcolors.jpg',
+            '/wikipedia/en/thumb/archive/d/d3/20160729183014!1Mcolors.jpg/400px-1Mcolors.jpg',
             'File:20160729183014!1Mcolors.jpg',
             'wikipedia-en-local-thumb.d3',
-            'thumbor/archive/d/d3/20160729183014!1Mcolors.jpg/'
-            + '400px-1Mcolors.jpg',
+            'thumbor/archive/d/d3/20160729183014!1Mcolors.jpg/400px-1Mcolors.jpg',
             '400',
-            'http://swifthost/swift/v1/api/path/wikipedia-en-local-public.d3/'
-            + 'archive/d/d3/20160729183014!1Mcolors.jpg',
+            'http://swifthost/swift/v1/api/path/wikipedia-en-local-public.d3/archive/d/d3/20160729183014!1Mcolors.jpg',
             'conditional_sharpen(0.0,0.8,1.0,0.0,0.85):format(jpg)'
         )
 
     def test_lossless_tiff(self):
         self.run_and_check_headers(
-            '/wikipedia/en/thumb/d/d3/1Mcolors.tif/'
-            + 'lossless-page1-400px-1Mcolors.tif.png',
+            '/wikipedia/en/thumb/d/d3/1Mcolors.tif/lossless-page1-400px-1Mcolors.tif.png',
             'File:1Mcolors.tif',
             'wikipedia-en-local-thumb.d3',
             'thumbor/d/d3/1Mcolors.tif/lossless-page1-400px-1Mcolors.tif.png',
             '400',
-            'http://swifthost/swift/v1/api/path/wikipedia-en-local-public.d3/'
-            + 'd/d3/1Mcolors.tif',
+            'http://swifthost/swift/v1/api/path/wikipedia-en-local-public.d3/d/d3/1Mcolors.tif',
             'format(png):page(1)'
         )
 
     def test_broken_request(self):
         self.run_and_check_headers(
-            '/wikipedia/en/thumb/d/d3/1M%0Acolors.tif/'
-            + 'lossless-page1-400px-1Mcolors.tif.png',
+            '/wikipedia/en/thumb/d/d3/1M%0Acolors.tif/lossless-page1-400px-1Mcolors.tif.png',
             None,
             'wikipedia-en-local-thumb.d3',
             None,
@@ -237,13 +221,34 @@ class WikimediaImagesHandlerTestCase(WikimediaTestCase):
 
     def test_question_mark_original(self):
         self.run_and_check_headers(
-            '/wikipedia/en/thumb/d/d3/1M%3Fcolors.tif/'
-            + 'lossless-page1-400px-1Mcolors.tif.png',
+            '/wikipedia/en/thumb/d/d3/1M%3Fcolors.tif/lossless-page1-400px-1Mcolors.tif.png',
             'File:1M?colors.tif',
             'wikipedia-en-local-thumb.d3',
             'thumbor/d/d3/1M?colors.tif/lossless-page1-400px-1Mcolors.tif.png',
             '400',
-            'http://swifthost/swift/v1/api/path/wikipedia-en-local-public.d3/'
-            + 'd/d3/1M?colors.tif',
-            'format(png):page(1)'
+            'http://swifthost/swift/v1/api/path/wikipedia-en-local-public.d3/d/d3/1M?colors.tif',
+            'format(png):page(1)')
+
+    def run_and_check_error(
+        self,
+        url,
+        expected_status
+    ):
+        response = self.retrieve(url)
+        assert response.code == expected_status
+
+    def test_missing_mandatory_parameters(self):
+        self.run_and_check_error(
+            '/wikipedia/en/thumb/d/d3/1Mcolors.tif',
+            404
+        )
+
+    def test_too_many_parts(self):
+        self.run_and_check_error(
+            '/wikipedia/en/thumb/8/80/1Mcolors.tif/1Mcolors.tif.jpg/90x55x2-15px-1Mcolors.tif.jpg',
+            404
+        )
+        self.run_and_check_error(
+            '/wikipedia/en/thumb/7/77/1Mcolors.png/1Mcolors.png/199px-1Mcolors.png',
+            404
         )

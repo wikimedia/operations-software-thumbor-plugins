@@ -31,8 +31,8 @@ class ImagesHandler(ImagingHandler):
             r'(?:(?P<specialpath>temp|archive)/)?'
             r'(?P<shard1>[0-9a-zA-Z]+)/'
             r'(?P<shard2>[0-9a-zA-Z]+)/'
-            r'(?P<filename>.*)\.'
-            r'(?P<extension>.*)/'
+            r'(?P<filename>[^/]+)\.'
+            r'(?P<extension>[^/]+)/'
             r'(?:(?P<qlow>qlow-))?'
             r'(?:(?P<lossy>lossy-))?'
             r'(?:(?P<lossless>lossless-))?'
@@ -40,7 +40,7 @@ class ImagesHandler(ImagingHandler):
             r'(?:lang(?P<lang>[a-zA-Z]+)-)?'
             r'(?P<width>\d+)px-'
             r'(?:seek=(?P<seek>\d+)-)?'
-            r'(?P<end>.*)'
+            r'(?P<end>[^/]+)'
             r'\.(?P<format>[a-zA-Z]+)'
         )
 

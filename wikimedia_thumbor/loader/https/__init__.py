@@ -92,6 +92,9 @@ def load_sync(context, url, callback):
     f = NamedTemporaryFile(delete=False)
 
     url = _normalize_url(url)
+
+    logger.debug('[HTTPS] Loading normalized URL: %s' % url)
+
     req = tornado.httpclient.HTTPRequest(
         url=url,
         connect_timeout=context.config.HTTP_LOADER_CONNECT_TIMEOUT,

@@ -60,7 +60,8 @@ class WikimediaTestCase(AsyncHTTPTestCase):
 
         cfg.COMMUNITY_EXTENSIONS = [
             'wikimedia_thumbor.handler.multi',
-            'wikimedia_thumbor.handler.images'
+            'wikimedia_thumbor.handler.images',
+            'wikimedia_thumbor.handler.core'
         ]
 
         cfg.EXIF_FIELDS_TO_KEEP = ['Artist', 'Copyright', 'Description']
