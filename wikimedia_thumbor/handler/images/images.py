@@ -18,7 +18,7 @@ from thumbor.handlers.imaging import ImagingHandler
 from thumbor.utils import logger
 
 
-old_error = BaseHandler._error
+BaseHandler._old_error = BaseHandler._error
 
 
 # We need to monkey-patch BaseHandler because otherwise we
@@ -38,7 +38,7 @@ def _error(self, status, msg=None):
     self.clear_header('Wikimedia-Original-Path')
     self.clear_header('Wikimedia-Thumbnail-Path')
     self.clear_header('Thumbor-Parameters')
-    old_error(self, status, msg)
+    BaseHandler._old_error(self, status, msg)
 
 
 BaseHandler._error = _error

@@ -1,11 +1,26 @@
 import json
 from thumbor.config import Config
+from thumbor.handlers import BaseHandler
 
 
 from . import WikimediaTestCase
 
 
 class WikimediaImagesHandlerTestCase(WikimediaTestCase):
+    def setUp(self):
+        super(WikimediaImagesHandlerTestCase, self).setUp()
+        # Undo monkey-patching to be able to inspect headers
+        # as if the test requests were successful
+        def _error(self, status, msg=None):
+            return BaseHandler._old_error(self, status, msg)
+
+        BaseHandler._error = _error
+
+    def tearDown(self):
+        BaseHandler._error =  BaseHandler._error
+        super(WikimediaImagesHandlerTestCase, self).tearDown()
+
+
     def get_config(self):
         cfg = Config(SECURITY_KEY='ACME-SEC')
 
