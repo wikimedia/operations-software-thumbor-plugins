@@ -31,7 +31,7 @@ class Storage(BaseStorage):
             self.context.config.SWIFT_AUTH_PATH
         )
 
-        swiftconn = client.Connection(
+        Storage.swiftconn = client.Connection(
             user=self.context.config.SWIFT_USER,
             key=self.context.config.SWIFT_KEY,
             authurl=authurl,
