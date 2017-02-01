@@ -18,17 +18,13 @@ from thumbor.result_storages import BaseStorage
 from thumbor.utils import logger
 
 
-swiftconn = None
-
-
 class Storage(BaseStorage):
+    swiftconn = None
+
+    @property
     def swift(self):
-        global swiftconn
-
-        if swiftconn:
-            return swiftconn
-
-        logger.debug('[SWIFT_STORAGE] new Swift connection instance')
+        if Storage.swiftconn:
+            return Storage.swiftconn
 
         authurl = (
             self.context.config.SWIFT_HOST +
@@ -43,7 +39,7 @@ class Storage(BaseStorage):
             retries=self.context.config.SWIFT_RETRIES
         )
 
-        return swiftconn
+        return Storage.swiftconn
 
     def uri(self):  # pragma: no cover
         return (
@@ -72,7 +68,7 @@ class Storage(BaseStorage):
             if len(xkey):
                 headers = {'xkey': xkey[0]}
 
-            self.swift().put_object(
+            self.swift.put_object(
                 self.context.wikimedia_thumbnail_container,
                 self.context.wikimedia_thumbnail_save_path,
                 bytes,
@@ -101,7 +97,7 @@ class Storage(BaseStorage):
             # swiftclient has this annoying habit of writing an ERROR log
             # entry for the ClientException, regardless of it being caught
             logging.disable(logging.ERROR)
-            headers, data = self.swift().get_object(
+            headers, data = self.swift.get_object(
                 self.context.wikimedia_thumbnail_container,
                 self.context.wikimedia_thumbnail_save_path
             )
