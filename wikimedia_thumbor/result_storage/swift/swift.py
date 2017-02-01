@@ -22,7 +22,7 @@ swiftconn = None
 
 
 class Storage(BaseStorage):
-    def swift():
+    def swift(self):
         global swiftconn
 
         if swiftconn:
