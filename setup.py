@@ -25,8 +25,7 @@ setup(
         'libthumbor>=1.3.2',
         'manhole',
         'python-swiftclient',
-        'thumbor==6.0.1',
-        'wand'
+        'thumbor==6.0.1'
     ],
     extras_require={
         'tests': tests_require,
