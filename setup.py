@@ -24,6 +24,7 @@ setup(
     install_requires=[
         'libthumbor>=1.3.2',
         'manhole',
+        'python-memcached',
         'python-swiftclient',
         'thumbor==6.0.1'
     ],

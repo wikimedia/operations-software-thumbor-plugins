@@ -105,7 +105,10 @@ class Engine(BaseEngine):
 
         logger.debug('[IM] EXIF: %r' % self.exif)
 
-        self.internal_size = map(int, self.exif['ImageSize'].split('x'))
+        if 'ImageSize' in self.exif:
+            self.internal_size = map(int, self.exif['ImageSize'].split('x'))
+        else:
+            self.internal_size = (1, 1)
 
         # If we encounter any non-sRGB ICC profile, we save it to re-apply
         # it to the result
