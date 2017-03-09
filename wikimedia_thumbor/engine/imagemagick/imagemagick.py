@@ -250,6 +250,10 @@ class Engine(BaseEngine):
         if extension == 'jpg':
             result = self.process_exif(result)
 
+        if self.temp_file_created:
+            ShellRunner.rm_f(self.image.name)
+            self.temp_file_created = False
+
         return result
 
     def crop(self, crop_left, crop_top, crop_right, crop_bottom):
