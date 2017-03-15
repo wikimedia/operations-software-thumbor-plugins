@@ -28,8 +28,6 @@ class Engine(BaseEngine):
     exiftool = ExiftoolRunner()
 
     def create_image(self, buffer):
-        self.temp_file_created = False
-
         # This should be enough for now, if memory blows up on huge files we
         # can could use an mmap here
         if hasattr(self.context, 'wikimedia_original_file'):
@@ -40,7 +38,6 @@ class Engine(BaseEngine):
             temp_file = NamedTemporaryFile(delete=False)
             temp_file.write(buffer)
             temp_file.close()
-            self.temp_file_created = True
 
         self.exif = {}
         self.operators = []
@@ -239,9 +236,7 @@ class Engine(BaseEngine):
             returncode, stderr, result = self.run_operators(last_operators)
 
         if returncode != 0:
-            if self.temp_file_created:
-                ShellRunner.rm_f(self.image.name)
-                self.temp_file_created = False
+            ShellRunner.rm_f(self.image.name)
             raise ImageMagickException('Failed to convert image: %s' % stderr)
 
         self.operators = []
@@ -253,9 +248,7 @@ class Engine(BaseEngine):
         if extension == 'jpg':
             result = self.process_exif(result)
 
-        if self.temp_file_created:
-            ShellRunner.rm_f(self.image.name)
-            self.temp_file_created = False
+        ShellRunner.rm_f(self.image.name)
 
         return result
 
@@ -344,9 +337,7 @@ class Engine(BaseEngine):
             returncode, stderr, converted = self.run_operators(operators)
 
         if returncode != 0:
-            if self.temp_file_created:
-                ShellRunner.rm_f(self.image.name)
-                self.temp_file_created = False
+            ShellRunner.rm_f(self.image.name)
             raise ImageMagickException('Failed to convert image to %s: %s' % (self.mode, stderr))
 
         self.operators = []
@@ -358,6 +349,8 @@ class Engine(BaseEngine):
         if update_image:
             with open(self.image.name, 'w') as f:
                 f.write(converted)
+
+        ShellRunner.rm_f(self.image.name)
 
         return self.mode, converted
 
