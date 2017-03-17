@@ -473,6 +473,10 @@ class ImagesHandler(ImagingHandler):
 
     # With our IM engine, exceptions may occur during _load_results
     # Which Thumbor doesn't handle gracefully
+    # This should be fixed in Thumbor 6.3.0:
+    # https://github.com/thumbor/thumbor/commit/9fba8e62ae339eb9a0ab5bbdfb2ef1318b20db13
+    # When we upgrade to Thumbor >= 6.3.0 we should be able to remove these overrides
+    # on _load_results, _write_results_to_client and _store_results
     def _load_results(self, context):
         try:
             results, content_type = BaseHandler._load_results(self, context)
