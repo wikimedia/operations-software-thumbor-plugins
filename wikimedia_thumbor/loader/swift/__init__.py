@@ -33,8 +33,8 @@ def should_run(url):  # pragma: no cover
     return True
 
 
-def cleanup_temp_file(path):
-    logger.debug('[SWIFT_LOADER] cleanup_temp_file: %s' % path)
+def cleanup_temp_file(request_url, path):
+    logger.debug('[SWIFT_LOADER] cleanup_temp_file: %s' % path, extra={'url': request_url})
     ShellRunner.rm_f(path)
 
 
@@ -61,7 +61,8 @@ def swift(context):
 
 
 def load_sync(context, url, callback):
-    logger.debug('[SWIFT_LOADER] load_sync: %s' % url)
+    log_extra = {'url': context.request.url}
+    logger.debug('[SWIFT_LOADER] load_sync: %s' % url, extra=log_extra)
 
     result = LoaderResult()
 
@@ -70,7 +71,8 @@ def load_sync(context, url, callback):
 
     try:
         logger.debug(
-            '[SWIFT_LOADER] fetching %s from container %s' % (path, container)
+            '[SWIFT_LOADER] fetching %s from container %s' % (path, container),
+            extra=log_extra
         )
         logging.disable(logging.ERROR)
         headers, response = swift(context).get_object(
@@ -86,7 +88,8 @@ def load_sync(context, url, callback):
         f = NamedTemporaryFile(delete=False)
         for chunk in response:
             logger.debug(
-                '[SWIFT_LOADER] writing %d bytes to temp file' % len(chunk)
+                '[SWIFT_LOADER] writing %d bytes to temp file' % len(chunk),
+                extra=log_extra
             )
             f.write(chunk)
 
@@ -98,32 +101,33 @@ def load_sync(context, url, callback):
         f.close()
 
         if len(body) == excerpt_length:
-            logger.debug('[SWIFT_LOADER] return_contents: %s' % f.name)
+            logger.debug('[SWIFT_LOADER] return_contents: %s' % f.name, extra=log_extra)
             context.wikimedia_original_file = f
 
             tornado.ioloop.IOLoop.instance().call_later(
                 context.config.HTTP_LOADER_TEMP_FILE_TIMEOUT,
                 partial(
                     cleanup_temp_file,
+                    context.request.url,
                     context.wikimedia_original_file.name
                 )
             )
         else:
             logger.debug('[SWIFT_LOADER] return_contents: small body')
-            cleanup_temp_file(f.name)
+            cleanup_temp_file(context.request.url, f.name)
 
         result.buffer = body
     except ClientException as e:
         logging.disable(logging.NOTSET)
         result.successful = False
         result.error = LoaderResult.ERROR_NOT_FOUND
-        logger.error('[SWIFT_LOADER] get_object failed: %s %r' % (url, e))
+        logger.error('[SWIFT_LOADER] get_object failed: %s %r' % (url, e), extra=log_extra)
         context.metrics.incr('swift_loader.status.client_exception')
     except requests.ConnectionError as e:
         logging.disable(logging.NOTSET)
         result.successful = False
         result.error = LoaderResult.ERROR_UPSTREAM
-        logger.error('[SWIFT_LOADER] get_object failed: %s %r' % (url, e))
+        logger.error('[SWIFT_LOADER] get_object failed: %s %r' % (url, e), extra=log_extra)
         context.metrics.incr('swift_loader.status.connection_error')
 
     callback(result)

@@ -37,6 +37,9 @@ class ExiftoolRunner:
         buffer='',
         input_temp_file=None
     ):
+        if context:
+            log_extra = {'url': context.request.url}
+
         start = datetime.datetime.now()
 
         if not input_temp_file:
@@ -49,7 +52,10 @@ class ExiftoolRunner:
         command.append(input_temp_file.name)
         command += post
 
-        logger.debug('[ExiftoolRunner] command: %r' % command)
+        if context:
+            logger.debug('[ExiftoolRunner] command: %r' % command, extra=log_extra)
+        else:
+            logger.debug('[ExiftoolRunner] command: %r' % command)
 
         code, stderr, stdout = ShellRunner.command(command, context)
 
@@ -60,7 +66,10 @@ class ExiftoolRunner:
         cls.add_duration_header(context, duration)
 
         if stderr:
-            logger.error('[ExiftoolRunner] error: %r' % stderr)
+            if context:
+                logger.error('[ExiftoolRunner] error: %r' % stderr, extra=log_extra)
+            else:
+                logger.error('[ExiftoolRunner] error: %r' % stderr)
 
         return stdout
 
