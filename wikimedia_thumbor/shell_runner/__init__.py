@@ -15,6 +15,7 @@ import datetime
 import errno
 from functools import partial
 import os
+import re
 import subprocess
 
 from thumbor.utils import logger
@@ -93,6 +94,14 @@ class ShellRunner:
         cls.debug(context, '[ShellRunner] Stderr: %s' % stderr)
         cls.debug(context, '[ShellRunner] Return code: %d' % proc.returncode)
         cls.debug(context, '[ShellRunner] Duration: %r' % duration)
+
+        simple_command_name = os.path.basename(command[0])
+        simple_command_name = re.sub(r'[^a-zA-Z0-9-]', r'', simple_command_name)
+
+        context.request_handler.add_header(
+            '%s-Time' % simple_command_name,
+            int(round(duration))
+        )
 
         return proc.returncode, stderr, stdout
 
