@@ -339,6 +339,11 @@ class ImagesHandler(ImagingHandler):
             json.dumps(translated)
         )
 
+        self.safe_set_header(
+            'Request-Date',
+            self.request.headers.get('Request-Date', 'None')
+        )
+
         return xkey
 
     @gen.coroutine
