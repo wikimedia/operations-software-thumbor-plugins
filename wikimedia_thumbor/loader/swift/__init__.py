@@ -49,12 +49,20 @@ def swift(context):
         context.config.SWIFT_AUTH_PATH
     )
 
+    # This allows us to set the value via config, instead of depending on the
+    # x-storage-url header returned by Swift during auth. This is a requirement
+    # for communicating with Swift via HTTPS.
+    os_options = {
+        'object_storage_url': context.config.SWIFT_HOST + context.config.SWIFT_API_PATH
+    }
+
     swiftconn = client.Connection(
         user=context.config.SWIFT_USER,
         key=context.config.SWIFT_KEY,
         authurl=authurl,
         timeout=context.config.SWIFT_CONNECTION_TIMEOUT,
-        retries=context.config.SWIFT_RETRIES
+        retries=context.config.SWIFT_RETRIES,
+        os_options=os_options
     )
 
     return swiftconn
