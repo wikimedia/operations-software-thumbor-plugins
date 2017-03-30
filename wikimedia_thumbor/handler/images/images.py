@@ -68,7 +68,7 @@ def _error(self, status, msg=None):
         self.set_status(status)
 
     if msg is not None:
-        if self.context.hasattr('request'):
+        if self.context and self.context.request:
             logger.warn(msg, extra={'url': self.context.request.url})
         else:
             logger.warn(msg)
