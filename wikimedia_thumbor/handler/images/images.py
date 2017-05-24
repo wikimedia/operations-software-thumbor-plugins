@@ -39,7 +39,7 @@ def _error(self, status, msg=None):
     xkey = self._headers.get('xkey', False)
     mc = self.failure_memcache()
     if status != 429 and xkey and mc:
-        key = str(self.context.config.get('FAILURE_THROTTLING_PREFIX', '') + xkey)
+        key = self._mc_encode_key(xkey)
         counter = mc.get(key)
         if not counter:
             # We add randomness to the expiry to avoid stampedes
@@ -85,6 +85,13 @@ def _mc(self):
     self.failure_mc = memcache.Client(self.context.config.FAILURE_THROTTLING_MEMCACHE)
     return self.failure_mc
 
+
+def _mc_encode_key(self, key):
+    return str(self.context.config.get('FAILURE_THROTTLING_PREFIX', '') +
+               'sha256:' + hashlib.sha256(key).hexdigest())
+
+
+BaseHandler._mc_encode_key = _mc_encode_key
 
 BaseHandler.failure_memcache = _mc
 
@@ -364,7 +371,7 @@ class ImagesHandler(ImagingHandler):
         mc = self.failure_memcache()
 
         if mc and xkey:
-            key = str(self.context.config.get('FAILURE_THROTTLING_PREFIX', '') + xkey)
+            key = self._mc_encode_key(xkey)
             counter = mc.get(key)
             if counter and int(counter) >= self.context.config.get('FAILURE_THROTTLING_MAX', 4):
                 self._error(
