@@ -87,8 +87,15 @@ def _mc(self):
 
 
 def _mc_encode_key(self, key):
-    return str(self.context.config.get('FAILURE_THROTTLING_PREFIX', '') +
-               'sha256:' + hashlib.sha256(key).hexdigest())
+    # Encoding is safe to do only in the unicode case,
+    # else we can't assume a specific encoding
+    if type(key) is unicode:
+        keybytes = bytes(key.encode('utf8', 'ignore'))
+    else:
+        keybytes = bytes(key)
+    keyhash = hashlib.sha256(keybytes).hexdigest()
+    prefix = self.context.config.get('FAILURE_THROTTLING_PREFIX', '')
+    return prefix + 'sha256:' + keyhash
 
 
 BaseHandler._mc_encode_key = _mc_encode_key
