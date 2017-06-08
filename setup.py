@@ -26,7 +26,7 @@ setup(
         'manhole',
         'python-memcached',
         'python-swiftclient',
-        'thumbor==6.3.2'
+        'thumbor==6.0.1'
     ],
     extras_require={
         'tests': tests_require,
