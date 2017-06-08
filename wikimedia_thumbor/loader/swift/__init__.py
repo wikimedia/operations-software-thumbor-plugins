@@ -24,6 +24,7 @@ from thumbor.loaders import LoaderResult
 from thumbor.utils import logger
 
 from wikimedia_thumbor.shell_runner import ShellRunner
+from wikimedia_thumbor.loader import are_request_dimensions_valid
 
 
 swiftconn = None
@@ -82,7 +83,27 @@ def load_sync(context, url, callback):
             '[SWIFT_LOADER] fetching %s from container %s' % (path, container),
             extra=log_extra
         )
+
         logging.disable(logging.ERROR)
+
+        # First do a HEAD request, because we want to inspect the headers for any size limit
+        headers = swift(context).head_object(
+            container,
+            path
+        )
+
+        # Only apply size limit check if X-Content-Dimensions header is found
+        if 'x-content-dimensions' in headers:
+            if not are_request_dimensions_valid(context, headers['x-content-dimensions']):
+                # This will result in a 400 and the request won't proceed further
+                logging.disable(logging.NOTSET)
+                result.successful = False
+                result.error = 400
+                logger.error('[SWIFT_LOADER] dimensions check failed: %s' % url, extra=log_extra)
+                context.metrics.incr('swift_loader.status.dimensions_error')
+                callback(result)
+                return
+
         headers, response = swift(context).get_object(
             container,
             path
