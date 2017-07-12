@@ -34,6 +34,7 @@ class Engine(BaseWikimediaEngine):
         command = [
             self.context.config.RSVG_CONVERT_PATH,
             self.source,
+            '-u',
             '-f',
             'png'
         ]

@@ -78,6 +78,12 @@ class WikimediaTest(WikimediaTestCase):
             1.0,
             1.0
         )
+        self.run_and_check_ssim_and_size(
+            'thumbor/unsafe/400x/filters:format(png)/Map_of_the_Beboid_languages.svg',
+            '400px-Map_of_the_Beboid_languages.svg.png',
+            1.0,
+            1.0
+        )
 
     def test_pdf(self):
         self.run_and_check_ssim_and_size(
