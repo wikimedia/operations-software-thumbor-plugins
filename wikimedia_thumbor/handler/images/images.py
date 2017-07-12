@@ -134,7 +134,7 @@ class ImagesHandler(ImagingHandler):
             r'(?:page(?P<page>\d+)-)?'
             r'(?:lang(?P<lang>[a-zA-Z]+)-)?'
             r'(?P<width>\d+)px-'
-            r'(?:seek=(?P<seek>\d+)-)?'
+            r'(?:(?:seek=|seek%3D)(?P<seek>\d+)-)?'
             r'(?P<end>[^/]+)'
             r'\.(?P<format>[a-zA-Z]+)'
         )
