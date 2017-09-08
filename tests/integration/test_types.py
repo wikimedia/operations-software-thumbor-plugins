@@ -249,8 +249,8 @@ class WikimediaTest(WikimediaTestCase):
         )
         # Animated GIF that triggers MAX_ANIMATED_GIF_AREA
         self.run_and_check_ssim_and_size(
-            'thumbor/unsafe/300x/tranylcypromine3DanJ.gif',
-            '300px-tranylcypromine3DanJ.gif',
+            'thumbor/unsafe/300x/Tranylcypromine3DanJ.gif',
+            '300px-Tranylcypromine3DanJ.gif',
             1.0,
             1.0
         )
