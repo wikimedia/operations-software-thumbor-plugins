@@ -132,6 +132,7 @@ class Engine(BaseEngine):
                 # Distinctive key name to avoid colliding with EXIF_FIELDS_TO_KEEP
                 self.exif['Pyexiv2Orientation'] = metadata.get('Exif.Image.Orientation').value
         except IOError:
+            logging.disable(logging.NOTSET)
             self.debug('[IM] Could not read EXIF with pyexiv2')
 
         stdout = Engine.exiftool.command(
