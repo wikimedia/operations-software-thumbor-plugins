@@ -57,10 +57,8 @@ def _error(self, status, msg=None):
         record_timing(self.context, datetime.datetime.now() - start, 'memcache.set', 'Memcache-Set-Time')
 
     # Errors should explicitely not be cached
-    self.set_header(
-        'Cache-Control',
-        'no-cache'
-    )
+    self.set_header('Cache-Control', 'no-cache')
+
     self.clear_header('xkey')
     self.clear_header('Content-Disposition')
     self.clear_header('Wikimedia-Original-Container')
@@ -374,6 +372,11 @@ class ImagesHandler(ImagingHandler):
         self.safe_set_header(
             'Request-Date',
             self.request.headers.get('Request-Date', 'None')
+        )
+
+        self.safe_set_header(
+            'Thumbor-Request-Id',
+            self.request.headers.get('Thumbor-Request-Id', 'None')
         )
 
         return xkey
