@@ -488,8 +488,13 @@ class ImagesHandler(ImagingHandler):
         self.poolcounter_time += datetime.datetime.now() - start
         self.pc = None
 
-        log_extra = {'url': self.context.request.url}
-        logger.error('[ImagesHandler] Throttled by PoolCounter: %s %r' % (key, cfg), extra=log_extra)
+        log_extra = {
+            'url': self.context.request.url,
+            'poolcounter-key': key,
+            'poolcounter-config': cfg
+        }
+
+        logger.error('[ImagesHandler] Throttled by PoolCounter', extra=log_extra)
 
         record_timing(self.context, self.poolcounter_time, 'poolcounter.time', 'Poolcounter-Time')
 
