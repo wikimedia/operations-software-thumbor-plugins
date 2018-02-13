@@ -19,6 +19,7 @@ from thumbor.utils import logger
 
 from wikimedia_thumbor.shell_runner import ShellRunner
 from wikimedia_thumbor.engine.imagemagick import Engine as IMEngine
+from wikimedia_thumbor.logging import log_extra
 
 
 class CommandError(Exception):
@@ -82,4 +83,4 @@ class BaseWikimediaEngine(IMEngine):
         return stdout
 
     def debug(self, message):
-        logger.debug(message, extra={'url': self.context.request.url})
+        logger.debug(message, extra=log_extra(self.context))

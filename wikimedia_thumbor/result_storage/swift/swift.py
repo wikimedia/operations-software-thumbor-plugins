@@ -17,7 +17,7 @@ from tornado.concurrent import return_future
 from thumbor.result_storages import BaseStorage
 from thumbor.utils import logger
 
-from wikimedia_thumbor.logging import record_timing
+from wikimedia_thumbor.logging import record_timing, log_extra
 
 
 class Storage(BaseStorage):
@@ -137,7 +137,7 @@ class Storage(BaseStorage):
             callback(None)
 
     def debug(self, message):
-        logger.debug(message, extra={'url': self.context.request.url})
+        logger.debug(message, extra=log_extra(self.context))
 
     def error(self, message):
-        logger.error(message, extra={'url': self.context.request.url})
+        logger.error(message, extra=log_extra(self.context))
