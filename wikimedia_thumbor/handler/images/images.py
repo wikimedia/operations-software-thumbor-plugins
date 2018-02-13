@@ -56,7 +56,7 @@ def _error(self, status, msg=None):
         else:
             mc.incr(key)
 
-        record_timing(self.context, datetime.datetime.now() - start, 'memcache.set', 'Memcache-Set-Time')
+        record_timing(self.context, datetime.datetime.now() - start, 'memcache.set', 'Thumbor-Memcache-Set-Time')
 
     # Errors should explicitely not be cached
     self.set_header('Cache-Control', 'no-cache')
@@ -347,22 +347,22 @@ class ImagesHandler(ImagingHandler):
         )
 
         self.safe_set_header(
-            'Wikimedia-Original-Container',
+            'Thumbor-Wikimedia-Original-Container',
             self.context.wikimedia_original_container
         )
 
         self.safe_set_header(
-            'Wikimedia-Thumbnail-Container',
+            'Thumbor-Wikimedia-Thumbnail-Container',
             self.context.wikimedia_thumbnail_container
         )
 
         self.safe_set_header(
-            'Wikimedia-Original-Path',
+            'Thumbor-Wikimedia-Original-Path',
             self.context.wikimedia_original_filepath
         )
 
         self.safe_set_header(
-            'Wikimedia-Thumbnail-Path',
+            'Thumbor-Wikimedia-Thumbnail-Path',
             self.context.wikimedia_thumbnail_save_path
         )
 
@@ -372,13 +372,8 @@ class ImagesHandler(ImagingHandler):
         )
 
         self.safe_set_header(
-            'Request-Date',
-            self.request.headers.get('Request-Date', 'None')
-        )
-
-        self.safe_set_header(
-            'Thumbor-Request-Id',
-            self.request.headers.get('Thumbor-Request-Id', 'None')
+            'Nginx-Request-Date',
+            self.request.headers.get('Nginx-Request-Date', 'None')
         )
 
         return xkey
@@ -420,7 +415,7 @@ class ImagesHandler(ImagingHandler):
 
             start = datetime.datetime.now()
             counter = mc.get(key)
-            record_timing(self.context, datetime.datetime.now() - start, 'memcache.get', 'Memcache-Get-Time')
+            record_timing(self.context, datetime.datetime.now() - start, 'memcache.get', 'Thumbor-Memcache-Get-Time')
 
             if counter and int(counter) >= self.context.config.get('FAILURE_THROTTLING_MAX', 4):
                 self._error(
@@ -456,7 +451,7 @@ class ImagesHandler(ImagingHandler):
         if throttled:
             return
 
-        record_timing(self.context, self.poolcounter_time, 'poolcounter.time', 'Poolcounter-Time')
+        record_timing(self.context, self.poolcounter_time, 'poolcounter.time', 'Thumbor-Poolcounter-Time')
 
         self.execute_image_operations()
 
@@ -506,7 +501,7 @@ class ImagesHandler(ImagingHandler):
 
         logger.error('[ImagesHandler] Throttled by PoolCounter', extra=log_extra)
 
-        record_timing(self.context, self.poolcounter_time, 'poolcounter.time', 'Poolcounter-Time')
+        record_timing(self.context, self.poolcounter_time, 'poolcounter.time', 'Thumbor-Poolcounter-Time')
 
         self.poolcounter_time = datetime.timedelta(0)
 

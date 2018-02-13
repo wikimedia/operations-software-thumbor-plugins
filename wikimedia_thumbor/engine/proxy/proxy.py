@@ -110,7 +110,7 @@ class Engine(BaseEngine):
 
         # Now that we'll select the right engine, let's initialize it
         self.lcl['context'].request_handler.set_header(
-            'Engine',
+            'Thumbor-Engine',
             enginename
         )
 
@@ -137,13 +137,13 @@ class Engine(BaseEngine):
 
         self.record_timing(
             'processing_time',
-            'Processing-Time',
+            'Thumbor-Processing-Time',
             datetime.datetime.now()
         )
 
         self.record_timing(
             'processing_utime',
-            'Processing-Utime',
+            'Thumbor-Processing-Utime',
             utime()
         )
 
