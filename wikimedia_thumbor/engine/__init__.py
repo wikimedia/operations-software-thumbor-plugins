@@ -61,7 +61,7 @@ class BaseWikimediaEngine(IMEngine):
         if hasattr(self, 'temp_dir'):
             shutil.rmtree(self.temp_dir, True)
 
-    def command(self, command, env=None, clean_on_error=True):
+    def command(self, command, env=None, clean_on_error=True, clean_on_success=True):
         returncode, stderr, stdout = ShellRunner.command(
             command,
             self.context,
@@ -78,7 +78,8 @@ class BaseWikimediaEngine(IMEngine):
                 returncode
             )
 
-        self.cleanup_source()
+        if clean_on_success:
+            self.cleanup_source()
 
         return stdout
 
