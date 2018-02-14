@@ -63,10 +63,10 @@ def _error(self, status, msg=None):
 
     self.clear_header('xkey')
     self.clear_header('Content-Disposition')
-    self.clear_header('Wikimedia-Original-Container')
-    self.clear_header('Wikimedia-Thumbnail-Container')
-    self.clear_header('Wikimedia-Original-Path')
-    self.clear_header('Wikimedia-Thumbnail-Path')
+    self.clear_header('Thumbor-Wikimedia-Original-Container')
+    self.clear_header('Thumbor-Wikimedia-Thumbnail-Container')
+    self.clear_header('Thumbor-Wikimedia-Original-Path')
+    self.clear_header('Thumbor-Wikimedia-Thumbnail-Path')
     self.clear_header('Thumbor-Parameters')
 
     if status == 429:
