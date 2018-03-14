@@ -372,8 +372,8 @@ class ImagesHandler(ImagingHandler):
         )
 
         self.safe_set_header(
-            'Nginx-Request-Date',
-            self.request.headers.get('Nginx-Request-Date', 'None')
+            'Proxy-Request-Date',
+            self.request.headers.get('Proxy-Request-Date', 'None')
         )
 
         return xkey
