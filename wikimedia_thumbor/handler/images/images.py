@@ -568,7 +568,7 @@ class ImagesHandler(ImagingHandler):
         try:
             results, content_type = BaseHandler._load_results(self, context)
         except Exception:
-            logger.exception('[ImagesHandler] Exception during _load_results')
+            logger.exception('[ImagesHandler] Exception during _load_results', extra=log_extra(context))
             self._error(500)
             return None, None
 
