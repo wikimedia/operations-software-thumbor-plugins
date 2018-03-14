@@ -194,6 +194,13 @@ class WikimediaTest(WikimediaTestCase):
             0.99,
             1.0
         )
+        # T179200 Partially broken PNG
+        self.run_and_check_ssim_and_size(
+            'thumbor/unsafe/400x/Nokia_3310_2017_DS.png',
+            '400px-Nokia_3310_2017_DS.png',
+            0.99,
+            1.1
+        )
 
     def test_crop(self):
         self.run_and_check_ssim_and_size(
