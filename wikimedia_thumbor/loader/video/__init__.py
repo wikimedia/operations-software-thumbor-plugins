@@ -83,7 +83,7 @@ def load_sync(context, url, callback):
             'X-Auth-Token: %s' % get_swift_token(context),
         ]
 
-    command += [ '%s' % normalized_url ]
+    command += ['%s' % normalized_url]
 
     command = ShellRunner.wrap_command(command, context)
 
