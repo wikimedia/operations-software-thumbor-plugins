@@ -1,5 +1,7 @@
 import platform
 
+from nose.plugins.skip import SkipTest
+
 from . import WikimediaTestCase
 
 
@@ -194,6 +196,8 @@ class WikimediaTest(WikimediaTestCase):
             0.99,
             1.0
         )
+
+    def test_broken_png(self):
         # T179200 Partially broken PNG
         self.run_and_check_ssim_and_size(
             'thumbor/unsafe/400x/Nokia_3310_2017_DS.png',
@@ -201,6 +205,9 @@ class WikimediaTest(WikimediaTestCase):
             0.99,
             1.1
         )
+        # That file only works with recent versions of ImageMagick
+        # Our production version doesn't support it yet
+        raise SkipTest
 
     def test_crop(self):
         self.run_and_check_ssim_and_size(
