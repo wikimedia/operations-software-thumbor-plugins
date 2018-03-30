@@ -274,8 +274,10 @@ class ImagesHandler(ImagingHandler):
 
         filters = []
 
-        if kw['format'].lower() in ('jpe', 'jpeg'):
-            kw['format'] = 'jpg'
+        normalized_format = kw['format'].lower()
+
+        if normalized_format in ('jpe', 'jpeg'):
+            normalized_format = 'jpg'
 
         if kw['extension'].lower() in ('jpg', 'jpe', 'jpeg'):
             if (
@@ -289,7 +291,7 @@ class ImagesHandler(ImagingHandler):
                 logger.debug('[ImagesHandler] apply JPG default filters')
                 filters.append(self.context.config.DEFAULT_FILTERS_JPEG)
 
-        filters.append('format(%s)' % kw['format'])
+        filters.append('format(%s)' % normalized_format)
 
         page = kw.get('page')
 
