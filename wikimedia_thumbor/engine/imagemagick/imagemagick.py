@@ -144,8 +144,8 @@ class Engine(BaseEngine):
             self.debug('[IM] Could not read EXIF with pyexiv2')
 
         stdout = Engine.exiftool.command(
-            pre=command,
             context=self.context,
+            pre=command,
             input_temp_file=input_temp_file
         )
 
@@ -185,8 +185,8 @@ class Engine(BaseEngine):
         ]
 
         self.icc_profile_saved = Engine.exiftool.command(
-            pre=command,
             context=self.context,
+            pre=command,
             input_temp_file=input_temp_file
         )
 

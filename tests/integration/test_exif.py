@@ -1,10 +1,9 @@
-import logging
+import json
 import os
 import shutil
-from fractions import Fraction
 from PIL import Image
 from tempfile import NamedTemporaryFile
-from pyexiv2 import ImageMetadata
+from wikimedia_thumbor.exiftool_runner import ExiftoolRunner
 from wikimedia_thumbor.shell_runner import ShellRunner
 
 from . import WikimediaTestCase
@@ -42,17 +41,19 @@ class WikimediaExifTest(WikimediaTestCase):
         with open(temp_file.name, 'wb') as f:
             shutil.copyfileobj(result_buffer, f)
 
-        metadata = ImageMetadata(temp_file.name)
-        logging.disable(logging.ERROR)
-        metadata.read()
-        logging.disable(logging.NOTSET)
+        exiftool_args = ['-json', '-sort']
+        exiftool_args += ['-' + s for s in list(expected.keys())]
+
+        stdout = ExiftoolRunner().command(
+            pre=exiftool_args,
+            context=self.ctx,
+            input_temp_file=temp_file
+        )
 
         ShellRunner.rm_f(temp_file.name)
 
-        found = {}
-
-        for field in metadata.exif_keys:
-            found[field] = metadata.get(field).value
+        found = json.loads(stdout)[0]
+        del found['SourceFile']
 
         assert found == expected, 'EXIF fields mismatch. Expected: %r Found: %r' % (expected, found)
 
@@ -101,27 +102,22 @@ class WikimediaExifTest(WikimediaTestCase):
         )
 
     def test_exif_filtering(self):
+        # Note that exiftool is too crude for us to test that cruft is removed by the filtering
+        # and this test only verified that fields that ought to be maintained are. Cruft removal
+        # is indirectly tested by all the file size constraints on tests outputting JPG and WEBP.
         self.run_and_check_exif(
             'thumbor/unsafe/800x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85)/Munich_subway_station_Westfriedhof.jpg',
             {
-                'Exif.Image.YCbCrPositioning': 1,
-                'Exif.Image.Copyright': 'some rights reserved',
-                'Exif.Image.XResolution': Fraction(72, 1),
-                'Exif.Image.Artist': 'Martin Falbisoner',
-                'Exif.Image.YResolution': Fraction(72, 1),
-                'Exif.Image.ResolutionUnit': 2
+                'Artist': 'Martin Falbisoner',
+                'Copyright': 'some rights reserved',
             },
             None
         )
         self.run_and_check_exif(
             'thumbor/unsafe/800x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85):format(webp)/Munich_subway_station_Westfriedhof.jpg',
             {
-                'Exif.Image.YCbCrPositioning': 1,
-                'Exif.Image.Copyright': 'some rights reserved',
-                'Exif.Image.XResolution': Fraction(72, 1),
-                'Exif.Image.Artist': 'Martin Falbisoner',
-                'Exif.Image.YResolution': Fraction(72, 1),
-                'Exif.Image.ResolutionUnit': 2
+                'Artist': 'Martin Falbisoner',
+                'Copyright': 'some rights reserved',
             },
             None
         )
