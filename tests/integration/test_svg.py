@@ -58,7 +58,7 @@ class WikimediaTest(WikimediaTestCase):
             200,
             205,
             0.94,
-            0.49
+            0.5
         )
         self.run_and_check_ssim_and_size(
             'thumbor/unsafe/400x/filters:format(png)/Northumberland_in_England.svg',
@@ -76,7 +76,7 @@ class WikimediaTest(WikimediaTestCase):
             400,
             486,
             1.0,
-            0.46
+            0.5
         )
         self.run_and_check_ssim_and_size(
             'thumbor/unsafe/400x/filters:format(png)/Map_of_the_Beboid_languages.svg',
@@ -94,7 +94,7 @@ class WikimediaTest(WikimediaTestCase):
             400,
             249,
             0.99,
-            0.75
+            0.86
         )
         self.run_and_check_ssim_and_size(
             'thumbor/unsafe/400x/filters:format(png)/Westmoreland_Heritage_Trail.svg',
@@ -151,5 +151,5 @@ class WikimediaTest(WikimediaTestCase):
             # low score. This can be avoided in webp >= 0.5 with the -exact function, currently
             # only available on Debian Stretch.
             0.63,
-            0.59
+            0.67
         )
