@@ -22,5 +22,5 @@ class WikimediaTest(WikimediaTestCase):
             400,
             431,
             0.92,
-            0.55
+            0.66
         )

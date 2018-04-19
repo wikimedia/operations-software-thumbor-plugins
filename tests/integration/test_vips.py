@@ -25,7 +25,7 @@ class WikimediaVipsTest(WikimediaTestCase):
             400,
             254,
             0.98,
-            1.08,
+            1.12,
         )
 
     def test_multipage_tiff(self):
@@ -45,7 +45,7 @@ class WikimediaVipsTest(WikimediaTestCase):
             400,
             518,
             0.99,
-            0.66,
+            0.68,
         )
 
     def test_multipage_tiff_without_page_filter(self):
@@ -65,7 +65,7 @@ class WikimediaVipsTest(WikimediaTestCase):
             400,
             518,
             0.99,
-            0.59,
+            0.61,
         )
 
     def test_multipage_tiff_with_out_of_bounds_page(self):
@@ -85,7 +85,7 @@ class WikimediaVipsTest(WikimediaTestCase):
             400,
             518,
             0.99,
-            0.59,
+            0.61,
         )
 
     def test_png(self):

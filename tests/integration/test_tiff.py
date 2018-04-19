@@ -37,7 +37,7 @@ class WikimediaTest(WikimediaTestCase):
             300,
             202,
             0.97,
-            0.62,
+            0.64,
         )
         self.run_and_check_ssim_and_size(
             'thumbor/unsafe/300x/Hafnia_alvei.tif',

@@ -479,7 +479,9 @@ class Engine(BaseEngine):
         ]
 
         if self.webp['lossless']:
-            command += ['-lossless', '-exact']
+            # for webp >= 0.5 (Debian Stretch) -exact might be a desirable option to add
+            # https://github.com/webmproject/libwebp/commit/1f9be97c22d991816cd72a9d83569d15dcf75965
+            command += ['-lossless']
         else:
             command += ['-q', '%s' % self.webp['quality']]
 

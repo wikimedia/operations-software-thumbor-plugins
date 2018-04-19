@@ -10,7 +10,7 @@ class WikimediaTest(WikimediaTestCase):
             10,
             10,
             0.98,
-            0.99
+            1.0
         )
         self.run_and_check_ssim_and_size(
             'thumbor/unsafe/400x/filters:crop(10,10,20,20):format(webp)/1Mcolors.png',
@@ -99,7 +99,7 @@ class WikimediaTest(WikimediaTestCase):
             1000,
             1000,
             1.0,
-            0.17
+            0.18
         )
         self.run_and_check_ssim_and_size(
             'thumbor/unsafe/Tower.jpg',

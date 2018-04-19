@@ -52,7 +52,10 @@ class WikimediaTest(WikimediaTestCase):
             '400px-PNG_transparency_demonstration_1.png',
             400,
             300,
-            0.97,
+            # WebP compresses the alpha layer more agressively by default, which results in this
+            # low score. This can be avoided in webp >= 0.5 with the -exact function, currently
+            # only available on Debian Stretch.
+            0.70,
             1.1
         )
         self.run_and_check_ssim_and_size(

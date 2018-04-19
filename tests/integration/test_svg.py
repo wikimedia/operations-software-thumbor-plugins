@@ -37,7 +37,7 @@ class WikimediaTest(WikimediaTestCase):
             200,
             200,
             0.99,
-            0.63
+            0.66
         )
         self.run_and_check_ssim_and_size(
             'thumbor/unsafe/200x/filters:format(png)/Lori_in_Armenia.svg',
