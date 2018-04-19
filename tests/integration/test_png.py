@@ -44,9 +44,18 @@ class WikimediaTest(WikimediaTestCase):
         )
 
     def test_transparent(self):
-        # We add a no-op filter to trigger image_data_as_rgb on an RGBA image
         self.run_and_check_ssim_and_size(
-            'thumbor/unsafe/400x/filters:conditional_sharpen(0.0,0.0,0.0,0.0,0.0)/' +
+            'thumbor/unsafe/400x/' +
+            'PNG_transparency_demonstration_1.png',
+            '400px-PNG_transparency_demonstration_1.png',
+            '400px-PNG_transparency_demonstration_1.png',
+            400,
+            300,
+            0.70,
+            1.1
+        )
+        self.run_and_check_ssim_and_size(
+            'thumbor/unsafe/400x/filters:format(webp)/' +
             'PNG_transparency_demonstration_1.png',
             '400px-PNG_transparency_demonstration_1.png',
             '400px-PNG_transparency_demonstration_1.png',
@@ -55,16 +64,6 @@ class WikimediaTest(WikimediaTestCase):
             # WebP compresses the alpha layer more agressively by default, which results in this
             # low score. This can be avoided in webp >= 0.5 with the -exact function, currently
             # only available on Debian Stretch.
-            0.70,
-            1.1
-        )
-        self.run_and_check_ssim_and_size(
-            'thumbor/unsafe/400x/filters:conditional_sharpen(0.0,0.0,0.0,0.0,0.0):format(webp)/' +
-            'PNG_transparency_demonstration_1.png',
-            '400px-PNG_transparency_demonstration_1.png',
-            '400px-PNG_transparency_demonstration_1.png',
-            400,
-            300,
-            0.97,
+            0.23,
             0.68
         )

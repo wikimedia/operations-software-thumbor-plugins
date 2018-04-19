@@ -19,7 +19,7 @@ class WikimediaTest(WikimediaTestCase):
             10,
             10,
             0.98,
-            0.12
+            0.25
         )
 
     def test_flip_x(self):

@@ -36,7 +36,10 @@ class WikimediaTest(WikimediaTestCase):
             '200px-Television.svg.png',
             200,
             200,
-            0.99,
+            # WebP compresses the alpha layer more agressively by default, which results in this
+            # low score. This can be avoided in webp >= 0.5 with the -exact function, currently
+            # only available on Debian Stretch.
+            0.81,
             0.66
         )
         self.run_and_check_ssim_and_size(
@@ -55,7 +58,7 @@ class WikimediaTest(WikimediaTestCase):
             200,
             205,
             0.94,
-            0.48
+            0.49
         )
         self.run_and_check_ssim_and_size(
             'thumbor/unsafe/400x/filters:format(png)/Northumberland_in_England.svg',
@@ -144,6 +147,9 @@ class WikimediaTest(WikimediaTestCase):
             '119px-BuickLogo_silber.svg.png',
             119,
             120,
-            1.0,
+            # WebP compresses the alpha layer more agressively by default, which results in this
+            # low score. This can be avoided in webp >= 0.5 with the -exact function, currently
+            # only available on Debian Stretch.
+            0.63,
             0.59
         )
