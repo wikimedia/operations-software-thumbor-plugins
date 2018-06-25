@@ -33,7 +33,7 @@ class WikimediaVideoTest(WikimediaTestCase):
             640,
             480,
             0.97,
-            0.42
+            0.49
         )
 
     def test_webm(self):
@@ -59,7 +59,7 @@ class WikimediaVideoTest(WikimediaTestCase):
             320,
             240,
             0.99,
-            0.53
+            0.54
         )
 
         path = os.path.join(
@@ -84,7 +84,7 @@ class WikimediaVideoTest(WikimediaTestCase):
             640,
             361,
             0.96,
-            0.37
+            0.38
         )
 
         path = os.path.join(
@@ -136,4 +136,30 @@ class WikimediaVideoTest(WikimediaTestCase):
             240,
             0.99,
             0.41
+        )
+
+    def test_non_square_pixels(self):
+        path = os.path.join(
+            os.path.dirname(__file__),
+            'originals',
+            'Malta-cat.ogv'
+        )
+
+        self.run_and_check_ssim_and_size(
+            'thumbor/unsafe/800x/' + path,
+            '800px-Malta-cat.ogv.jpg',
+            '800px-Malta-cat.ogv.png',
+            800,
+            450,
+            0.96,
+            0.85
+        )
+        self.run_and_check_ssim_and_size(
+            'thumbor/unsafe/800x/filters:format(webp)/' + path,
+            '800px-Malta-cat.ogv.jpg',
+            '800px-Malta-cat.ogv.png',
+            800,
+            450,
+            0.95,
+            0.49
         )
