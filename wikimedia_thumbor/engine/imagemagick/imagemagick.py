@@ -12,6 +12,7 @@
 # ImageMagick engine
 
 import logging
+import platform
 from tempfile import NamedTemporaryFile
 from pyexiv2 import ImageMetadata
 
@@ -486,9 +487,12 @@ class Engine(BaseEngine):
         ]
 
         if self.webp['lossless']:
-            # for webp >= 0.5 (Debian Stretch) -exact might be a desirable option to add
-            # https://github.com/webmproject/libwebp/commit/1f9be97c22d991816cd72a9d83569d15dcf75965
-            command += ['-lossless']
+            # The -exact option was introduced in webp 0.5, which is only available on Stretch
+            distname, distversion, distid = platform.linux_distribution()
+            if distname == 'debian' and float(distversion) >= 9:
+                command += ['-lossless', '-exact']
+            else:
+                command += ['-lossless']
         else:
             command += ['-q', '%s' % self.webp['quality']]
 

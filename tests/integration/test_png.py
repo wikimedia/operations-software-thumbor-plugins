@@ -5,6 +5,10 @@ from nose.plugins.skip import SkipTest
 from . import WikimediaTestCase
 
 
+distname, distversion, distid = platform.linux_distribution()
+distversion = float(distversion)
+
+
 class WikimediaTest(WikimediaTestCase):
     def test_png(self):
         self.run_and_check_ssim_and_size(
@@ -64,7 +68,7 @@ class WikimediaTest(WikimediaTestCase):
             # WebP compresses the alpha layer more agressively by default, which results in this
             # low score. This can be avoided in webp >= 0.5 with the -exact function, currently
             # only available on Debian Stretch.
-            0.23,
+            0.99 if distname == 'debian' and distversion >= 9 else 0.23,
             0.68
         )
         # Palette PNG
