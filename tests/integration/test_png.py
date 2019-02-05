@@ -86,3 +86,36 @@ class WikimediaTest(WikimediaTestCase):
             # or, as it does automatically here, converts the output to an RGBA image and conserves fidelity
             1.13
         )
+        # Greyscale with alpha
+        self.run_and_check_ssim_and_size(
+            'thumbor/unsafe/400x/' +
+            'Quillette.png',
+            '400px-Quillette.png',
+            '400px-Quillette.png',
+            400,
+            100,
+           0.99,
+           1.01
+        )
+        # RGB with tRNS and no alpha channel
+        self.run_and_check_ssim_and_size(
+            'thumbor/unsafe/100x/' +
+            'RGB_with_tRNS.png',
+            '100px-RGB_with_tRNS.png',
+            '100px-RGB_with_tRNS.png',
+            100,
+            100,
+           0.99,
+           1.0
+        )
+        # Greyscale with tRNS and no alpha channel
+        self.run_and_check_ssim_and_size(
+            'thumbor/unsafe/100x/' +
+            'Greyscale_with_tRNS.png',
+            '100px-Greyscale_with_tRNS.png',
+            '100px-Greyscale_with_tRNS.png',
+            100,
+            100,
+           0.99,
+           1.0
+        )

@@ -111,7 +111,8 @@ class Engine(BaseEngine):
             'ImageSize',
             'ProfileDescription',
             'ColorType',
-            'FileType'
+            'FileType',
+            'Transparency'
         ]
 
         fields += self.context.config.EXIF_FIELDS_TO_KEEP
@@ -412,7 +413,9 @@ class Engine(BaseEngine):
         # on the Debian Jessie version of IM (6.8.9-9). Only apply to RGBA and Palette (indexed)
         # PNGs, because otherwise it would turn thumbnails of RGB PNGs into RGBA, thumbnails
         # increasing their file size significantly.
-        if 'ColorType' in self.exif and self.exif['ColorType'] in ['RGB with Alpha', 'Palette']:
+        if ('ColorType' in self.exif
+            and self.exif['ColorType'] in ['RGB with Alpha', 'Grayscale with Alpha', 'Palette']) \
+            or 'Transparency' in self.exif:
             operators += ['-background', 'none']
 
         self.queue_operators(operators)
