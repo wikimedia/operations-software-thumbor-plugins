@@ -6,11 +6,7 @@ from . import WikimediaTestCase
 
 
 distname, distversion, distid = platform.linux_distribution()
-
-try:
-    distversion = float(distversion)
-except ValueError:
-    distversion = -1
+distversion = float(distversion)
 
 
 class WikimediaTest(WikimediaTestCase):
