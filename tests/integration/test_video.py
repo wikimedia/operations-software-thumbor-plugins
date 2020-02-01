@@ -163,3 +163,55 @@ class WikimediaVideoTest(WikimediaTestCase):
             0.95,
             0.49
         )
+
+    def test_mpeg1(self):
+        path = os.path.join(
+            os.path.dirname(__file__),
+            'originals',
+            'Visualization-pone.0014754.s006.mpg'
+        )
+
+        self.run_and_check_ssim_and_size(
+            'thumbor/unsafe/640x/' + path,
+            '640px--Visualization-pone.0014754.s006.mpg.jpg',
+            '640px--Visualization-pone.0014754.s006.mpg.png',
+            640,
+            480,
+            0.98,
+            0.76
+        )
+        self.run_and_check_ssim_and_size(
+            'thumbor/unsafe/640x/filters:format(webp)/' + path,
+            '640px--Visualization-pone.0014754.s006.mpg.jpg',
+            '640px--Visualization-pone.0014754.s006.mpg.png',
+            640,
+            480,
+            0.97,
+            0.49
+        )
+
+    def test_mpeg2(self):
+        path = os.path.join(
+            os.path.dirname(__file__),
+            'originals',
+            'Folgers.mpg'
+        )
+
+        self.run_and_check_ssim_and_size(
+            'thumbor/unsafe/640x/' + path,
+            '640px--Folgers.mpg.jpg',
+            '640px--Folgers.mpg.png',
+            640,
+            480,
+            0.98,
+            0.76
+        )
+        self.run_and_check_ssim_and_size(
+            'thumbor/unsafe/640x/filters:format(webp)/' + path,
+            '640px--Folgers.mpg.jpg',
+            '640px--Folgers.mpg.png',
+            640,
+            480,
+            0.97,
+            0.49
+        )

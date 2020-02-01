@@ -41,7 +41,9 @@ def should_run(url):  # pragma: no cover
 
     if (normalized_url.endswith('.ogv') or
             normalized_url.endswith('.ogg') or
-            normalized_url.endswith('.webm')):
+            normalized_url.endswith('.webm') or
+            normalized_url.endswith('.mpg') or
+            normalized_url.endswith('.mpeg')):
         return True
 
     return False
