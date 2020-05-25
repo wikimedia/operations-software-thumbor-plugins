@@ -17,6 +17,7 @@ import hashlib
 import md5
 import memcache
 import random
+import sys
 import tornado.ioloop
 import tornado.gen as gen
 
@@ -30,6 +31,9 @@ from wikimedia_thumbor.logging import record_timing, log_extra
 
 
 BaseHandler._old_error = BaseHandler._error
+
+if sys.version_info[0] >= 3:
+    unicode = str
 
 
 # We need to monkey-patch BaseHandler because otherwise we

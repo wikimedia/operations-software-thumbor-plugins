@@ -109,8 +109,8 @@ class WikimediaSwiftTestCase(WikimediaTestCase):
         return cfg
 
     def mock_put_object(self, container, obj, contents, content_length=None,
-                   etag=None, chunk_size=None, content_type=None,
-                   headers=None, query_string=None, response_dict=None):
+                        etag=None, chunk_size=None, content_type=None,
+                        headers=None, query_string=None, response_dict=None):
         self.put_object_calls += 1
 
         assert container == 'wikipedia-en-local-thumb.d3', \
@@ -121,7 +121,7 @@ class WikimediaSwiftTestCase(WikimediaTestCase):
             'Unexpected swift headers: %r' % headers
 
     def mock_get_object(self, container, obj, resp_chunk_size=None,
-                   query_string=None, response_dict=None, headers=None):
+                        query_string=None, response_dict=None, headers=None):
         self.get_object_calls += 1
 
         if self.get_object_calls == 1:
@@ -159,25 +159,11 @@ class WikimediaSwiftTestCase(WikimediaTestCase):
                 return {}, f.read()
 
     def test_swift(self):
+        # Thumbnail doesn't exist yet
         self.retrieve(
             '/wikipedia/en/thumb/d/d3/1Mcolors.png/400px-1Mcolors.png'
         )
-
-        def mock_get_object_thumbnail(self, container, obj, resp_chunk_size=None,
-                       query_string=None, response_dict=None, headers=None):
-            assert container == 'wikipedia-en-local-thumb.d3', \
-                'Unexpected swift container: %r' % container
-            assert obj == 'thumbor/d/d3/1Mcolors.png/400px-1Mcolors.png', \
-                'Unexpected swift obj: %r' % obj
-
-            path = os.path.join(
-                os.path.dirname(__file__),
-                'thumbnails',
-                '400px-1Mcolors.png'
-            )
-            with open(path, 'r') as f:
-                return {'Xkey': 'File:1Mcolors.png'}, f.read()
-
+        # Thumbnail exists now
         self.retrieve(
             '/wikipedia/en/thumb/d/d3/1Mcolors.png/400px-1Mcolors.png'
         )
