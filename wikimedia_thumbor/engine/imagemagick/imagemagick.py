@@ -14,7 +14,7 @@
 import logging
 import platform
 from tempfile import NamedTemporaryFile
-from pyexiv2 import ImageMetadata
+from pyexiv2 import ImageMetadata, ExifValueError
 
 from thumbor.utils import logger
 from thumbor.engines import BaseEngine
@@ -144,7 +144,7 @@ class Engine(BaseEngine):
             if 'Exif.Image.Orientation' in metadata.exif_keys:
                 # Distinctive key name to avoid colliding with EXIF_FIELDS_TO_KEEP
                 self.exif['Pyexiv2Orientation'] = metadata.get('Exif.Image.Orientation').value
-        except IOError:
+        except (IOError, ExifValueError):
             self.debug('[IM] Could not read EXIF with pyexiv2')
         except RuntimeError as e:
             # T245440 exiv2 0.25-3.1+deb9u1 handles missing metadata as corruption, and
