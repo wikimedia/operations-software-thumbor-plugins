@@ -176,18 +176,18 @@ class WikimediaVideoTest(WikimediaTestCase):
             '640px--Visualization-pone.0014754.s006.mpg.jpg',
             '640px--Visualization-pone.0014754.s006.mpg.png',
             640,
-            480,
-            0.98,
-            0.76
+            513,
+            0.96,
+            0.75
         )
         self.run_and_check_ssim_and_size(
             'thumbor/unsafe/640x/filters:format(webp)/' + path,
             '640px--Visualization-pone.0014754.s006.mpg.jpg',
             '640px--Visualization-pone.0014754.s006.mpg.png',
             640,
-            480,
-            0.97,
-            0.49
+            513,
+            0.96,
+            0.75
         )
 
     def test_mpeg2(self):
@@ -198,20 +198,20 @@ class WikimediaVideoTest(WikimediaTestCase):
         )
 
         self.run_and_check_ssim_and_size(
-            'thumbor/unsafe/640x/' + path,
-            '640px--Folgers.mpg.jpg',
-            '640px--Folgers.mpg.png',
-            640,
-            480,
+            'thumbor/unsafe/352x/' + path,
+            '352px--Folgers.mpg.jpg',
+            '352px--Folgers.mpg.png',
+            352,
+            264,
             0.98,
-            0.76
+            0.79
         )
         self.run_and_check_ssim_and_size(
-            'thumbor/unsafe/640x/filters:format(webp)/' + path,
-            '640px--Folgers.mpg.jpg',
-            '640px--Folgers.mpg.png',
-            640,
-            480,
+            'thumbor/unsafe/352x/filters:format(webp)/' + path,
+            '352px--Folgers.mpg.jpg',
+            '352px--Folgers.mpg.png',
+            352,
+            264,
             0.97,
-            0.49
+            0.79
         )
