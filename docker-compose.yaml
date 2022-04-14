@@ -1,0 +1,9 @@
+version: "3.9"
+
+services:
+  thumbor:
+    build: .
+    ports:
+      - 8800:8800
+    volumes:
+      - .:/srv/wikimedia_thumbor

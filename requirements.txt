@@ -1,2 +1,5 @@
-thumbor
-python-swiftclient
+thumbor==6.7.6
+python-swiftclient==3.13.1
+manhole==1.8.0
+tc_core==0.4.1
+python-memcached==1.59
