@@ -1,4 +1,4 @@
-from tc_core import Extension, Extensions
+from wikimedia_thumbor.core import Extension, Extensions
 from .core import CoreHandler
 
 
