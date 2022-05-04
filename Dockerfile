@@ -26,10 +26,10 @@ COPY . .
 # requirements
 
 RUN pip install -r requirements.txt
+RUN pip install -r requirements-dev.txt
 
 # tests
 
-RUN pip install nose
 RUN pip install pyssim
 RUN pip install urllib3
 RUN apt-get install python-pyexiv2-doc -y

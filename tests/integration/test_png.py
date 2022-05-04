@@ -1,6 +1,5 @@
 import platform
-
-from nose.plugins.skip import SkipTest
+import pytest
 
 from . import WikimediaTestCase
 
@@ -34,7 +33,7 @@ class WikimediaTest(WikimediaTestCase):
         # That file only works with recent versions of ImageMagick
         # Our production version doesn't support it yet
         if platform.system() != 'Darwin':
-            raise SkipTest
+            pytest.skip("Didn't support another system yet")
 
         # T179200 Partially broken PNG
         self.run_and_check_ssim_and_size(

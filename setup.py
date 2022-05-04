@@ -4,9 +4,9 @@ from setuptools import setup, find_packages
 
 
 tests_require = [
-    'nose',
     'pyssim',
-    'urllib3'
+    'urllib3',
+    'pytest'
 ]
 
 

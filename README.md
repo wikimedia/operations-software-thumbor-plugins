@@ -27,8 +27,14 @@ More information about configuration options you could find here - https://thumb
 sudo make build
 ```
 After starting the project you should be able to access the application on http://localhost:8800
+Healthcheck of thumbor custom application on http://localhost:8800/healthcheck
 2. Run offline tests(The project must be launched already):
 ```bash
 sudo make bash
-./offline-tests.sh
+make offline-tests
+```
+3. Run code coverage(The project must be launched already):
+```bash
+sudo make bash
+make coverage
 ```
