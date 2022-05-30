@@ -17,7 +17,7 @@ from wikimedia_thumbor.engine import BaseWikimediaEngine
 BaseWikimediaEngine.add_format(
     'image/xcf',
     '.xcf',
-    lambda buffer: buffer.startswith('gimp xcf')
+    lambda buffer: buffer[:8] == b'gimp xcf'
 )
 
 

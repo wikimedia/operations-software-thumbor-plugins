@@ -13,7 +13,6 @@
 
 import socket
 
-import tornado.gen as gen
 import tornado.iostream
 
 from thumbor.utils import logger
@@ -27,42 +26,39 @@ class PoolCounter:
         self.context = context
         self.stream = None
 
-    @gen.coroutine
-    def connect(self):
+    async def connect(self):
         self.debug('[PoolCounter] Connecting to: %s %d' % (self.server, self.port))
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
         self.stream = tornado.iostream.IOStream(s)
-        yield self.stream.connect((self.server, self.port))
+        await self.stream.connect((self.server, self.port))
 
-    @gen.coroutine
-    def acq4me(self, key, workers, maxqueue, timeout):
+    async def acq4me(self, key, workers, maxqueue, timeout):
         if not self.stream:
             self.connect()
 
         try:
             self.debug('[PoolCounter] ACQ4ME %s %d %d %d' % (key, workers, maxqueue, timeout))
-            yield self.stream.write('ACQ4ME %s %d %d %d\n' % (key, workers, maxqueue, timeout))
-            data = yield self.stream.read_until('\n')
+            await self.stream.write('ACQ4ME %s %d %d %d\n' % (key, workers, maxqueue, timeout))
+            data = await self.stream.read_until('\n')
         except socket.error as e:
             self.stream = None
             raise e
 
-        raise tornado.gen.Return(data == 'LOCKED\n')
+        return data == 'LOCKED\n'
 
-    @gen.coroutine
-    def release(self):
+    async def release(self):
         if not self.stream:
-            self.connect()
+            await self.connect()
 
         try:
             self.debug('[PoolCounter] RELEASE')
-            yield self.stream.write('RELEASE\n')
-            data = yield self.stream.read_until('\n')
+            await self.stream.write('RELEASE\n')
+            data = await self.stream.read_until('\n')
         except socket.error as e:
             self.stream = None
             raise e
 
-        raise tornado.gen.Return(data == 'RELEASED\n')
+        return data == 'RELEASED\n'
 
     def close(self):
         if self.stream:

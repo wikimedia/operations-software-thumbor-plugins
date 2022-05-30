@@ -23,7 +23,7 @@ class Filter(BaseFilter):
     phase = PHASE_PRE_LOAD
 
     @filter_method(BaseFilter.String)
-    def format(self, format):
+    async def format(self, format):
         if format.lower() not in ALLOWED_FORMATS:
             logger.debug('Format not allowed: %s' % format.lower())
             self.context.request.format = None

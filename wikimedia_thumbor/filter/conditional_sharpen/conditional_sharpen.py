@@ -25,7 +25,7 @@ class Filter(BaseFilter):
         BaseFilter.DecimalNumber,
         BaseFilter.DecimalNumber
     )
-    def conditional_sharpen(
+    async def conditional_sharpen(
             self,
             radius,
             sigma,

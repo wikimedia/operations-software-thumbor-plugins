@@ -10,8 +10,6 @@
 # across requests, unless the same instance of this class
 # is passed between requests (which is the case for /multi)
 
-from tornado.concurrent import return_future
-
 from thumbor.storages import BaseStorage
 from thumbor.utils import logger
 
@@ -29,17 +27,15 @@ class Storage(BaseStorage):
     def put_crypto(self, path):
         return path
 
-    @return_future
-    def exists(self, path, callback):
-        callback(path in self.dict)
+    async def exists(self, path):
+        return path in self.dict
 
-    @return_future
-    def get(self, path, callback):
+    async def get(self, path):
         logger.debug("[REQUEST_STORAGE] get: %s" % path)
         try:
             value = self.dict[path]
             logger.debug("[REQUEST_STORAGE] found")
-            callback(value)
+            return value
         except KeyError:
             logger.debug("[REQUEST_STORAGE] missing")
-            callback(None)
+            return None

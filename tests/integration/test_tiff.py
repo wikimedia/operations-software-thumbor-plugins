@@ -4,7 +4,7 @@ from . import WikimediaTestCase
 class WikimediaTest(WikimediaTestCase):
     def test_tiff(self):
         self.run_and_check_ssim_and_size(
-            'thumbor/unsafe/400x/0729.tiff',
+            '/thumbor/unsafe/400x/0729.tiff',
             'lossy-page1-400px-0729.tiff.jpg',
             'lossy-page1-400px-0729.tiff.png',
             400,
@@ -13,7 +13,7 @@ class WikimediaTest(WikimediaTestCase):
             0.68,
         )
         self.run_and_check_ssim_and_size(
-            'thumbor/unsafe/400x/filters:format(webp)/0729.tiff',
+            '/thumbor/unsafe/400x/filters:format(webp)/0729.tiff',
             'lossy-page1-400px-0729.tiff.jpg',
             'lossy-page1-400px-0729.tiff.png',
             400,
@@ -22,7 +22,7 @@ class WikimediaTest(WikimediaTestCase):
             0.5,
         )
         self.run_and_check_ssim_and_size(
-            'thumbor/unsafe/300x/Lejeune.TIF',
+            '/thumbor/unsafe/300x/Lejeune.TIF',
             'lossy-page1-300px-Lejeune.TIF.jpg',
             'lossy-page1-300px-Lejeune.TIF.png',
             300,
@@ -31,7 +31,7 @@ class WikimediaTest(WikimediaTestCase):
             0.23,
         )
         self.run_and_check_ssim_and_size(
-            'thumbor/unsafe/300x/filters:format(webp)/Lejeune.TIF',
+            '/thumbor/unsafe/300x/filters:format(webp)/Lejeune.TIF',
             'lossy-page1-300px-Lejeune.TIF.jpg',
             'lossy-page1-300px-Lejeune.TIF.png',
             300,
@@ -40,7 +40,7 @@ class WikimediaTest(WikimediaTestCase):
             0.64,
         )
         self.run_and_check_ssim_and_size(
-            'thumbor/unsafe/300x/Hafnia_alvei.tif',
+            '/thumbor/unsafe/300x/Hafnia_alvei.tif',
             'lossy-page1-300px-Hafnia_alvei.tif.jpg',
             'lossy-page1-300px-Hafnia_alvei.tif.png',
             300,
@@ -49,18 +49,18 @@ class WikimediaTest(WikimediaTestCase):
             0.48,
         )
         self.run_and_check_ssim_and_size(
-            'thumbor/unsafe/300x/filters:format(webp)/Hafnia_alvei.tif',
+            '/thumbor/unsafe/300x/filters:format(webp)/Hafnia_alvei.tif',
             'lossy-page1-300px-Hafnia_alvei.tif.jpg',
             'lossy-page1-300px-Hafnia_alvei.tif.png',
             300,
             300,
-            0.96,
+            0.94,
             0.46,
         )
 
     def test_multipage_tiff(self):
         self.run_and_check_ssim_and_size(
-            'thumbor/unsafe/400x/filters:page(3)/All_that_jazz.tif',
+            '/thumbor/unsafe/400x/filters:page(3)/All_that_jazz.tif',
             'lossy-page3-400px-All_that_jazz.tif.jpg',
             'lossy-page3-400px-All_that_jazz.tif.png',
             400,
@@ -69,7 +69,7 @@ class WikimediaTest(WikimediaTestCase):
             0.63,
         )
         self.run_and_check_ssim_and_size(
-            'thumbor/unsafe/400x/filters:page(3):format(webp)/All_that_jazz.tif',
+            '/thumbor/unsafe/400x/filters:page(3):format(webp)/All_that_jazz.tif',
             'lossy-page3-400px-All_that_jazz.tif.jpg',
             'lossy-page3-400px-All_that_jazz.tif.png',
             400,
@@ -80,7 +80,7 @@ class WikimediaTest(WikimediaTestCase):
 
     def test_multipage_tiff_without_page_filter(self):
         self.run_and_check_ssim_and_size(
-            'thumbor/unsafe/400x/All_that_jazz.tif',
+            '/thumbor/unsafe/400x/All_that_jazz.tif',
             'lossy-page1-400px-All_that_jazz.tif.jpg',
             'lossy-page1-400px-All_that_jazz.tif.png',
             400,
@@ -89,7 +89,7 @@ class WikimediaTest(WikimediaTestCase):
             0.69,
         )
         self.run_and_check_ssim_and_size(
-            'thumbor/unsafe/400x/filters:format(webp)/All_that_jazz.tif',
+            '/thumbor/unsafe/400x/filters:format(webp)/All_that_jazz.tif',
             'lossy-page1-400px-All_that_jazz.tif.jpg',
             'lossy-page1-400px-All_that_jazz.tif.png',
             400,
@@ -100,7 +100,7 @@ class WikimediaTest(WikimediaTestCase):
 
     def test_multipage_tiff_with_out_of_bounds_page(self):
         self.run_and_check_ssim_and_size(
-            'thumbor/unsafe/400x/filters:page(500)/All_that_jazz.tif',
+            '/thumbor/unsafe/400x/filters:page(500)/All_that_jazz.tif',
             'lossy-page1-400px-All_that_jazz.tif.jpg',
             'lossy-page1-400px-All_that_jazz.tif.png',
             400,
@@ -109,7 +109,7 @@ class WikimediaTest(WikimediaTestCase):
             0.69,
         )
         self.run_and_check_ssim_and_size(
-            'thumbor/unsafe/400x/filters:page(500):format(webp)/All_that_jazz.tif',
+            '/thumbor/unsafe/400x/filters:page(500):format(webp)/All_that_jazz.tif',
             'lossy-page1-400px-All_that_jazz.tif.jpg',
             'lossy-page1-400px-All_that_jazz.tif.png',
             400,

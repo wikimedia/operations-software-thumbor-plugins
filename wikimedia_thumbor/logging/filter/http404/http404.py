@@ -1,8 +1,4 @@
 import logging
-import sys
-
-if sys.version_info[0] >= 3:
-    unicode = str
 
 
 class Http404Filter(logging.Filter):
@@ -17,7 +13,7 @@ class Http404Filter(logging.Filter):
         import re
 
         try:
-            matches = re.match('.*get_object failed.*', unicode(record.msg))
+            matches = re.match('.*get_object failed.*', str(record.msg))
         except ValueError:
             matches = None
 

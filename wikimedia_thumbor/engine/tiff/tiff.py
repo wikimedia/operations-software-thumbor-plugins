@@ -17,7 +17,7 @@ from wikimedia_thumbor.engine import BaseWikimediaEngine
 BaseWikimediaEngine.add_format(
     'image/tiff',
     '.tiff',
-    lambda buffer: buffer.startswith('II*\x00') or buffer.startswith('MM\x00*')
+    lambda buffer: buffer[:7] in (b'II*\x00', 'MM\x00*')
 )
 
 

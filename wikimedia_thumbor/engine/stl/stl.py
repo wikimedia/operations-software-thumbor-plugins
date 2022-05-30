@@ -14,7 +14,7 @@
 import struct
 import os
 import tempfile
-from io import BytesIO
+import math
 
 from wikimedia_thumbor.engine import BaseWikimediaEngine
 from wikimedia_thumbor.shell_runner import ShellRunner
@@ -33,43 +33,33 @@ class Engine(BaseWikimediaEngine):
         # This is pretty much impossible to know for sure,
         # but I guess we'll give it a
         try:
-            stream = BytesIO(buffer)
-            start = stream.read(5)
-
             # The only consistent thing in text STL files is the string
             # 'solid' at the beginning, so if that's there, assume we have
             # a valid ASCII STL.
             # Also, any files served from Wikimedia's Swift loader will have
             # this string at the beginning for sure. Hacky, but it works.
-            if start == 'solid':
+            if buffer[:5] == b'solid':
                 return True
+
+            if len(buffer) < 84:
+                return False
 
             # Now we either have a non-STL, or we have a binary STL file.
             # There is literally no consistent way to tell whether a binary
             # file is actually an STL file, but the header is 80 bytes...
-            stream.read(75)
 
             # ...and then there's 4 bytes that indicate how many triangles are
             # present in the file...
-            triangles = stream.read(4)
-
-            if len(triangles) < 4:
-                return False
-
-            triangles = struct.unpack("<L", triangles)[0]
+            triangles = struct.unpack("<L", buffer[80:84])[0]
 
             # ...so there should be exactly that number, times 386 (the number
-            # of bytes in each triangle), left in the file...
-            remainder = stream.read(triangles * 386)
+            # of bytes in each triangle), in the file...
 
-            # ...so if we got at east that many bytes...
-            if len(remainder) == triangles * 386:
-                # ...and there aren't any extras...
-                extra = stream.read1(1)
-                if len(extra) == 0:
-                    # ...this is as close to a golden STL file check as we're
-                    # going to get.
-                    return True
+            # ...so if we got that many bytes...
+            if len(buffer) == 84 + triangles * 386:
+                # ...this is as close to a golden STL file check as we're
+                # going to get.
+                return True
         except IndexError:
             pass
 
@@ -78,7 +68,10 @@ class Engine(BaseWikimediaEngine):
     def create_image(self, buffer):
         self.prepare_source(buffer)
 
-        height = round(self.context.request.width / (640. / 480.))
+        # In order to copy Python 2 behaviour of round() method, namely "round
+        # half away from zero" rounding, method math.floor() and adding 0.5 to
+        # the value which will be rounded are used.
+        height = math.floor(self.context.request.width / (640. / 480.) + 0.5)
 
         tmpfile, tmppng = tempfile.mkstemp(suffix='.stl.png', prefix='tmpthumb')
 

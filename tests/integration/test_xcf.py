@@ -4,7 +4,7 @@ from . import WikimediaTestCase
 class WikimediaTest(WikimediaTestCase):
     def test_xcf(self):
         self.run_and_check_ssim_and_size(
-            'thumbor/unsafe/400x/filters:format(png)/Janus.xcf',
+            '/thumbor/unsafe/400x/filters:format(png)/Janus.xcf',
             '400px-Janus.xcf.png',
             '400px-Janus.xcf.png',
             400,
@@ -16,7 +16,7 @@ class WikimediaTest(WikimediaTestCase):
             1.01
         )
         self.run_and_check_ssim_and_size(
-            'thumbor/unsafe/400x/filters:format(webp)/Janus.xcf',
+            '/thumbor/unsafe/400x/filters:format(webp)/Janus.xcf',
             '400px-Janus.xcf.png',
             '400px-Janus.xcf.png',
             400,

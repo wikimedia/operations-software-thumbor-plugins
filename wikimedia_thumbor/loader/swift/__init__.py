@@ -80,8 +80,8 @@ def swift(context):
     return conn
 
 
-def load_sync(context, url, callback):
-    logger.debug('[SWIFT_LOADER] load_sync: %s' % url, extra=log_extra(context))
+async def load(context, url):
+    logger.debug('[SWIFT_LOADER] load: %s' % url, extra=log_extra(context))
 
     result = LoaderResult()
 
@@ -163,4 +163,4 @@ def load_sync(context, url, callback):
         logger.error('[SWIFT_LOADER] get_object failed: %s %r' % (url, e), extra=log_extra(context))
         context.metrics.incr('swift_loader.status.connection_error')
 
-    callback(result)
+    return result

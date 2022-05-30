@@ -144,12 +144,12 @@ class Engine(BaseEngine):
             if 'Exif.Image.Orientation' in metadata.exif_keys:
                 # Distinctive key name to avoid colliding with EXIF_FIELDS_TO_KEEP
                 self.exif['Pyexiv2Orientation'] = metadata.get('Exif.Image.Orientation').value
-        except (IOError, ExifValueError):
+        except (IOError, ExifValueError, TypeError):
             self.debug('[IM] Could not read EXIF with pyexiv2')
         except RuntimeError as e:
             # T245440 exiv2 0.25-3.1+deb9u1 handles missing metadata as corruption, and
             # pyexiv2 raises that as a generic runtime error.
-            if e[0] == 'corrupted image metadata':
+            if e.args[0] == 'corrupted image metadata':
                 self.debug('[IM] Could not read EXIF with pyexiv2')
             else:
                 raise
@@ -161,13 +161,13 @@ class Engine(BaseEngine):
         )
 
         for s in stdout.splitlines():
-            values = s.split(': ', 1)
+            values = s.decode('utf-8').split(': ', 1)
             self.exif[values[0]] = values[1]
 
         self.debug('[IM] EXIF: %r' % self.exif)
 
         if 'ImageSize' in self.exif:
-            self.internal_size = map(int, self.exif['ImageSize'].split('x'))
+            self.internal_size = [int(x) for x in self.exif['ImageSize'].split('x')]
         else:
             # Have not been able to find a test file where that EXIF field comes up unpopulated
             self.internal_size = (1, 1)  # pragma: no cover
@@ -192,7 +192,6 @@ class Engine(BaseEngine):
         command = [
             '-icc_profile',
             '-b',
-            '-m',
         ]
 
         self.icc_profile_saved = Engine.exiftool.command(
@@ -205,7 +204,6 @@ class Engine(BaseEngine):
         self.debug('[IM] Processing EXIF')
 
         command = [
-            '-m',
             '-all=',  # Strip all existing metadata
         ]
 
@@ -488,7 +486,7 @@ class Engine(BaseEngine):
     def maybe_convert_to_webp(self, jpg_result):
         temp_file = NamedTemporaryFile(delete=False)
 
-        with open(temp_file.name, 'w') as tmp:
+        with open(temp_file.name, 'wb') as tmp:
             tmp.write(jpg_result)
 
         command = [
@@ -556,5 +554,5 @@ class Engine(BaseEngine):
 Engine.add_format(
     'image/webp',
     '.webp',
-    lambda buffer: buffer.startswith('RIFF') and buffer.startswith('WEBP', 8)
+    lambda buffer: buffer[:4] == b'RIFF' and buffer[8:12] == b'WEBP'
 )

@@ -1,8 +1,4 @@
 import logging
-import sys
-
-if sys.version_info[0] >= 3:
-    unicode = str
 
 
 class ContextFilter(logging.Filter):
@@ -32,7 +28,7 @@ class ContextFilter(logging.Filter):
             try:
                 matches = re.match(
                     r'.*thumbor running at \d+.\d+.\d+.\d+:([\d]+).*',
-                    unicode(record.msg)
+                    str(record.msg)
                 )
             except ValueError:
                 matches = None

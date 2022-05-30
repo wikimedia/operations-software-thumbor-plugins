@@ -1,3 +1,5 @@
 *.pyc
 /thumbor.conf
 /.coverage
+.idea
+.vscode

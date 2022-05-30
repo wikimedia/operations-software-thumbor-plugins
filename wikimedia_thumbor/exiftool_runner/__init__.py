@@ -44,6 +44,8 @@ class ExiftoolRunner:
 
         command = [context.config.EXIFTOOL_PATH]
         command += pre
+        # Avoids warnings going to stdout or stderr
+        command += ['-m', '-q', '-q']
         command.append(input_temp_file.name)
         command += post
 

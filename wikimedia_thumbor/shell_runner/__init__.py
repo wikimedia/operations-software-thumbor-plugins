@@ -17,6 +17,7 @@ from functools import partial
 import os
 import re
 import subprocess
+import math
 
 from thumbor.utils import logger
 from wikimedia_thumbor.logging import log_extra
@@ -102,7 +103,10 @@ class ShellRunner:
         if context.request_handler is not None:
             context.request_handler.add_header(
                 'Thumbor-%s-Time' % simple_command_name,
-                int(round(duration))
+                # In order to copy Python 2 behaviour of round() method, namely "round
+                # half away from zero" rounding, method math.floor() and adding 0.5 to
+                # the value which will be rounded are used.
+                math.floor(duration + 0.5)
             )
 
         return proc.returncode, stderr, stdout

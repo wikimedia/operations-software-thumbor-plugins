@@ -6,13 +6,15 @@ coverage:
 
 # Tests
 single-test:
-	@pytest tests/integration/test_djvu.py
+# The default timeout is not enough while testing some asynchronous methods. So
+# ASYNC_TEST_TIMEOUT environment variable was set to 60 seconds.
+	@ASYNC_TEST_TIMEOUT=60 pytest tests/integration/test_djvu.py
 
 tests:
-	@pytest tests/
+	@ASYNC_TEST_TIMEOUT=60 pytest tests/
 
 offline-tests:
-	@pytest tests/ --ignore 'tests/integration/test_proxy_loader.py' --ignore 'tests/integration/test_huge_video.py' --ignore 'tests/integration/test_https_loader.py' --ignore 'tests/integration/test_vips_https_loader.py' --ignore 'tests/integration/test_3d.py'
+	@ASYNC_TEST_TIMEOUT=60 pytest tests/ --ignore 'tests/integration/test_proxy_loader.py' --ignore 'tests/integration/test_huge_video.py' --ignore 'tests/integration/test_https_loader.py' --ignore 'tests/integration/test_vips_https_loader.py' --ignore 'tests/integration/test_3d.py'
 
 # Docker
 up:

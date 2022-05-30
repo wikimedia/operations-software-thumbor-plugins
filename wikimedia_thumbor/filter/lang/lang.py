@@ -18,5 +18,5 @@ class Filter(BaseFilter):
     phase = PHASE_PRE_LOAD
 
     @filter_method(BaseFilter.String)
-    def lang(self, value):
+    async def lang(self, value):
         self.context.request.lang = value

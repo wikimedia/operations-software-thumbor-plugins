@@ -18,5 +18,5 @@ class Filter(BaseFilter):
     phase = PHASE_PRE_LOAD
 
     @filter_method(BaseFilter.PositiveNumber)
-    def page(self, value):
+    async def page(self, value):
         self.context.request.page = value

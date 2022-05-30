@@ -1,11 +1,9 @@
-from functools import partial
 import os
-from urllib3.response import HTTPResponse as UrlLib3HTTPResponse
-from requests.adapters import HTTPAdapter
 from swiftclient.client import Connection
 from swiftclient.exceptions import ClientException
 from thumbor.config import Config
 from tornado.simple_httpclient import SimpleAsyncHTTPClient
+from tornado.httpclient import HTTPResponse
 
 
 from . import WikimediaTestCase
@@ -15,47 +13,24 @@ class WikimediaSwiftTestCase(WikimediaTestCase):
     def setUp(self):
         super(WikimediaSwiftTestCase, self).setUp()
 
-        self.original_send = HTTPAdapter.send
-
-        def send(
-            self,
-            request,
-            stream=False,
-            timeout=None,
-            verify=True,
-            cert=None,
-            proxies=None
-        ):
-            resp = UrlLib3HTTPResponse(status=200)
-            return self.build_response(request, resp)
-
-        HTTPAdapter.send = send
         self.original_fetch_impl = SimpleAsyncHTTPClient.fetch_impl
-        original_fetch_impl = self.original_fetch_impl
 
-        def override_callback(request, original_callback, response):
+        def fetch_impl(self, request, callback):
             expected = 'http://swifthost/swift/v1/api/path/' \
                 + 'wikipedia-en-local-public/d/d3/1Mcolors.png'
+
             if request.request.url == expected:
-                response.error = False
-                response.code = 200
-                response.buffer = True
                 path = os.path.join(
                     os.path.dirname(__file__),
                     'originals',
                     '1Mcolors.png'
                 )
-                with open(path, 'r') as f:
-                    response._body = f.read()
+                with open(path, 'rb') as f:
+                    body = f.read()
 
-            original_callback(response)
-
-        def fetch_impl(self, request, callback):
-            original_fetch_impl(
-                self,
-                request,
-                partial(override_callback, request, callback)
-            )
+                callback(HTTPResponse(request, 200, buffer=body))
+            else:
+                callback(HTTPResponse(request, 404))
 
         SimpleAsyncHTTPClient.fetch_impl = fetch_impl
 
@@ -69,12 +44,9 @@ class WikimediaSwiftTestCase(WikimediaTestCase):
 
     def tearDown(self):
         super(WikimediaSwiftTestCase, self).tearDown()
-        HTTPAdapter.send = self.original_send
         SimpleAsyncHTTPClient.fetch_impl = self.original_fetch_impl
+        Connection.get_object = self.original_get_object
         Connection.put_object = self.original_put_object
-
-        if hasattr(self, 'original_get_object'):
-            Connection.get_object = self.original_get_object
 
     def get_config(self):
         cfg = Config(SECURITY_KEY='ACME-SEC')
@@ -105,6 +77,8 @@ class WikimediaSwiftTestCase(WikimediaTestCase):
         cfg.PROXY_LOADER_LOADERS = ['wikimedia_thumbor.loader.swift']
         cfg.LOADER_EXCERPT_LENGTH = 4096
         cfg.HTTP_LOADER_TEMP_FILE_TIMEOUT = 10
+        cfg.SWIFT_THUMBNAIL_EXPIRY_SECONDS = 60
+        cfg.SWIFT_THUMBNAIL_EXPIRY_SAMPLING_FACTOR = 1
 
         return cfg
 
@@ -117,7 +91,7 @@ class WikimediaSwiftTestCase(WikimediaTestCase):
             'Unexpected swift container: %r' % container
         assert obj == 'thumbor/d/d3/1Mcolors.png/400px-1Mcolors.png', \
             'Unexpected swift obj: %r' % obj
-        assert headers == {'Content-Disposition': 'inline;filename*=UTF-8\'\'1Mcolors.png', 'Xkey': 'File:1Mcolors.png'}, \
+        assert headers == {'Content-Disposition': 'inline;filename*=UTF-8\'\'1Mcolors.png', 'Xkey': 'File:1Mcolors.png', 'X-Delete-After': 60}, \
             'Unexpected swift headers: %r' % headers
 
     def mock_get_object(self, container, obj, resp_chunk_size=None,
@@ -142,7 +116,7 @@ class WikimediaSwiftTestCase(WikimediaTestCase):
                 'originals',
                 '1Mcolors.png'
             )
-            with open(path, 'r') as f:
+            with open(path, 'rb') as f:
                 return {}, f.read()
         else:
             assert container == 'wikipedia-en-local-thumb.d3', \
@@ -155,15 +129,15 @@ class WikimediaSwiftTestCase(WikimediaTestCase):
                 'thumbnails',
                 '400px-1Mcolors.png'
             )
-            with open(path, 'r') as f:
+            with open(path, 'rb') as f:
                 return {}, f.read()
 
     def test_swift(self):
         # Thumbnail doesn't exist yet
-        self.retrieve(
+        self.fetch(
             '/wikipedia/en/thumb/d/d3/1Mcolors.png/400px-1Mcolors.png'
         )
         # Thumbnail exists now
-        self.retrieve(
+        self.fetch(
             '/wikipedia/en/thumb/d/d3/1Mcolors.png/400px-1Mcolors.png'
         )

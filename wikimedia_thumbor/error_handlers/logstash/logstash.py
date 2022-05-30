@@ -7,7 +7,7 @@ from thumbor.utils import logger
 from wikimedia_thumbor.logging import log_extra
 
 
-class ErrorHandler(object):
+class ErrorHandler:
     def __init__(self, config, client=None):
         pass
 

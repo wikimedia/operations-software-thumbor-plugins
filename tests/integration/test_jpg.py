@@ -4,7 +4,7 @@ from . import WikimediaTestCase
 class WikimediaTest(WikimediaTestCase):
     def test_jpg(self):
         self.run_and_check_ssim_and_size(
-            ('thumbor/unsafe/400x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85)/'
+            ('/thumbor/unsafe/400x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85)/'
                 'Christophe_Henner_-_June_2016.JPG'),
             '400px-Christophe_Henner_-_June_2016.jpg',
             '400px-Christophe_Henner_-_June_2016.png',
@@ -14,7 +14,7 @@ class WikimediaTest(WikimediaTestCase):
             1.02,
         )
         self.run_and_check_ssim_and_size(
-            ('thumbor/unsafe/400x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85):format(webp)/'
+            ('/thumbor/unsafe/400x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85):format(webp)/'
                 'Christophe_Henner_-_June_2016.JPG'),
             '400px-Christophe_Henner_-_June_2016.jpg',
             '400px-Christophe_Henner_-_June_2016.png',
@@ -26,7 +26,7 @@ class WikimediaTest(WikimediaTestCase):
 
     def test_request_by_height(self):
         self.run_and_check_ssim_and_size(
-            ('thumbor/unsafe/x267/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85)/'
+            ('/thumbor/unsafe/x267/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85)/'
                 'Christophe_Henner_-_June_2016.JPG'),
             '400px-Christophe_Henner_-_June_2016.jpg',
             '400px-Christophe_Henner_-_June_2016.png',
@@ -39,7 +39,7 @@ class WikimediaTest(WikimediaTestCase):
     def test_request_specific_size(self):
         # Not currently used in WMF production
         self.run_and_check_ssim_and_size(
-            ('thumbor/unsafe/400x267/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85)/'
+            ('/thumbor/unsafe/400x267/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85)/'
                 'Christophe_Henner_-_June_2016.JPG'),
             '400px-Christophe_Henner_-_June_2016.jpg',
             '400px-Christophe_Henner_-_June_2016.png',
@@ -51,7 +51,7 @@ class WikimediaTest(WikimediaTestCase):
 
     def test_width_rounding(self):
         self.run_and_check_ssim_and_size(
-            ('thumbor/unsafe/800x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85)/Munich_subway_station_Westfriedhof.jpg'),
+            ('/thumbor/unsafe/800x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85)/Munich_subway_station_Westfriedhof.jpg'),
             '800px-Munich_subway_station_Westfriedhof.jpg',
             '800px-Munich_subway_station_Westfriedhof.png',
             800,
@@ -60,7 +60,7 @@ class WikimediaTest(WikimediaTestCase):
             1.03,
         )
         self.run_and_check_ssim_and_size(
-            ('thumbor/unsafe/800x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85):format(webp)/Munich_subway_station_Westfriedhof.jpg'),
+            ('/thumbor/unsafe/800x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85):format(webp)/Munich_subway_station_Westfriedhof.jpg'),
             '800px-Munich_subway_station_Westfriedhof.jpg',
             '800px-Munich_subway_station_Westfriedhof.png',
             800,
@@ -71,7 +71,7 @@ class WikimediaTest(WikimediaTestCase):
 
     def test_exif_orientation(self):
         self.run_and_check_ssim_and_size(
-            'thumbor/unsafe/40x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85)/EXIF_rotation_180.jpg',
+            '/thumbor/unsafe/40x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85)/EXIF_rotation_180.jpg',
             '40px-EXIF_rotation_180.jpg',
             '40px-EXIF_rotation_180.png',
             40,
@@ -80,7 +80,7 @@ class WikimediaTest(WikimediaTestCase):
             1.03,
         )
         self.run_and_check_ssim_and_size(
-            'thumbor/unsafe/40x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85):format(webp)/EXIF_rotation_180.jpg',
+            '/thumbor/unsafe/40x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85):format(webp)/EXIF_rotation_180.jpg',
             '40px-EXIF_rotation_180.jpg',
             '40px-EXIF_rotation_180.png',
             40,
@@ -89,7 +89,7 @@ class WikimediaTest(WikimediaTestCase):
             0.28,
         )
         self.run_and_check_ssim_and_size(
-            ('thumbor/unsafe/337x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85)/'
+            ('/thumbor/unsafe/337x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85)/'
                 'Green_and_golden_Butterfly_copy.jpg'),
             '337px-Green_and_golden_Butterfly_copy.jpg',
             '337px-Green_and_golden_Butterfly_copy.png',
@@ -99,7 +99,7 @@ class WikimediaTest(WikimediaTestCase):
             1.0,
         )
         self.run_and_check_ssim_and_size(
-            ('thumbor/unsafe/337x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85):format(webp)/'
+            ('/thumbor/unsafe/337x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85):format(webp)/'
                 'Green_and_golden_Butterfly_copy.jpg'),
             '337px-Green_and_golden_Butterfly_copy.jpg',
             '337px-Green_and_golden_Butterfly_copy.png',
@@ -109,7 +109,7 @@ class WikimediaTest(WikimediaTestCase):
             0.97,
         )
         self.run_and_check_ssim_and_size(
-            ('thumbor/unsafe/394x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85)/'
+            ('/thumbor/unsafe/394x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85)/'
                 'Rostockstein.jpg'),
             '394px-Rostockstein.jpg',
             '394px-Rostockstein.png',
@@ -119,7 +119,7 @@ class WikimediaTest(WikimediaTestCase):
             0.77,
         )
         self.run_and_check_ssim_and_size(
-            ('thumbor/unsafe/394x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85):format(webp)/'
+            ('/thumbor/unsafe/394x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85):format(webp)/'
                 'Rostockstein.jpg'),
             '394px-Rostockstein.jpg',
             '394px-Rostockstein.png',
@@ -129,7 +129,7 @@ class WikimediaTest(WikimediaTestCase):
             0.81,
         )
         self.run_and_check_ssim_and_size(
-            ('thumbor/unsafe/450x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85)/'
+            ('/thumbor/unsafe/450x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85)/'
                 'Carrie.jpg'),
             '450px-Carrie.jpg',
             '450px-Carrie.jpg',
@@ -139,7 +139,7 @@ class WikimediaTest(WikimediaTestCase):
             0.77,
         )
         self.run_and_check_ssim_and_size(
-            ('thumbor/unsafe/450x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85):format(webp)/'
+            ('/thumbor/unsafe/450x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85):format(webp)/'
                 'Carrie.jpg'),
             '450px-Carrie.jpg',
             '450px-Carrie.png',
@@ -149,7 +149,7 @@ class WikimediaTest(WikimediaTestCase):
             0.65,
         )
         self.run_and_check_ssim_and_size(
-            ('thumbor/unsafe/447x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85)/'
+            ('/thumbor/unsafe/447x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85)/'
                 'Cerkiew.jpg'),
             '447px-Cerkiew.jpg',
             '447px-Cerkiew.png',
@@ -159,7 +159,7 @@ class WikimediaTest(WikimediaTestCase):
             0.75,
         )
         self.run_and_check_ssim_and_size(
-            ('thumbor/unsafe/447x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85):format(webp)/'
+            ('/thumbor/unsafe/447x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85):format(webp)/'
                 'Cerkiew.jpg'),
             '447px-Cerkiew.jpg',
             '447px-Cerkiew.png',
@@ -169,7 +169,7 @@ class WikimediaTest(WikimediaTestCase):
             0.57,
         )
         self.run_and_check_ssim_and_size(
-            ('thumbor/unsafe/337x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85)/'
+            ('/thumbor/unsafe/337x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85)/'
                 'Tower.jpg'),
             '337px-Tower.jpg',
             '337px-Tower.png',
@@ -179,7 +179,7 @@ class WikimediaTest(WikimediaTestCase):
             0.81,
         )
         self.run_and_check_ssim_and_size(
-            ('thumbor/unsafe/337x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85):format(webp)/'
+            ('/thumbor/unsafe/337x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85):format(webp)/'
                 'Tower.jpg'),
             '337px-Tower.jpg',
             '337px-Tower.png',
@@ -189,7 +189,7 @@ class WikimediaTest(WikimediaTestCase):
             0.83,
         )
         self.run_and_check_ssim_and_size(
-            ('thumbor/unsafe/400x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85)/'
+            ('/thumbor/unsafe/400x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85)/'
                 'Magnus.jpg'),
             '400px-Magnus.jpg',
             '400px-Magnus.png',
@@ -199,7 +199,7 @@ class WikimediaTest(WikimediaTestCase):
             0.98,
         )
         self.run_and_check_ssim_and_size(
-            ('thumbor/unsafe/400x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85):format(webp)/'
+            ('/thumbor/unsafe/400x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85):format(webp)/'
                 'Magnus.jpg'),
             '400px-Magnus.jpg',
             '400px-Magnus.png',
@@ -213,7 +213,7 @@ class WikimediaTest(WikimediaTestCase):
         """Regression test for https://phabricator.wikimedia.org/T193326"""
         self.run_and_check_ssim_and_size(
             url=(
-                'thumbor/unsafe/450x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85)/'
+                '/thumbor/unsafe/450x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85)/'
                 'Smedavska_hornatina_Sloupsky_potok_vodopad_01.jpg'
             ),
             mediawiki_reference_thumbnail=(

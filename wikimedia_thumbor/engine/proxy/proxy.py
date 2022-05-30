@@ -15,6 +15,7 @@
 import datetime
 import importlib
 import resource
+import math
 from collections import OrderedDict
 
 from thumbor.utils import logger
@@ -35,6 +36,7 @@ class Engine(BaseEngine):
         # Setting it this way avoids hitting the __setattr__
         # proxying
         super(Engine, self).__setattr__('lcl', {})
+        super(Engine, self).__setattr__('multiple_engine', None)
 
         self.lcl['context'] = context
         self.lcl['engines'] = engines
@@ -59,7 +61,7 @@ class Engine(BaseEngine):
 
         logger.debug('[Proxy] Looking for a %s engine' % ext)
 
-        for enginename, extensions in self.lcl['engines'].iteritems():
+        for enginename, extensions in self.lcl['engines'].items():
             engine = self.lcl[enginename]
 
             if ext in extensions:
@@ -81,7 +83,10 @@ class Engine(BaseEngine):
         if isinstance(duration, datetime.timedelta):
             duration = duration.total_seconds()
 
-        duration = int(round(duration * 1000, 0))
+        # In order to copy Python 2 behaviour of round() method, namely "round
+        # half away from zero" rounding, method math.floor() and adding 0.5 to
+        # the value which will be rounded are used.
+        duration = math.floor((duration * 1000) + 0.5)
 
         self.lcl['context'].metrics.timing(
             'engine.' + timing + '.' + self.select_engine(),
@@ -99,6 +104,7 @@ class Engine(BaseEngine):
 
     # This is our entry point for the proxy, it's the first call to the engine
     def load(self, buffer, extension):
+        logger.debug('[Proxy] load: %r' % extension)
         self.lcl['processing_time'] = datetime.datetime.now()
         self.lcl['processing_utime'] = utime()
 
@@ -187,6 +193,6 @@ class Engine(BaseEngine):
 
     def cleanup(self):  # pragma: no cover
         # Call cleanup on all the engines
-        for enginename, extensions in self.lcl['engines'].iteritems():
+        for enginename, extensions in self.lcl['engines'].items():
             engine = self.lcl[enginename]
             engine.cleanup()

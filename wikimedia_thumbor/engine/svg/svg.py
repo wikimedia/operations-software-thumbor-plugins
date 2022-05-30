@@ -30,7 +30,12 @@ class Engine(BaseWikimediaEngine):
         # rather than bail without trying
         # T186500 There can be an optional UTF-8 BOM at the beginning
         # T187088 The namespace might not be in the excerpt
-        return re.match(r'^(' + codecs.BOM_UTF8 + r')?<(\?xml|svg)', buffer[:10])
+        try:
+            decoded_text = buffer[:10].decode('utf-8')
+        except UnicodeDecodeError:
+            return False
+
+        return re.match(r'^(' + codecs.BOM_UTF8.decode('utf-8') + r')?<(\?xml|svg)', decoded_text)
 
     def create_image(self, buffer):
         self.prepare_source(buffer)

@@ -21,15 +21,11 @@ from wikimedia_thumbor.shell_runner import ShellRunner
 BaseWikimediaEngine.add_format(
     'image/gif',
     '.gif',
-    lambda buffer: Engine.is_gif(buffer)
+    lambda buffer: buffer[:4] == b'GIF8'
 )
 
 
 class Engine(BaseEngine):
-    @classmethod
-    def is_gif(cls, buffer):
-        return buffer.startswith('GIF8')
-
     def resize(self, width, height):
         super(Engine, self).resize(width, height)
         # Allow Gifsicle to add intermediate colors when resizing images.
@@ -43,7 +39,7 @@ class Engine(BaseEngine):
     def load(self, buffer, extension):
         if hasattr(self.context, 'wikimedia_original_file'):
             fname = self.context.wikimedia_original_file.name
-            with open(fname, 'r') as content_file:
+            with open(fname, 'rb') as content_file:
                 buffer = content_file.read()
             ShellRunner.rm_f(fname)
 

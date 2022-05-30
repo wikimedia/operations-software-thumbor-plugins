@@ -1,18 +1,14 @@
-FROM debian:stretch
+FROM docker-registry.wikimedia.org/wikimedia-buster
 
 # debian setup
 
 RUN apt clean
-RUN apt update && apt install python-pip -y
-RUN apt install libcurl4-openssl-dev libssl-dev ffmpeg exiftool libvips-tools xcftools djvulibre-bin librsvg2-bin xvfb imagemagick webp gifsicle libjpeg-turbo-progs libexiv2-dev libboost-python-dev pkg-config libcairo2-dev libjpeg-dev libgif-dev -y
-
-RUN curl -sL https://deb.nodesource.com/setup_6.x | bash -
-RUN apt-get install build-essential nodejs -y
+RUN apt update
+RUN apt install libcurl4-openssl-dev libssl-dev ffmpeg exiftool libvips-tools xcftools djvulibre-bin librsvg2-bin xvfb imagemagick webp gifsicle libjpeg-turbo-progs libexiv2-dev python-all-dev libboost-python-dev pkg-config libcairo2-dev libjpeg-dev libgif-dev python3 git ca-certificates python3-pip python3-setuptools python3-wheel build-essential nodejs npm libopenblas-base liblapack3 liblapack-dev libopenblas-dev gfortran libwebp-dev ghostscript -y
 
 # 3d2png setup
 
 WORKDIR /srv
-RUN apt install git -y
 RUN git clone https://github.com/wikimedia/3d2png.git
 WORKDIR /srv/3d2png
 RUN npm install --unsafe-perm -g .
@@ -25,16 +21,10 @@ COPY . .
 
 # requirements
 
-RUN pip install -r requirements.txt
-RUN pip install -r requirements-dev.txt
-
-# tests
-
-RUN pip install pyssim
-RUN pip install urllib3
-RUN apt-get install python-pyexiv2-doc -y
+RUN pip3 install -r requirements.txt
+RUN pip3 install -r requirements-dev.txt
 
 # install and run
 
-RUN python setup.py install
+RUN python3 setup.py install
 CMD thumbor --port 8800 --conf=thumbor.conf -a wikimedia_thumbor.app.App

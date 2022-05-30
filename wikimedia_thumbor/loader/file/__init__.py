@@ -16,7 +16,6 @@
 from datetime import datetime
 from os import fstat
 from os.path import join, exists, abspath
-from tornado.concurrent import return_future
 from tempfile import NamedTemporaryFile
 import tornado.simple_httpclient
 from functools import partial
@@ -26,12 +25,15 @@ from thumbor.loaders import LoaderResult
 from wikimedia_thumbor.shell_runner import ShellRunner
 
 
+def should_run(url):  # pragma: no cover
+    return True
+
+
 def cleanup_temp_file(path):
     ShellRunner.rm_f(path)
 
 
-@return_future
-def load(context, path, callback):
+async def load(context, path):
     file_path = join(context.config.FILE_LOADER_ROOT_PATH.rstrip('/'), path.lstrip('/'))
     file_path = abspath(file_path)
     inside_root_path = file_path.startswith(context.config.FILE_LOADER_ROOT_PATH)
@@ -40,7 +42,7 @@ def load(context, path, callback):
 
     if inside_root_path and exists(file_path):
 
-        with open(file_path, 'r') as f:
+        with open(file_path, 'rb') as f:
             stats = fstat(f.fileno())
 
             result.successful = True
@@ -72,4 +74,4 @@ def load(context, path, callback):
         result.error = 404
         result.successful = False
 
-    callback(result)
+    return result

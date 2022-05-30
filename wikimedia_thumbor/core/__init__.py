@@ -12,7 +12,7 @@ from wikimedia_thumbor.core.context_importer import ContextImporter
 from wikimedia_thumbor.core.importer import Importer
 
 
-class Extensions(object):
+class Extensions:
 
     extensions = []
 
@@ -39,7 +39,7 @@ class Extensions(object):
         Importer.register_module(config_key, class_name, multiple)
 
 
-class Extension(object):
+class Extension:
 
     def __init__(self, name):
         '''

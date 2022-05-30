@@ -9,7 +9,6 @@
 
 import re
 from libthumbor.url import Url
-import tornado.gen as gen
 
 from thumbor.handlers.imaging import ImagingHandler
 
@@ -19,7 +18,6 @@ class CoreHandler(ImagingHandler):
     def regex(cls):
         return r'/thumbor/(?P<request>.*)'
 
-    @gen.coroutine
-    def check_image(self, kw):
+    async def check_image(self, kw):
         result = re.match(Url.regex(), kw['request'])
-        return super(CoreHandler, self).check_image(result.groupdict())
+        return await super(CoreHandler, self).check_image(result.groupdict())

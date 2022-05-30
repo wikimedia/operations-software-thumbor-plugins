@@ -15,12 +15,7 @@ class WikimediaHealthcheckHandlerTestCase(WikimediaTestCase):
         return cfg
 
     def test_healthcheck(self):
-        self.http_client.fetch(
-            self.get_url('/healthcheck'),
-            self.stop,
-            method='GET'
-        )
-        response = self.wait()
+        response = self.fetch('/healthcheck')
 
         assert response.code == 200, 'Unexpected response code: %r' % response.code
-        assert response.body == 'WORKING', 'Unexpected response body: %r' % response.body
+        assert response.body == b'WORKING', 'Unexpected response body: %r' % response.body

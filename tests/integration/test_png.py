@@ -11,7 +11,7 @@ distversion = 10.0 if distversion == 'buster/sid' else float(distversion)
 class WikimediaTest(WikimediaTestCase):
     def test_png(self):
         self.run_and_check_ssim_and_size(
-            'thumbor/unsafe/400x/1Mcolors.png',
+            '/thumbor/unsafe/400x/1Mcolors.png',
             '400px-1Mcolors.png',
             '400px-1Mcolors.png',
             400,
@@ -20,7 +20,7 @@ class WikimediaTest(WikimediaTestCase):
             0.74
         )
         self.run_and_check_ssim_and_size(
-            'thumbor/unsafe/400x/filters:format(webp)/1Mcolors.png',
+            '/thumbor/unsafe/400x/filters:format(webp)/1Mcolors.png',
             '400px-1Mcolors.png',
             '400px-1Mcolors.png',
             400,
@@ -37,7 +37,7 @@ class WikimediaTest(WikimediaTestCase):
 
         # T179200 Partially broken PNG
         self.run_and_check_ssim_and_size(
-            'thumbor/unsafe/400x/Nokia_3310_2017_DS.png',
+            '/thumbor/unsafe/400x/Nokia_3310_2017_DS.png',
             '400px-Nokia_3310_2017_DS.png',
             '400px-Nokia_3310_2017_DS.png',
             400,
@@ -48,7 +48,7 @@ class WikimediaTest(WikimediaTestCase):
 
     def test_transparent(self):
         self.run_and_check_ssim_and_size(
-            'thumbor/unsafe/400x/' +
+            '/thumbor/unsafe/400x/' +
             'PNG_transparency_demonstration_1.png',
             '400px-PNG_transparency_demonstration_1.png',
             '400px-PNG_transparency_demonstration_1.png',
@@ -58,7 +58,7 @@ class WikimediaTest(WikimediaTestCase):
             1.1
         )
         self.run_and_check_ssim_and_size(
-            'thumbor/unsafe/400x/filters:format(webp)/' +
+            '/thumbor/unsafe/400x/filters:format(webp)/' +
             'PNG_transparency_demonstration_1.png',
             '400px-PNG_transparency_demonstration_1.png',
             '400px-PNG_transparency_demonstration_1.png',
@@ -72,7 +72,7 @@ class WikimediaTest(WikimediaTestCase):
         )
         # Palette PNG
         self.run_and_check_ssim_and_size(
-            'thumbor/unsafe/400x/' +
+            '/thumbor/unsafe/400x/' +
             'Cincinnati_Bell_logo.png',
             '400px-Cincinnati_Bell_logo.png',
             '400px-Cincinnati_Bell_logo.png',
@@ -87,7 +87,7 @@ class WikimediaTest(WikimediaTestCase):
         )
         # Greyscale with alpha
         self.run_and_check_ssim_and_size(
-            'thumbor/unsafe/400x/' +
+            '/thumbor/unsafe/400x/' +
             'Quillette.png',
             '400px-Quillette.png',
             '400px-Quillette.png',
@@ -98,7 +98,7 @@ class WikimediaTest(WikimediaTestCase):
         )
         # RGB with tRNS and no alpha channel
         self.run_and_check_ssim_and_size(
-            'thumbor/unsafe/100x/' +
+            '/thumbor/unsafe/100x/' +
             'RGB_with_tRNS.png',
             '100px-RGB_with_tRNS.png',
             '100px-RGB_with_tRNS.png',
@@ -109,7 +109,7 @@ class WikimediaTest(WikimediaTestCase):
         )
         # Greyscale with tRNS and no alpha channel
         self.run_and_check_ssim_and_size(
-            'thumbor/unsafe/100x/' +
+            '/thumbor/unsafe/100x/' +
             'Greyscale_with_tRNS.png',
             '100px-Greyscale_with_tRNS.png',
             '100px-Greyscale_with_tRNS.png',
@@ -121,7 +121,7 @@ class WikimediaTest(WikimediaTestCase):
 
     def test_T245440(self):
         self.run_and_check_ssim_and_size(
-            'thumbor/unsafe/400x/Ethiopian_Region_Map_with_Capitals_and_Flags.png',
+            '/thumbor/unsafe/400x/Ethiopian_Region_Map_with_Capitals_and_Flags.png',
             '400px-Ethiopian_Region_Map_with_Capitals_and_Flags.png',
             '400px-Ethiopian_Region_Map_with_Capitals_and_Flags.png',
             400,

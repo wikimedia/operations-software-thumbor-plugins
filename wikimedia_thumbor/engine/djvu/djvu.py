@@ -17,13 +17,7 @@ from wikimedia_thumbor.engine import BaseWikimediaEngine
 BaseWikimediaEngine.add_format(
     'image/vnd.djvu',
     '.djvu',
-    lambda buffer: buffer.startswith('FORM', 4, 8) and
-    (
-        buffer.startswith('DJVU', 12, 16) or
-        buffer.startswith('DJVM', 12, 16) or
-        buffer.startswith('PM44', 12, 16) or
-        buffer.startswith('BM44', 12, 16)
-    )
+    lambda buffer: buffer[4:8] == b'FORM' and buffer[12:16] in (b'DJVU', b'DJVM', b'PM44', b'BM44')
 )
 
 

@@ -8,10 +8,11 @@
 import manhole
 import os.path
 import tempfile
+from shutil import which
 
 import thumbor.engines
 
-from thumbor.utils import logger, which
+from thumbor.utils import logger
 
 from thumbor.handlers import ContextHandler
 from wikimedia_thumbor.core import Extensions

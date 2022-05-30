@@ -33,7 +33,7 @@ def cleanup_temp_file(path):
     ShellRunner.rm_f(path)
 
 
-def return_contents(response, url, callback, context, f):  # pragma: no cover
+def return_contents(response, url, context, f):  # pragma: no cover
     excerpt_length = context.config.LOADER_EXCERPT_LENGTH
 
     f.seek(0)
@@ -56,7 +56,7 @@ def return_contents(response, url, callback, context, f):  # pragma: no cover
         logger.debug('[HTTPS] return_contents: small body')
         cleanup_temp_file(f.name)
 
-    return http_loader.return_contents(response, url, callback, context)
+    return http_loader.return_contents(response, url, context)
 
 
 def stream_contents(response, f):
@@ -75,7 +75,7 @@ def _normalize_url(url):
     return '/'.join(rewritten_parts)
 
 
-def load_sync(context, url, callback):
+async def load(context, url):
     logger.debug('[HTTPS] load_sync: %s' % url)
     client = tornado.simple_httpclient.SimpleAsyncHTTPClient(
         max_clients=context.config.HTTP_LOADER_MAX_CLIENTS,
@@ -112,15 +112,9 @@ def load_sync(context, url, callback):
         streaming_callback=partial(stream_contents, f=f)
     )
 
-    client.fetch(
-        req, callback=partial(
-            return_contents,
-            url=url,
-            callback=callback,
-            context=context,
-            f=f
-        )
-    )
+    response = await client.fetch(req)
+
+    return return_contents(response, url, context, f)
 
 
 def encode(string):

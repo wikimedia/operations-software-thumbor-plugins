@@ -18,7 +18,7 @@ class WikimediaVideoTest(WikimediaTestCase):
         )
 
         self.run_and_check_ssim_and_size(
-            'thumbor/unsafe/640x/' + path,
+            '/thumbor/unsafe/640x/' + path,
             '640px--2010-07-14-Blitze-Zeitlupe-1-08.ogg.jpg',
             '640px--2010-07-14-Blitze-Zeitlupe-1-08.ogg.png',
             640,
@@ -27,7 +27,7 @@ class WikimediaVideoTest(WikimediaTestCase):
             0.76
         )
         self.run_and_check_ssim_and_size(
-            'thumbor/unsafe/640x/filters:format(webp)/' + path,
+            '/thumbor/unsafe/640x/filters:format(webp)/' + path,
             '640px--2010-07-14-Blitze-Zeitlupe-1-08.ogg.jpg',
             '640px--2010-07-14-Blitze-Zeitlupe-1-08.ogg.png',
             640,
@@ -44,7 +44,7 @@ class WikimediaVideoTest(WikimediaTestCase):
         )
 
         self.run_and_check_ssim_and_size(
-            'thumbor/unsafe/320x/' + path,
+            '/thumbor/unsafe/320x/' + path,
             '320px--Aequipotentialflaechen.webm.jpg',
             '320px--Aequipotentialflaechen.webm.png',
             320,
@@ -53,7 +53,7 @@ class WikimediaVideoTest(WikimediaTestCase):
             0.99
         )
         self.run_and_check_ssim_and_size(
-            'thumbor/unsafe/320x/filters:format(webp)/' + path,
+            '/thumbor/unsafe/320x/filters:format(webp)/' + path,
             '320px--Aequipotentialflaechen.webm.jpg',
             '320px--Aequipotentialflaechen.webm.png',
             320,
@@ -69,7 +69,7 @@ class WikimediaVideoTest(WikimediaTestCase):
         )
 
         self.run_and_check_ssim_and_size(
-            'thumbor/unsafe/640x/' + path,
+            '/thumbor/unsafe/640x/' + path,
             '640px--Cape_Town_under_the_clouds.webm.jpg',
             '640px--Cape_Town_under_the_clouds.webm.png',
             640,
@@ -78,7 +78,7 @@ class WikimediaVideoTest(WikimediaTestCase):
             0.77
         )
         self.run_and_check_ssim_and_size(
-            'thumbor/unsafe/640x/filters:format(webp)/' + path,
+            '/thumbor/unsafe/640x/filters:format(webp)/' + path,
             '640px--Cape_Town_under_the_clouds.webm.jpg',
             '640px--Cape_Town_under_the_clouds.webm.png',
             640,
@@ -94,7 +94,7 @@ class WikimediaVideoTest(WikimediaTestCase):
         )
 
         self.run_and_check_ssim_and_size(
-            'thumbor/unsafe/640x/' + path,
+            '/thumbor/unsafe/640x/' + path,
             '640px--Debris_flow_-_22_juillet_2013_-_Crue_torrentielle_a_Saint_Julien_Montdenis.webm.jpg',
             '640px--Debris_flow_-_22_juillet_2013_-_Crue_torrentielle_a_Saint_Julien_Montdenis.webm.png',
             640,
@@ -103,7 +103,7 @@ class WikimediaVideoTest(WikimediaTestCase):
             0.86
         )
         self.run_and_check_ssim_and_size(
-            'thumbor/unsafe/640x/filters:format(webp)/' + path,
+            '/thumbor/unsafe/640x/filters:format(webp)/' + path,
             '640px--Debris_flow_-_22_juillet_2013_-_Crue_torrentielle_a_Saint_Julien_Montdenis.webm.jpg',
             '640px--Debris_flow_-_22_juillet_2013_-_Crue_torrentielle_a_Saint_Julien_Montdenis.webm.png',
             640,
@@ -120,7 +120,7 @@ class WikimediaVideoTest(WikimediaTestCase):
         )
 
         self.run_and_check_ssim_and_size(
-            'thumbor/unsafe/320x/filters:page(1)/' + path,
+            '/thumbor/unsafe/320x/filters:page(1)/' + path,
             '320px-seek=1-Aequipotentialflaechen.webm.jpg',
             '320px-seek=1-Aequipotentialflaechen.webm.png',
             320,
@@ -129,7 +129,7 @@ class WikimediaVideoTest(WikimediaTestCase):
             0.81
         )
         self.run_and_check_ssim_and_size(
-            'thumbor/unsafe/320x/filters:format(webp):page(1)/' + path,
+            '/thumbor/unsafe/320x/filters:format(webp):page(1)/' + path,
             '320px-seek=1-Aequipotentialflaechen.webm.jpg',
             '320px-seek=1-Aequipotentialflaechen.webm.png',
             320,
@@ -146,7 +146,7 @@ class WikimediaVideoTest(WikimediaTestCase):
         )
 
         self.run_and_check_ssim_and_size(
-            'thumbor/unsafe/800x/' + path,
+            '/thumbor/unsafe/800x/' + path,
             '800px-Malta-cat.ogv.jpg',
             '800px-Malta-cat.ogv.png',
             800,
@@ -155,12 +155,12 @@ class WikimediaVideoTest(WikimediaTestCase):
             0.85
         )
         self.run_and_check_ssim_and_size(
-            'thumbor/unsafe/800x/filters:format(webp)/' + path,
+            '/thumbor/unsafe/800x/filters:format(webp)/' + path,
             '800px-Malta-cat.ogv.jpg',
             '800px-Malta-cat.ogv.png',
             800,
             450,
-            0.95,
+            0.94,
             0.49
         )
 
@@ -172,7 +172,7 @@ class WikimediaVideoTest(WikimediaTestCase):
         )
 
         self.run_and_check_ssim_and_size(
-            'thumbor/unsafe/640x/' + path,
+            '/thumbor/unsafe/640x/' + path,
             '640px--Visualization-pone.0014754.s006.mpg.jpg',
             '640px--Visualization-pone.0014754.s006.mpg.png',
             640,
@@ -181,7 +181,7 @@ class WikimediaVideoTest(WikimediaTestCase):
             0.75
         )
         self.run_and_check_ssim_and_size(
-            'thumbor/unsafe/640x/filters:format(webp)/' + path,
+            '/thumbor/unsafe/640x/filters:format(webp)/' + path,
             '640px--Visualization-pone.0014754.s006.mpg.jpg',
             '640px--Visualization-pone.0014754.s006.mpg.png',
             640,
@@ -198,7 +198,7 @@ class WikimediaVideoTest(WikimediaTestCase):
         )
 
         self.run_and_check_ssim_and_size(
-            'thumbor/unsafe/352x/' + path,
+            '/thumbor/unsafe/352x/' + path,
             '352px--Folgers.mpg.jpg',
             '352px--Folgers.mpg.png',
             352,
@@ -207,7 +207,7 @@ class WikimediaVideoTest(WikimediaTestCase):
             0.79
         )
         self.run_and_check_ssim_and_size(
-            'thumbor/unsafe/352x/filters:format(webp)/' + path,
+            '/thumbor/unsafe/352x/filters:format(webp)/' + path,
             '352px--Folgers.mpg.jpg',
             '352px--Folgers.mpg.png',
             352,

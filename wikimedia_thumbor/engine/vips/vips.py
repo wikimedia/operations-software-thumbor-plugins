@@ -24,9 +24,7 @@ from wikimedia_thumbor.shell_runner import ShellRunner  # noqa
 BaseWikimediaEngine.add_format(
     'image/tiff',
     '.tiff',
-    lambda buffer: (
-        buffer.startswith('II*\x00') or buffer.startswith('MM\x00*')
-    )
+    lambda buffer: buffer[:7] in (b'II*\x00', 'MM\x00*')
 )
 
 
@@ -54,7 +52,7 @@ class Engine(BaseWikimediaEngine):
                 buffer=buffer
             )
 
-        size = stdout.strip().split('x')
+        size = stdout.decode('utf-8').strip().split('x')
 
         self.context.vips['width'] = int(size[0])
         self.context.vips['height'] = int(size[1])
@@ -112,11 +110,11 @@ class Engine(BaseWikimediaEngine):
             try:
                 return self.shrink_for_page(source, shrink_factor, output_args)
             except CommandError as e:
-                if "does not contain page" in e.args[2]:
+                if "does not contain page" in e.args[2].decode('utf-8'):
                     # The page is probably out of bounds, try again without
                     # specifying a page
                     source = self.source
-                elif "profile" in e.args[2] and "vips2png: unable to write" in e.args[2]:
+                elif "profile" in e.args[2].decode('utf-8') and "vips2png: unable to write" in e.args[2].decode('utf-8'):
                     # libpng doesn't want to write files with ICC profiles
                     # that it doesn't like. Force those images to use TinyRGB
                     self.debug('[VIPS] Forcing TinyRGB profile')
