@@ -61,6 +61,7 @@ class Engine(BaseWikimediaEngine):
             "-dFirstPage=%d" % page,
             "-dLastPage=%d" % page,
             "-r150",
+            "-dUseCropBox",
             "-dBATCH",
             "-dNOPAUSE",
             "-dSAFER",
