@@ -10,11 +10,14 @@ single-test:
 # ASYNC_TEST_TIMEOUT environment variable was set to 60 seconds.
 	@ASYNC_TEST_TIMEOUT=60 pytest tests/integration/test_djvu.py
 
-tests:
+test:
 	@ASYNC_TEST_TIMEOUT=60 pytest tests/
 
-offline-tests:
+offline-test:
 	@ASYNC_TEST_TIMEOUT=60 pytest tests/ --ignore 'tests/integration/test_proxy_loader.py' --ignore 'tests/integration/test_huge_video.py' --ignore 'tests/integration/test_https_loader.py' --ignore 'tests/integration/test_vips_https_loader.py' --ignore 'tests/integration/test_3d.py'
+
+online-test:
+	@ASYNC_TEST_TIMEOUT=60 pytest tests/integration/test_proxy_loader.py tests/integration/test_huge_video.py tests/integration/test_https_loader.py tests/integration/test_vips_https_loader.py tests/integration/test_3d.py
 
 # Docker
 up:

@@ -60,60 +60,60 @@ class WikimediaTest(WikimediaTestCase):
 
     def test_multipage_tiff(self):
         self.run_and_check_ssim_and_size(
-            '/thumbor/unsafe/400x/filters:page(3)/All_that_jazz.tif',
-            'lossy-page3-400px-All_that_jazz.tif.jpg',
-            'lossy-page3-400px-All_that_jazz.tif.png',
+            '/thumbor/unsafe/400x/filters:page(3)/International_Convention_for_Regulation_of_Whaling.tiff',
+            'lossy-page3-400px-International_Convention_for_Regulation_of_Whaling.tiff.jpg',
+            'lossy-page3-400px-International_Convention_for_Regulation_of_Whaling.tiff.png',
             400,
-            518,
+            566,
             0.99,
-            0.63,
+            0.8,
         )
         self.run_and_check_ssim_and_size(
-            '/thumbor/unsafe/400x/filters:page(3):format(webp)/All_that_jazz.tif',
-            'lossy-page3-400px-All_that_jazz.tif.jpg',
-            'lossy-page3-400px-All_that_jazz.tif.png',
+            '/thumbor/unsafe/400x/filters:page(3):format(webp)/International_Convention_for_Regulation_of_Whaling.tiff',
+            'lossy-page3-400px-International_Convention_for_Regulation_of_Whaling.tiff.jpg',
+            'lossy-page3-400px-International_Convention_for_Regulation_of_Whaling.tiff.png',
             400,
-            518,
-            0.99,
-            0.46,
+            566,
+            0.98,
+            0.66,
         )
 
     def test_multipage_tiff_without_page_filter(self):
         self.run_and_check_ssim_and_size(
-            '/thumbor/unsafe/400x/All_that_jazz.tif',
-            'lossy-page1-400px-All_that_jazz.tif.jpg',
-            'lossy-page1-400px-All_that_jazz.tif.png',
+            '/thumbor/unsafe/400x/International_Convention_for_Regulation_of_Whaling.tiff',
+            'lossy-page1-400px-International_Convention_for_Regulation_of_Whaling.tiff.jpg',
+            'lossy-page1-400px-International_Convention_for_Regulation_of_Whaling.tiff.png',
             400,
-            518,
+            566,
             0.99,
-            0.69,
+            0.77,
         )
         self.run_and_check_ssim_and_size(
-            '/thumbor/unsafe/400x/filters:format(webp)/All_that_jazz.tif',
-            'lossy-page1-400px-All_that_jazz.tif.jpg',
-            'lossy-page1-400px-All_that_jazz.tif.png',
+            '/thumbor/unsafe/400x/filters:format(webp)/International_Convention_for_Regulation_of_Whaling.tiff',
+            'lossy-page1-400px-International_Convention_for_Regulation_of_Whaling.tiff.jpg',
+            'lossy-page1-400px-International_Convention_for_Regulation_of_Whaling.tiff.png',
             400,
-            518,
-            0.99,
-            0.48,
+            566,
+            0.98,
+            0.66,
         )
 
     def test_multipage_tiff_with_out_of_bounds_page(self):
         self.run_and_check_ssim_and_size(
-            '/thumbor/unsafe/400x/filters:page(500)/All_that_jazz.tif',
-            'lossy-page1-400px-All_that_jazz.tif.jpg',
-            'lossy-page1-400px-All_that_jazz.tif.png',
+            '/thumbor/unsafe/400x/filters:page(500)/International_Convention_for_Regulation_of_Whaling.tiff',
+            'lossy-page1-400px-International_Convention_for_Regulation_of_Whaling.tiff.jpg',
+            'lossy-page1-400px-International_Convention_for_Regulation_of_Whaling.tiff.png',
             400,
-            518,
+            566,
             0.99,
-            0.69,
+            0.77,
         )
         self.run_and_check_ssim_and_size(
-            '/thumbor/unsafe/400x/filters:page(500):format(webp)/All_that_jazz.tif',
-            'lossy-page1-400px-All_that_jazz.tif.jpg',
-            'lossy-page1-400px-All_that_jazz.tif.png',
+            '/thumbor/unsafe/400x/filters:page(500):format(webp)/International_Convention_for_Regulation_of_Whaling.tiff',
+            'lossy-page1-400px-International_Convention_for_Regulation_of_Whaling.tiff.jpg',
+            'lossy-page1-400px-International_Convention_for_Regulation_of_Whaling.tiff.png',
             400,
-            518,
-            0.99,
-            0.48,
+            566,
+            0.98,
+            0.66,
         )

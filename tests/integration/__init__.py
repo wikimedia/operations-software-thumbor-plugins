@@ -48,7 +48,7 @@ class WikimediaTestCase(AsyncHTTPTestCase):
         cfg.GHOSTSCRIPT_PATH = which('gs')
         cfg.DDJVU_PATH = which('ddjvu')
         cfg.RSVG_CONVERT_PATH = which('rsvg-convert')
-        cfg.THREED2PNG_PATH = which('3d2png.js')
+        cfg.THREED2PNG_PATH = which('3d2png')
         cfg.XVFB_RUN_PATH = which('xvfb-run')
         cfg.CONVERT_PATH = which('convert')
         cfg.CWEBP_PATH = which('cwebp')

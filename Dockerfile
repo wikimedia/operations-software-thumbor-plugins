@@ -4,7 +4,7 @@ FROM docker-registry.wikimedia.org/wikimedia-buster
 
 RUN apt clean
 RUN apt update
-RUN apt install libcurl4-openssl-dev libssl-dev ffmpeg exiftool libvips-tools xcftools djvulibre-bin librsvg2-bin xvfb imagemagick webp gifsicle libjpeg-turbo-progs libexiv2-dev python-all-dev libboost-python-dev pkg-config libcairo2-dev libjpeg-dev libgif-dev python3 git ca-certificates python3-pip python3-setuptools python3-wheel build-essential nodejs npm libopenblas-base liblapack3 liblapack-dev libopenblas-dev gfortran libwebp-dev ghostscript -y
+RUN apt install libcurl4-openssl-dev libssl-dev ffmpeg exiftool libvips-tools xcftools djvulibre-bin librsvg2-bin xvfb xauth imagemagick webp gifsicle libjpeg-turbo-progs libexiv2-dev python-all-dev libboost-python-dev pkg-config libcairo2-dev libjpeg-dev libgif-dev python3 git ca-certificates python3-pip python3-setuptools python3-wheel build-essential nodejs npm libopenblas-base liblapack3 liblapack-dev libopenblas-dev gfortran libwebp-dev ghostscript -y
 
 # 3d2png setup
 
