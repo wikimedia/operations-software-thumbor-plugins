@@ -1,4 +1,4 @@
-.PHONY: coverage test up down build bash
+.PHONY: coverage test up down build bash docker_test 3d2png install
 
 # Coverage
 coverage:
@@ -31,3 +31,15 @@ build:
 
 bash:
 	docker-compose exec thumbor bash
+
+3d2png:
+	git clone https://github.com/wikimedia/3d2png.git
+	npm install 3d2png
+
+docker_test:
+	blubber .pipeline/blubber.yaml test > Dockerfile
+	docker build -t thumbor-test .
+	docker run thumbor-test
+
+install: 3d2png
+	python setup.py install
