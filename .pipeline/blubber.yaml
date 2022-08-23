@@ -1,0 +1,83 @@
+version: v4
+base: docker-registry.wikimedia.org/python3-build-buster
+apt:
+  packages:
+    - ffmpeg
+    - ffmpeg
+    - exiftool
+    - libvips-tools
+    - xcftools
+    - djvulibre-bin
+    - librsvg2-bin
+    - xvfb
+    - imagemagick
+    - webp
+    - gifsicle
+    - libjpeg-turbo-progs
+    - ca-certificates
+    - python3-numpy
+    - python3-scipy
+    - nodejs
+    - ghostscript
+
+lives:
+  in: /srv/service/
+runs:
+  environment:
+    APP_BASE_PATH: /srv/service
+python:
+  version: python3
+
+variants:
+  build:
+    apt:
+      packages:
+        - libcurl4-openssl-dev
+        - libcurl4-openssl-dev
+        - libssl-dev
+        - libexiv2-dev
+        - libboost-python-dev
+        - pkg-config
+        - libcairo2-dev
+        - libjpeg-dev
+        - libgif-dev
+        - ca-certificates
+        - build-essential
+        - npm
+        - libopenblas-base
+        - liblapack3
+        - liblapack-dev
+        - libopenblas-dev
+        - gfortran
+        - libwebp-dev
+    copies: [local]
+    builder:
+      command: [make, 3d2png]
+      requirements:
+        - Makefile
+    python:
+      requirements: [requirements.txt]
+    runs: { insecurely: true }
+  test:
+    python:
+      requirements: [requirements.txt, requirements-dev.txt]
+    includes: [build]
+    entrypoint: [make, offline-test]
+  prep:
+    apt:
+      packages:
+        - wmf-certificates
+    includes: [build]
+    node: { env: production }
+  dev:
+    copies: [prep]
+    node: { env: dev }
+    runs:
+      insecurely: true
+      environment:
+        PYTHONPATH: "/srv/service:/opt/lib/python/site-packages"
+    entrypoint: ["/srv/service/entrypoint.sh"]
+  production:
+    copies: [prep]
+    node: { env: production }
+    entrypoint: ["/srv/service/entrypoint.sh"]
