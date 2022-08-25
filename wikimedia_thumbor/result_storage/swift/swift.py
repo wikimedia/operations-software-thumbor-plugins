@@ -9,7 +9,6 @@
 
 import datetime
 import logging
-import random
 
 from swiftclient import client
 from swiftclient.exceptions import ClientException
@@ -93,12 +92,6 @@ class Storage(BaseStorage):
 
             if len(xkey):
                 headers['Xkey'] = xkey[0]
-
-            expiry = self.context.config.get('SWIFT_THUMBNAIL_EXPIRY_SECONDS', 0)
-            sampling_factor = self.context.config.get('SWIFT_THUMBNAIL_EXPIRY_SAMPLING_FACTOR', 0)
-
-            if expiry > 0 and sampling_factor > 0 and random.randint(1, sampling_factor) == 1:
-                headers['X-Delete-After'] = expiry
 
             content_type = content_type[0] if len(content_type) else None
 

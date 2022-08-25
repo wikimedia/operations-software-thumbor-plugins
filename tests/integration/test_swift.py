@@ -45,8 +45,10 @@ class WikimediaSwiftTestCase(WikimediaTestCase):
     def tearDown(self):
         super(WikimediaSwiftTestCase, self).tearDown()
         SimpleAsyncHTTPClient.fetch_impl = self.original_fetch_impl
-        Connection.get_object = self.original_get_object
         Connection.put_object = self.original_put_object
+
+        if hasattr(self, 'original_get_object'):
+            Connection.get_object = self.original_get_object
 
     def get_config(self):
         cfg = Config(SECURITY_KEY='ACME-SEC')
@@ -77,8 +79,6 @@ class WikimediaSwiftTestCase(WikimediaTestCase):
         cfg.PROXY_LOADER_LOADERS = ['wikimedia_thumbor.loader.swift']
         cfg.LOADER_EXCERPT_LENGTH = 4096
         cfg.HTTP_LOADER_TEMP_FILE_TIMEOUT = 10
-        cfg.SWIFT_THUMBNAIL_EXPIRY_SECONDS = 60
-        cfg.SWIFT_THUMBNAIL_EXPIRY_SAMPLING_FACTOR = 1
 
         return cfg
 
@@ -91,7 +91,7 @@ class WikimediaSwiftTestCase(WikimediaTestCase):
             'Unexpected swift container: %r' % container
         assert obj == 'thumbor/d/d3/1Mcolors.png/400px-1Mcolors.png', \
             'Unexpected swift obj: %r' % obj
-        assert headers == {'Content-Disposition': 'inline;filename*=UTF-8\'\'1Mcolors.png', 'Xkey': 'File:1Mcolors.png', 'X-Delete-After': 60}, \
+        assert headers == {'Content-Disposition': 'inline;filename*=UTF-8\'\'1Mcolors.png', 'Xkey': 'File:1Mcolors.png'}, \
             'Unexpected swift headers: %r' % headers
 
     def mock_get_object(self, container, obj, resp_chunk_size=None,
