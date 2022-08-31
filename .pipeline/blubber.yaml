@@ -2,23 +2,22 @@ version: v4
 base: docker-registry.wikimedia.org/python3-build-buster
 apt:
   packages:
-    - ffmpeg
-    - ffmpeg
-    - exiftool
-    - libvips-tools
-    - xcftools
-    - djvulibre-bin
-    - librsvg2-bin
-    - xvfb
-    - imagemagick
-    - webp
-    - gifsicle
-    - libjpeg-turbo-progs
     - ca-certificates
+    - djvulibre-bin
+    - exiftool
+    - ffmpeg
+    - ghostscript
+    - gifsicle
+    - imagemagick
+    - libjpeg-turbo-progs
+    - librsvg2-bin
+    - libvips-tools
+    - nodejs
     - python3-numpy
     - python3-scipy
-    - nodejs
-    - ghostscript
+    - webp
+    - xcftools
+    - xvfb
 
 lives:
   in: /srv/service/
@@ -32,24 +31,23 @@ variants:
   build:
     apt:
       packages:
-        - libcurl4-openssl-dev
-        - libcurl4-openssl-dev
-        - libssl-dev
-        - libexiv2-dev
-        - libboost-python-dev
-        - pkg-config
-        - libcairo2-dev
-        - libjpeg-dev
-        - libgif-dev
-        - ca-certificates
         - build-essential
-        - npm
-        - libopenblas-base
-        - liblapack3
-        - liblapack-dev
-        - libopenblas-dev
+        - ca-certificates
         - gfortran
+        - libboost-python-dev
+        - libcairo2-dev
+        - libcurl4-openssl-dev
+        - libexiv2-dev
+        - libgif-dev
+        - libjpeg-dev
+        - liblapack-dev
+        - liblapack3
+        - libopenblas-base
+        - libopenblas-dev
+        - libssl-dev
         - libwebp-dev
+        - npm
+        - pkg-config
     copies: [local]
     builder:
       command: [make, 3d2png]
@@ -68,7 +66,7 @@ variants:
       packages:
         - wmf-certificates
     includes: [build]
-    node: { env: production }
+    node: { env: prep }
   dev:
     copies: [prep]
     node: { env: dev }
