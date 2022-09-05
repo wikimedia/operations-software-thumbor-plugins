@@ -9,6 +9,7 @@ apt:
     - ghostscript
     - gifsicle
     - imagemagick
+    - libgl1-mesa-dri
     - libjpeg-turbo-progs
     - librsvg2-bin
     - libvips-tools
@@ -16,6 +17,7 @@ apt:
     - python3-numpy
     - python3-scipy
     - webp
+    - xauth
     - xcftools
     - xvfb
 
@@ -32,7 +34,6 @@ variants:
     apt:
       packages:
         - build-essential
-        - ca-certificates
         - gfortran
         - libboost-python-dev
         - libcairo2-dev
@@ -61,6 +62,9 @@ variants:
       requirements: [requirements.txt, requirements-dev.txt]
     includes: [build]
     entrypoint: [make, offline-test]
+  online-test:
+    includes: [test]
+    entrypoint: [make, online-test]
   prep:
     apt:
       packages:
