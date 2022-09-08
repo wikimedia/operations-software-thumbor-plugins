@@ -182,8 +182,8 @@ class WikimediaTestCase(AsyncHTTPTestCase):
             logger.error('Dumped generated test image for debugging purposes: %s' % output_file.name)
             raise e
 
-        expected_filesize = float(os.path.getsize(expected_path))
-        generated_filesize = float(len(result.buffer.getvalue()))
+        expected_filesize = os.path.getsize(expected_path)
+        generated_filesize = len(result.buffer.getvalue())
 
         ratio = generated_filesize / expected_filesize
         assert ratio <= size_tolerance, \

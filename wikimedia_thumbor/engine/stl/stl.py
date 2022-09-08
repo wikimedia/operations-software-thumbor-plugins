@@ -71,7 +71,7 @@ class Engine(BaseWikimediaEngine):
         # In order to copy Python 2 behaviour of round() method, namely "round
         # half away from zero" rounding, method math.floor() and adding 0.5 to
         # the value which will be rounded are used.
-        height = math.floor(self.context.request.width / (640. / 480.) + 0.5)
+        height = math.floor(self.context.request.width / (640 / 480) + 0.5)
 
         tmpfile, tmppng = tempfile.mkstemp(suffix='.stl.png', prefix='tmpthumb')
 

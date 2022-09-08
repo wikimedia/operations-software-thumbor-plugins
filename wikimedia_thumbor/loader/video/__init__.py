@@ -143,7 +143,7 @@ async def _parse_time(context, normalized_url, output):
     try:
         duration = float(output)
     except ValueError:
-        duration = 0.0
+        duration = 0
 
     try:
         seek = int(context.request.page)

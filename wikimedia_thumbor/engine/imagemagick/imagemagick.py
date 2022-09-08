@@ -93,8 +93,8 @@ class Engine(BaseEngine):
         # with width being different than the requested width.
         # Therefore, we make the hint twice the target size
 
-        width = float(self.context.request.width) * 2.0
-        height = float(self.context.request.height) * 2.0
+        width = self.context.request.width * 2
+        height = self.context.request.height * 2
 
         if width == 0:
             width = Decimal(height * buffer_ratio).quantize(0, ROUND_HALF_DOWN)

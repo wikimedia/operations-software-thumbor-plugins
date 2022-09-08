@@ -11,7 +11,6 @@
 
 # VIPS engine
 
-import math
 import os
 import shutil
 from tempfile import mkdtemp
@@ -77,11 +76,11 @@ class Engine(BaseWikimediaEngine):
         # We shrink to roughly twice the size we need, then the rest of the resizing is done
         # by Imagemagick. We can't resize straight to the size we need since the shrink factor
         # in this version of VIPS is an integer
-        shrink_factor = max(1, int(math.floor(
-            float(self.context.vips['width'])
-            /
-            (2.0 * float(self.context.request.width))
-        )))
+        shrink_factor = max(1, int(
+            self.context.vips['width']
+            //
+            (2 * self.context.request.width)
+        ))
 
         # T218272: If shrink_factor == 1, VIPS doesn't scale the image.
         # Don't bother running the command and just let ImageMagick handle it.

@@ -46,8 +46,8 @@ class Filter(BaseFilter):
             original_height = self.engine.source_height
             logger.debug('[conditional_sharpen] height fallback')
 
-        source_sum = float(original_width + original_height)
-        destination_sum = float(width + height)
+        source_sum = original_width + original_height
+        destination_sum = width + height
         resize_ratio = destination_sum / source_sum
 
         logger.debug('[conditional_sharpen] Original size: %dx%d Target size: %dx%d' % (original_width, original_height, width, height))
