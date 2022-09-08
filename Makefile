@@ -35,7 +35,7 @@ bash:
 3d2png:
 	git clone https://github.com/wikimedia/3d2png.git
 	npm install 3d2png
-	ln -s node_modules/.bin/3d2png /opt/lib/python/site-packages/bin/
+	ln -s /srv/service/node_modules/.bin/3d2png /opt/lib/python/site-packages/bin/
 
 docker_test:
 	blubber .pipeline/blubber.yaml test > Dockerfile
