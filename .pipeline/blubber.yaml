@@ -67,6 +67,9 @@ variants:
   online-test:
     includes: [test]
     entrypoint: [make, online-test]
+  code-coverage:
+    includes: [test]
+    entrypoint: [make, code-coverage]
   prep:
     apt:
       packages:

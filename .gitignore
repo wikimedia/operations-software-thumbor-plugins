@@ -1,5 +1,8 @@
-*.pyc
-/thumbor.conf
-/.coverage
+# IDEs' settings directories
 .idea
 .vscode
+
+# Temporary project files/dirs
+*.pyc
+/thumbor.conf
+coverage

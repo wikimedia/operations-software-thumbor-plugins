@@ -1,8 +1,13 @@
-.PHONY: coverage test up down build bash docker_test 3d2png install
+.PHONY: code-coverage docker_code-coverage single-test test offline-test online-test up down build bash docker_test 3d2png install
 
-# Coverage
-coverage:
-	coverage run -m pytest || coverage report
+# Code coverage
+code-coverage:
+	coverage run --source=wikimedia_thumbor/ -m pytest || coverage html -d coverage
+
+docker_code-coverage:
+	blubber .pipeline/blubber.yaml code-coverage | docker build -t thumbor-code-coverage --file - .
+	mkdir -m a+w coverage
+	docker run -it --mount type=bind,source=`pwd`/coverage,dst=/srv/service/coverage thumbor-code-coverage
 
 # Tests
 single-test:
@@ -38,8 +43,7 @@ bash:
 	ln -s /srv/service/node_modules/.bin/3d2png /opt/lib/python/site-packages/bin/
 
 docker_test:
-	blubber .pipeline/blubber.yaml test > Dockerfile
-	docker build -t thumbor-test .
+	blubber .pipeline/blubber.yaml test | docker build -t thumbor-test --file - .
 	docker run thumbor-test
 
 install: 3d2png

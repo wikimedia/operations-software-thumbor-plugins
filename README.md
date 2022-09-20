@@ -33,11 +33,12 @@ Healthcheck of thumbor custom application on http://localhost:8800/healthcheck
 sudo make bash
 make offline-tests
 ```
-3. Run code coverage(The project must be launched already):
+3. Run code coverage:
 ```bash
-sudo make bash
-make coverage
+sudo make docker_code-coverage
 ```
+When the thumbor-code-coverage container will finish its work, you can see the HTML code coverage report
+by opening the following file *coverage/index.html* in a browser.
 
 ## Debug tests
 
@@ -64,4 +65,3 @@ till the Preparing an example chapter.
     * It seems that PyCharm has a bug related to not detecting breakpoints before `breakpoint()` has been placed
     somewhere in a test. But the bug may not happen with all the tests. For more information, read this issue on
     [intellij-support.jetbrains.com](https://intellij-support.jetbrains.com/hc/en-us/community/posts/360008107400-PyCharm-2020-1-not-stopping-on-breakpoints-anymore-).
-
