@@ -9,6 +9,8 @@ apt:
     - ghostscript
     - gifsicle
     - imagemagick
+    - libboost-python1.67.0
+    - exiv2
     - libgl1-mesa-dri
     - libjpeg-turbo-progs
     - librsvg2-bin
