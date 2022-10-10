@@ -1,7 +1,18 @@
+import pytest
+import logging
+from shutil import which
 from . import WikimediaTestCase
 
 
 class WikimediaVipsTest(WikimediaTestCase):
+    @pytest.fixture
+    def inject_fixtures(self, caplog, monkeypatch):
+        self.caplog = caplog
+        monkeypatch.setattr(
+            'tests.integration.which',
+            lambda cmd: 'wrong/path' if cmd == 'vips' else which(cmd)
+        )
+
     def get_config(self):
         cfg = super(WikimediaVipsTest, self).get_config()
         cfg.VIPS_ENGINE_MIN_PIXELS = 0
@@ -179,3 +190,12 @@ class WikimediaVipsTest(WikimediaTestCase):
             expected_ssim=0.99,
             size_tolerance=0.88,
         )
+
+    @pytest.mark.usefixtures("inject_fixtures")
+    def test_vips_commanderror_raise(self):
+        with self.caplog.at_level(logging.ERROR):
+            url = '/thumbor/unsafe/400x/filters:format(png)/WorldMap-A_non-Frame.png'
+            result = self.fetch(url)
+
+            assert result.code == 500
+            assert "CommandError: ([\'wrong/path\'" in self.caplog.text

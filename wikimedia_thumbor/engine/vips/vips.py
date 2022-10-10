@@ -141,7 +141,7 @@ class Engine(BaseWikimediaEngine):
 
         try:
             self.command(command, clean_on_error=False)
-        except CommandError as e:  # pragma: no cover
+        except CommandError as e:
             ShellRunner.rm_f(destination)
             shutil.rmtree(temp_dir, True)
             raise e

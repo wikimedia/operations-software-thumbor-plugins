@@ -1,7 +1,10 @@
 import json
 import os
 import shutil
+import pytest
+import logging
 from PIL import Image
+from shutil import which
 from tempfile import NamedTemporaryFile
 from wikimedia_thumbor.exiftool_runner import ExiftoolRunner
 from wikimedia_thumbor.shell_runner import ShellRunner
@@ -10,6 +13,14 @@ from . import WikimediaTestCase
 
 
 class WikimediaExifTest(WikimediaTestCase):
+    @pytest.fixture
+    def inject_fixtures(self, caplog, monkeypatch):
+        self.caplog = caplog
+        monkeypatch.setattr(
+            'tests.integration.which',
+            lambda cmd: 'wrong/path' if cmd == 'exiftool' else which(cmd)
+        )
+
     def run_and_check_exif(
         self,
         url,
@@ -149,3 +160,13 @@ class WikimediaExifTest(WikimediaTestCase):
             None,
             tinyrgb
         )
+
+    @pytest.mark.usefixtures("inject_fixtures")
+    def test_exiftool_runner_stderr(self):
+        with self.caplog.at_level(logging.ERROR):
+            url = '/thumbor/unsafe/Physical_map_tagged_AdobeRGB.jpg'
+            result = self.fetch(url)
+
+            assert result.code == 500
+            error_markers = ['[ExiftoolRunner] error:', 'wrong/path']
+            assert all(marker in self.caplog.text for marker in error_markers)
