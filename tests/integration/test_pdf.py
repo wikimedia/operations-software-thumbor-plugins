@@ -1,7 +1,18 @@
+import pytest
+import logging
+from shutil import which
 from . import WikimediaTestCase
 
 
 class WikimediaTest(WikimediaTestCase):
+    @pytest.fixture
+    def inject_fixtures(self, caplog, monkeypatch):
+        self.caplog = caplog
+        monkeypatch.setattr(
+            'tests.integration.which',
+            lambda cmd: 'wrong/path' if cmd == 'gs' else which(cmd)
+        )
+
     def test_pdf(self):
         self.run_and_check_ssim_and_size(
             '/thumbor/unsafe/400x/filters:page(3)/Internationalisation.pdf',
@@ -100,3 +111,12 @@ class WikimediaTest(WikimediaTestCase):
             0.9,
             0.6,
         )
+
+    @pytest.mark.usefixtures("inject_fixtures")
+    def test_gs_commanderror_raise(self):
+        with self.caplog.at_level(logging.ERROR):
+            url = '/thumbor/unsafe/18KOZ-1.pdf'
+            result = self.fetch(url)
+
+            assert result.code == 500
+            assert "CommandError: ([\'wrong/path\'" in self.caplog.text

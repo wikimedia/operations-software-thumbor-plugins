@@ -60,7 +60,7 @@ class Engine(BaseWikimediaEngine):
                 # ...this is as close to a golden STL file check as we're
                 # going to get.
                 return True
-        except IndexError:
+        except IndexError:  # pragma: no cover
             pass
 
         return False
