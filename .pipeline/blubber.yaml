@@ -87,4 +87,4 @@ variants:
   production:
     copies: [prep]
     node: { env: production }
-    entrypoint: ["/srv/service/entrypoint.sh"]
+    entrypoint: ["/srv/service/entrypoint-prod.sh", "8888"]
