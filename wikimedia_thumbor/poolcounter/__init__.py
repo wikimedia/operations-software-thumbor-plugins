@@ -37,9 +37,10 @@ class PoolCounter:
             await self.connect()
 
         try:
-            self.debug('[PoolCounter] ACQ4ME %s %d %d %d' % (key, workers, maxqueue, timeout))
-            await self.stream.write('ACQ4ME %s %d %d %d\n' % (key, workers, maxqueue, timeout))
-            data = await self.stream.read_until('\n')
+            acq4me_msg = 'ACQ4ME %s %d %d %d\n' % (key, workers, maxqueue, timeout)
+            self.debug(acq4me_msg)
+            await self.stream.write(acq4me_msg.encode())
+            data = await self.stream.read_until('\n'.encode())
         except socket.error as e:
             self.stream = None
             raise e
@@ -52,8 +53,8 @@ class PoolCounter:
 
         try:
             self.debug('[PoolCounter] RELEASE')
-            await self.stream.write('RELEASE\n')
-            data = await self.stream.read_until('\n')
+            await self.stream.write('RELEASE\n'.encode())
+            data = await self.stream.read_until('\n'.encode())
         except socket.error as e:
             self.stream = None
             raise e
