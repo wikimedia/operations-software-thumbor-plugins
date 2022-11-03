@@ -34,7 +34,7 @@ class PoolCounter:
 
     async def acq4me(self, key, workers, maxqueue, timeout):
         if not self.stream:
-            self.connect()
+            await self.connect()
 
         try:
             self.debug('[PoolCounter] ACQ4ME %s %d %d %d' % (key, workers, maxqueue, timeout))
