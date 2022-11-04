@@ -65,6 +65,7 @@ class WikimediaTestCase(AsyncHTTPTestCase):
         cfg.QUALITY_LOW = 40
         cfg.DEFAULT_FILTERS_JPEG = 'conditional_sharpen(0.0,0.8,1.0,0.0,0.85)'
         cfg.MAX_ANIMATED_GIF_AREA = 500 * 200 * 60
+        cfg.GHOSTSCRIPT_ENGINE_DEFAULT_DPI = 150
 
         cfg.COMMUNITY_EXTENSIONS = [
             'wikimedia_thumbor.handler.images',
