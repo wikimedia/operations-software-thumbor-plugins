@@ -538,7 +538,7 @@ class ImagesHandler(ImagingHandler):
 
         cfg = self.context.config.get('POOLCOUNTER_CONFIG_PER_ORIGINAL', False)
         if cfg:
-            name_sha1 = hashlib.sha1(filename).hexdigest()
+            name_sha1 = hashlib.sha1(filename.encode()).hexdigest()
 
             throttled = await self.poolcounter_throttle_key('thumbor-render-%s' % name_sha1, cfg)
 
