@@ -51,6 +51,7 @@ class Storage(BaseStorage):
             authurl=authurl,
             timeout=self.context.config.SWIFT_CONNECTION_TIMEOUT,
             retries=self.context.config.SWIFT_RETRIES,
+            cacert=self.context.config.HTTP_LOADER_CA_CERTS,
             os_options=os_options
         )
 

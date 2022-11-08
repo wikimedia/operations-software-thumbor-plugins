@@ -69,6 +69,7 @@ def swift(context):
         authurl=authurl,
         timeout=context.config.SWIFT_CONNECTION_TIMEOUT,
         retries=context.config.SWIFT_RETRIES,
+        cacert=context.config.HTTP_LOADER_CA_CERTS,
         os_options=os_options
     )
 
