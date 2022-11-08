@@ -73,9 +73,10 @@ def _error(self, status, msg=None):
 
     if status == 429:
         # 429 is missing from httplib.responses
-        self.set_status(status, 'Too Many Requests')
+        if not msg:
+            self.set_status(status, 'Too Many Requests')
     else:
-        self.set_status(status)
+        self.set_status(status, msg)
 
     if msg is not None:
         try:

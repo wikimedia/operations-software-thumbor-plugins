@@ -45,7 +45,7 @@ class PoolCounter:
             self.stream = None
             raise e
 
-        self.debug("Got data of '{}' from poolcounter during ACQ4ME", data)
+        self.debug("[PoolCounter] Got data of '{}' from poolcounter during ACQ4ME".format(data))
         return data == 'LOCKED\n'
 
     async def release(self):
@@ -60,7 +60,7 @@ class PoolCounter:
             self.stream = None
             raise e
 
-        self.debug("Got data of '{}' from poolcounter during RELEASE", data)
+        self.debug("[PoolCounter] Got data of '{}' from poolcounter during RELEASE".format(data))
         return data == 'RELEASED\n'
 
     def close(self):

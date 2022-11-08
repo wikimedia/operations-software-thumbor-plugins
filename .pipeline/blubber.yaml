@@ -19,6 +19,7 @@ apt:
     - python3-numpy
     - python3-scipy
     - webp
+    - wmf-certificates
     - xauth
     - xcftools
     - xvfb
@@ -71,9 +72,6 @@ variants:
     includes: [test]
     entrypoint: [make, code-coverage]
   prep:
-    apt:
-      packages:
-        - wmf-certificates
     includes: [build]
     node: { env: prep }
   dev:
