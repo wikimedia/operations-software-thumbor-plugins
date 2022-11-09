@@ -71,12 +71,7 @@ def _error(self, status, msg=None):
     self.clear_header('Thumbor-Wikimedia-Thumbnail-Path')
     self.clear_header('Thumbor-Parameters')
 
-    if status == 429:
-        # 429 is missing from httplib.responses
-        if not msg:
-            self.set_status(status, 'Too Many Requests')
-    else:
-        self.set_status(status, msg)
+    self.set_status(status, msg)
 
     if msg is not None:
         try:
