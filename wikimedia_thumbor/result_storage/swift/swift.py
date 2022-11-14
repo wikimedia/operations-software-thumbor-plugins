@@ -138,12 +138,14 @@ class Storage(BaseStorage):
 
             start = datetime.datetime.now()
 
-            logging.disable(logging.ERROR)
+            #hnowlan: Temporarily disable log disabling here in case we're missing a valid exception
+            #logging.disable(logging.ERROR)
             headers, data = self.swift.get_object(
                 self.context.wikimedia_thumbnail_container,
                 self.context.wikimedia_thumbnail_save_path
             )
-            logging.disable(logging.NOTSET)
+            #hnowlan: Temporarily disable log disabling here in case we're missing a valid exception
+            #logging.disable(logging.NOTSET)
 
             record_timing(self.context, datetime.datetime.now() - start, 'swift.thumbnail.read.success', 'Thumbor-Swift-Thumbnail-Success-Time')
 
