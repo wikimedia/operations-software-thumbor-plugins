@@ -97,12 +97,12 @@ async def load(context, url):
 
         start = datetime.datetime.now()
 
-        logging.disable(logging.ERROR)
+        #logging.disable(logging.ERROR)
         headers, response = swift(context).get_object(
             container,
             path
         )
-        logging.disable(logging.NOTSET)
+        #logging.disable(logging.NOTSET)
 
         record_timing(context, datetime.datetime.now() - start, 'swift.original.read.success', 'Thumbor-Swift-Original-Success-Time')
 
@@ -151,14 +151,14 @@ async def load(context, url):
         result.buffer = body
     except ClientException as e:
         record_timing(context, datetime.datetime.now() - start, 'swift.original.read.miss', 'Thumbor-Swift-Original-Miss-Time')
-        logging.disable(logging.NOTSET)
+        #logging.disable(logging.NOTSET)
         result.successful = False
         result.error = LoaderResult.ERROR_NOT_FOUND
         logger.error('[SWIFT_LOADER] get_object failed: %s %r' % (url, e), extra=log_extra(context))
         context.metrics.incr('swift_loader.status.client_exception')
     except requests.ConnectionError as e:
         record_timing(context, datetime.datetime.now() - start, 'swift.original.read.exception', 'Thumbor-Swift-Original-Exception-Time')
-        logging.disable(logging.NOTSET)
+        #logging.disable(logging.NOTSET)
         result.successful = False
         result.error = LoaderResult.ERROR_UPSTREAM
         logger.error('[SWIFT_LOADER] get_object failed: %s %r' % (url, e), extra=log_extra(context))

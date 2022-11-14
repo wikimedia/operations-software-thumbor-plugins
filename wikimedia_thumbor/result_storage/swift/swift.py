@@ -154,7 +154,7 @@ class Storage(BaseStorage):
         # We want this to be exhaustive because not catching an exception here
         # would result in the request hanging indefinitely
         except ClientException:
-            logging.disable(logging.NOTSET)
+            #logging.disable(logging.NOTSET)
             record_timing(self.context, datetime.datetime.now() - start, 'swift.thumbnail.read.miss', 'Thumbor-Swift-Thumbnail-Miss-Time')
             # No need to log this one, it's expected behavior when the
             # requested object isn't there
@@ -164,7 +164,7 @@ class Storage(BaseStorage):
             # Let assertion errors go through for tests
             raise e
         except Exception as e:
-            logging.disable(logging.NOTSET)
+            #logging.disable(logging.NOTSET)
             record_timing(self.context, datetime.datetime.now() - start, 'swift.thumbnail.read.exception', 'Thumbor-Swift-Thumbnail-Exception-Time')
             self.error('[SWIFT_STORAGE] get exception: %r' % e)
             return None
