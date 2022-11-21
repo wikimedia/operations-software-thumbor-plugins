@@ -341,7 +341,7 @@ class ImagesHandler(ImagingHandler):
         thumbnail_extension = thumbnail_filepath.rsplit('.', 1)[1]
         xkey = 'File:' + original_filename
 
-        self.safe_set_header('xkey', xkey)
+        self.safe_set_header('xkey', xkey.encode("utf-8"))
 
         content_disposition = original_filename
         if thumbnail_extension != original_extension:
@@ -364,12 +364,12 @@ class ImagesHandler(ImagingHandler):
 
         self.safe_set_header(
             'Thumbor-Wikimedia-Original-Path',
-            self.context.wikimedia_original_filepath
+            self.context.wikimedia_original_filepath.encode("utf-8")
         )
 
         self.safe_set_header(
             'Thumbor-Wikimedia-Thumbnail-Path',
-            self.context.wikimedia_thumbnail_save_path
+            self.context.wikimedia_thumbnail_save_path.encode("utf-8")
         )
 
         self.safe_set_header(
