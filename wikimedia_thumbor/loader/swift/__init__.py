@@ -130,7 +130,7 @@ async def load(context, url):
         # binary STLs ignore the first 80 bytes, so this string will
         # be ignored.
         if isSTL:
-            body = 'solid' + body[5:]
+            body = 'solid'.encode() + body[5:]
 
         if len(body) == excerpt_length:
             logger.debug('[SWIFT_LOADER] return_contents: %s' % f.name, extra=log_extra(context))
