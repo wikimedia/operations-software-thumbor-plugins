@@ -295,6 +295,10 @@ class ImagesHandler(ImagingHandler):
                 logger.debug('[ImagesHandler] apply JPG default filters')
                 filters.append(self.context.config.DEFAULT_FILTERS_JPEG)
 
+        if kw['extension'].lower() in ('tiff', 'tif') and hasattr(self.context.config, 'DEFAULT_FILTERS_TIFF'):
+            logger.debug('[ImagesHandler] apply TIFF default filters')
+            filters.append(self.context.config.DEFAULT_FILTERS_TIFF)
+
         filters.append('format(%s)' % normalized_format)
 
         page = kw.get('page')
