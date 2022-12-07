@@ -5,7 +5,7 @@ code-coverage:
 	coverage run --source=wikimedia_thumbor/ -m pytest || coverage html -d coverage
 
 docker_code-coverage:
-	blubber .pipeline/blubber.yaml code-coverage | docker build -t thumbor-code-coverage --file - .
+	docker build -t thumbor-code-coverage --target code-coverage -f .pipeline/blubber.yaml .
 	mkdir -m a+w coverage
 	docker run -it --mount type=bind,source=`pwd`/coverage,dst=/srv/service/coverage thumbor-code-coverage
 
@@ -43,7 +43,7 @@ bash:
 	ln -s /srv/service/node_modules/.bin/3d2png /opt/lib/python/site-packages/bin/
 
 docker_test:
-	blubber .pipeline/blubber.yaml test | docker build -t thumbor-test --file - .
+	docker build -t thumbor-test --target test -f .pipeline/blubber.yaml .
 	docker run thumbor-test
 
 install: 3d2png

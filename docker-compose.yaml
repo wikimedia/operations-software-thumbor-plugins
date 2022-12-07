@@ -2,7 +2,9 @@ version: "3.9"
 
 services:
   thumbor:
-    build: .
+    build:
+      dockerfile: ./.pipeline/blubber.yaml
+      target: dev
     ports:
       - 8800:8800
     volumes:

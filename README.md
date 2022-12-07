@@ -22,20 +22,19 @@ More information about configuration options you could find here - https://thumb
 
 ## Run project and tests
 
-1. Run project:
+1. Build and run project:
 ```bash
-sudo make build
+make build
 ```
 After starting the project you should be able to access the application on http://localhost:8800
 Healthcheck of thumbor custom application on http://localhost:8800/healthcheck
-2. Run offline tests(The project must be launched already):
+2. Run offline tests:
 ```bash
-sudo make bash
-make offline-tests
+make docker_test
 ```
 3. Run code coverage:
 ```bash
-sudo make docker_code-coverage
+make docker_code-coverage
 ```
 When the thumbor-code-coverage container will finish its work, you can see the HTML code coverage report
 by opening the following file *coverage/index.html* in a browser.
