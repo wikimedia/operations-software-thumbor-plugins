@@ -72,9 +72,8 @@ class WikimediaTestCase(AsyncHTTPTestCase):
         ]
 
         cfg.EXIF_FIELDS_TO_KEEP = ['Artist', 'Copyright', 'ImageDescription']
-        cfg.EXIF_TINYRGB_PATH = os.path.join(
-            os.path.dirname(__file__),
-            'tinyrgb.icc'
+        cfg.EXIF_TINYRGB_PATH = os.path.realpath(
+            os.path.join(os.path.dirname(__file__), '..', '..', 'tinyrgb.icc')
         )
         cfg.EXIF_TINYRGB_ICC_REPLACE = 'sRGB IEC61966-2.1'
 

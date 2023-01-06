@@ -65,6 +65,9 @@ variants:
     python:
       requirements: [requirements.txt, requirements-dev.txt]
     includes: [build]
+    entrypoint: [make, test]
+  offline-test:
+    includes: [test]
     entrypoint: [make, offline-test]
   online-test:
     includes: [test]

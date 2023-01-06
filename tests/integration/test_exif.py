@@ -143,9 +143,8 @@ class WikimediaExifTest(WikimediaTestCase):
         )
 
     def test_tinyrgb_substitution(self):
-        tinyrgb_path = os.path.join(
-            os.path.dirname(__file__),
-            'tinyrgb.icc'
+        tinyrgb_path = os.path.realpath(
+            os.path.join(os.path.dirname(__file__), '..', '..', 'tinyrgb.icc')
         )
         with open(tinyrgb_path, 'rb') as tinyrgb_file:
             tinyrgb = tinyrgb_file.read()

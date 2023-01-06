@@ -7,5 +7,3 @@ services:
       target: dev
     ports:
       - 8800:8800
-    volumes:
-      - .:/srv/wikimedia_thumbor

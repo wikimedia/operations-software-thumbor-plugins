@@ -8,7 +8,7 @@
 # Stores results in Swift via HTTP
 
 import datetime
-import logging
+# import logging
 import random
 
 from swiftclient import client
@@ -138,14 +138,14 @@ class Storage(BaseStorage):
 
             start = datetime.datetime.now()
 
-            #hnowlan: Temporarily disable log disabling here in case we're missing a valid exception
-            #logging.disable(logging.ERROR)
+            # hnowlan: Temporarily disable log disabling here in case we're missing a valid exception
+            # logging.disable(logging.ERROR)
             headers, data = self.swift.get_object(
                 self.context.wikimedia_thumbnail_container,
                 self.context.wikimedia_thumbnail_save_path
             )
-            #hnowlan: Temporarily disable log disabling here in case we're missing a valid exception
-            #logging.disable(logging.NOTSET)
+            # hnowlan: Temporarily disable log disabling here in case we're missing a valid exception
+            # logging.disable(logging.NOTSET)
 
             record_timing(self.context, datetime.datetime.now() - start, 'swift.thumbnail.read.success', 'Thumbor-Swift-Thumbnail-Success-Time')
 
@@ -154,7 +154,7 @@ class Storage(BaseStorage):
         # We want this to be exhaustive because not catching an exception here
         # would result in the request hanging indefinitely
         except ClientException:
-            #logging.disable(logging.NOTSET)
+            # logging.disable(logging.NOTSET)
             record_timing(self.context, datetime.datetime.now() - start, 'swift.thumbnail.read.miss', 'Thumbor-Swift-Thumbnail-Miss-Time')
             # No need to log this one, it's expected behavior when the
             # requested object isn't there
@@ -164,7 +164,7 @@ class Storage(BaseStorage):
             # Let assertion errors go through for tests
             raise e
         except Exception as e:
-            #logging.disable(logging.NOTSET)
+            # logging.disable(logging.NOTSET)
             record_timing(self.context, datetime.datetime.now() - start, 'swift.thumbnail.read.exception', 'Thumbor-Swift-Thumbnail-Exception-Time')
             self.error('[SWIFT_STORAGE] get exception: %r' % e)
             return None

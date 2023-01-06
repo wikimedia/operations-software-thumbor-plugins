@@ -1,4 +1,4 @@
-.PHONY: code-coverage docker_code-coverage single-test test offline-test online-test up down build bash docker_test 3d2png install
+.PHONY: code-coverage docker_code-coverage test offline-test online-test lint up down build bash docker_test docker_offline-test docker_online-test 3d2png install
 
 # Code coverage
 code-coverage:
@@ -10,19 +10,36 @@ docker_code-coverage:
 	docker run -it --mount type=bind,source=`pwd`/coverage,dst=/srv/service/coverage thumbor-code-coverage
 
 # Tests
-single-test:
 # The default timeout is not enough while testing some asynchronous methods. So
 # ASYNC_TEST_TIMEOUT environment variable was set to 60 seconds.
-	@ASYNC_TEST_TIMEOUT=60 pytest tests/integration/test_djvu.py
-
-test:
+test: lint
 	@ASYNC_TEST_TIMEOUT=60 pytest tests/
 
+docker_test:
+	docker build -t thumbor-test --target test -f .pipeline/blubber.yaml .
+	docker run thumbor-test
+
 offline-test:
-	@ASYNC_TEST_TIMEOUT=60 pytest tests/ --ignore 'tests/integration/test_proxy_loader.py' --ignore 'tests/integration/test_huge_video.py' --ignore 'tests/integration/test_https_loader.py' --ignore 'tests/integration/test_vips_https_loader.py' --ignore 'tests/integration/test_3d.py'
+	@ASYNC_TEST_TIMEOUT=60 pytest tests/ --ignore 'tests/integration/test_proxy_loader.py' --ignore 'tests/integration/test_huge_video.py' --ignore 'tests/integration/test_https_loader.py' --ignore 'tests/integration/test_vips_https_loader.py'
+
+# Unlike the online tests, the Docker container for this group of tests can
+# be run without an internet connection since all necessary data is local.
+docker_offline-test:
+	docker build -t thumbor-offline-test --target offline-test -f .pipeline/blubber.yaml .
+	docker run thumbor-offline-test
 
 online-test:
-	@ASYNC_TEST_TIMEOUT=60 pytest tests/integration/test_proxy_loader.py tests/integration/test_huge_video.py tests/integration/test_https_loader.py tests/integration/test_vips_https_loader.py tests/integration/test_3d.py
+	@ASYNC_TEST_TIMEOUT=60 tests/integration/test_proxy_loader.py tests/integration/test_huge_video.py tests/integration/test_https_loader.py tests/integration/test_vips_https_loader.py
+
+# This group of tests requires an internet connection because there are test
+# cases that make HTTP requests to third-party services.
+docker_online-test:
+	docker build -t thumbor-online-test --target online-test -f .pipeline/blubber.yaml .
+	docker run thumbor-online-test
+
+# Linter
+lint:
+	flake8 ./tests ./wikimedia_thumbor
 
 # Docker
 up:
@@ -41,10 +58,3 @@ bash:
 	git clone https://github.com/wikimedia/3d2png.git
 	npm install 3d2png
 	ln -s /srv/service/node_modules/.bin/3d2png /opt/lib/python/site-packages/bin/
-
-docker_test:
-	docker build -t thumbor-test --target test -f .pipeline/blubber.yaml .
-	docker run thumbor-test
-
-install: 3d2png
-	python setup.py install
