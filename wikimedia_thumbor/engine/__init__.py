@@ -52,7 +52,7 @@ class BaseWikimediaEngine(IMEngine):
         self.temp_dir = mkdtemp()
         self.source = os.path.join(self.temp_dir, 'source_file')
 
-        with open(self.source, 'w') as source:
+        with open(self.source, 'wb') as source:
             source.write(buffer)
 
     def cleanup_source(self):
