@@ -29,7 +29,7 @@ docker_offline-test:
 	docker run thumbor-offline-test
 
 online-test:
-	@ASYNC_TEST_TIMEOUT=60 tests/integration/test_proxy_loader.py tests/integration/test_huge_video.py tests/integration/test_https_loader.py tests/integration/test_vips_https_loader.py
+	@ASYNC_TEST_TIMEOUT=60 pytest tests/integration/test_proxy_loader.py tests/integration/test_huge_video.py tests/integration/test_https_loader.py tests/integration/test_vips_https_loader.py
 
 # This group of tests requires an internet connection because there are test
 # cases that make HTTP requests to third-party services.
