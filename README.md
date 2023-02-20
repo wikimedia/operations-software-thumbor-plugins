@@ -82,6 +82,10 @@ FILTERS = [
 More information about configuration options you could find in the Thumbor docs - https://thumbor.readthedocs.io/en/latest/configuration.html
 Also, you can use the current Thumbor Plugins configurations that are used in the production, this can help to set up pretty much the same environment as in the production version - https://gerrit.wikimedia.org/r/plugins/gitiles/operations/deployment-charts/+/refs/heads/master/charts/thumbor/templates/_thumbor_server.tpl
 
+## Important check before building and running the project
+
+Please make sure the version of your docker compose is recent enough to build the project; we would recommend using from v3
+
 ## Run project and tests
 
 1. Build and run project:
