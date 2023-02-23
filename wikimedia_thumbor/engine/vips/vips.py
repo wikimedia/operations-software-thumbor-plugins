@@ -11,6 +11,7 @@
 
 # VIPS engine
 
+import json
 import os
 import shutil
 from tempfile import mkdtemp
@@ -33,9 +34,7 @@ class Engine(BaseWikimediaEngine):
 
         command = [
             '-ImageSize',
-            '-s',
-            '-s',
-            '-s'
+            '-j'
         ]
 
         if hasattr(self.context, 'wikimedia_original_file'):
@@ -51,7 +50,9 @@ class Engine(BaseWikimediaEngine):
                 buffer=buffer
             )
 
-        size = stdout.decode('utf-8').strip().split('x')
+        # index with 0 because we're reading a single file
+        exif_dict = json.loads(stdout.decode('utf-8'))[0]
+        size = exif_dict["ImageSize"].split('x')
 
         self.context.vips['width'] = int(size[0])
         self.context.vips['height'] = int(size[1])

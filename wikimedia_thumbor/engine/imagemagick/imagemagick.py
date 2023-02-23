@@ -11,6 +11,7 @@
 
 # ImageMagick engine
 
+import json
 import logging
 import platform
 from tempfile import NamedTemporaryFile
@@ -118,8 +119,7 @@ class Engine(BaseEngine):
         fields += self.context.config.EXIF_FIELDS_TO_KEEP
 
         command = [
-            '-s',
-            '-s',
+            '-j'
         ]
 
         command += ['-{0}'.format(i) for i in fields]
@@ -160,9 +160,8 @@ class Engine(BaseEngine):
             input_temp_file=input_temp_file
         )
 
-        for s in stdout.splitlines():
-            values = s.decode('utf-8').split(': ', 1)
-            self.exif[values[0]] = values[1]
+        # index at 0 because we're processing a single file
+        self.exif.update(json.loads(stdout.decode('utf-8'))[0])
 
         self.debug('[IM] EXIF: %r' % self.exif)
 
