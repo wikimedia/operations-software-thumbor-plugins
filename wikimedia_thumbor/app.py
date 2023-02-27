@@ -15,8 +15,8 @@ import thumbor.engines
 from thumbor.utils import logger
 
 from thumbor.handlers import ContextHandler
-from wikimedia_thumbor.core import Extensions
-from wikimedia_thumbor.core.app import App as CommunityCoreApp
+from tc_core import Extensions
+from tc_core.app import App as CommunityCoreApp
 
 
 class App(CommunityCoreApp):

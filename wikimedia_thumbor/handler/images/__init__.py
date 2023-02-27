@@ -1,4 +1,4 @@
-from wikimedia_thumbor.core import Extension, Extensions
+from tc_core import Extension, Extensions
 from .images import ImagesHandler
 
 
