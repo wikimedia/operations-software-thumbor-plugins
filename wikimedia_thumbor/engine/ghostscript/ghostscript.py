@@ -29,15 +29,17 @@ class Engine(BaseWikimediaEngine):
         except AttributeError:
             page = 1
 
+        dpi = self.context.config.get('GHOSTSCRIPT_ENGINE_DEFAULT_DPI', 150)
+
         self.prepare_source(buffer)
 
-        jpg, stderr = self.get_jpg_for_page(buffer, page)
+        jpg, stderr = self.get_jpg_for_page(buffer, page, dpi)
 
         # GS is being unhelpful and outputting that error to stderr
         # with a 0 exit status
         error = b'No pages will be processed (FirstPage > LastPage)'
         if len(jpg) < 200 and stderr.find(error) != -1:
-            jpg, stderr = self.get_jpg_for_page(buffer, 1)
+            jpg, stderr = self.get_jpg_for_page(buffer, 1, dpi)
 
         self.cleanup_source()
 
@@ -45,7 +47,7 @@ class Engine(BaseWikimediaEngine):
 
         return super(Engine, self).create_image(jpg)
 
-    def get_jpg_for_page(self, buffer, page):
+    def get_jpg_for_page(self, buffer, page, dpi):
         # We use the command and not the python bindings because those can't
         # use the %stdout option properly. The bindings version writes to
         # stdout forcibly, and that can't be captured with sys.stdout nor the
@@ -60,7 +62,7 @@ class Engine(BaseWikimediaEngine):
             "-sOutputFile=%stdout",
             "-dFirstPage=%d" % page,
             "-dLastPage=%d" % page,
-            "-r150",
+            "-r%d" % dpi,
             "-dUseCropBox",
             "-dBATCH",
             "-dNOPAUSE",
