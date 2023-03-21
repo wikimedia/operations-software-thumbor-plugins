@@ -63,7 +63,7 @@ class Engine(BaseEngine):
             temp_file.write(buffer)
             temp_file.close()
 
-        self.exif = {}
+        self.exif_dict = {}
         self.operators = []
 
         try:
@@ -80,13 +80,13 @@ class Engine(BaseEngine):
         return temp_file
 
     def jpeg_size(self):
-        exif_image_size = self.exif['ImageSize']
+        exif_image_size = self.exif_dict['ImageSize']
         buffer_size = exif_image_size.split('x')
         buffer_size = [float(x) for x in buffer_size]
         buffer_ratio = buffer_size[0] / buffer_size[1]
 
-        if 'Pyexiv2Orientation' in self.exif:
-            if self.exif['Pyexiv2Orientation'] in (6, 8):
+        if 'Pyexiv2Orientation' in self.exif_dict:
+            if self.exif_dict['Pyexiv2Orientation'] in (6, 8):
                 buffer_ratio = buffer_size[1] / buffer_size[0]
 
         # If the JPEG size hint is too close to the target size,
@@ -143,7 +143,7 @@ class Engine(BaseEngine):
 
             if 'Exif.Image.Orientation' in metadata.exif_keys:
                 # Distinctive key name to avoid colliding with EXIF_FIELDS_TO_KEEP
-                self.exif['Pyexiv2Orientation'] = metadata.get('Exif.Image.Orientation').value
+                self.exif_dict['Pyexiv2Orientation'] = metadata.get('Exif.Image.Orientation').value
         except (IOError, ExifValueError, TypeError):
             self.debug('[IM] Could not read EXIF with pyexiv2')
         except RuntimeError as e:
@@ -161,12 +161,12 @@ class Engine(BaseEngine):
         )
 
         # index at 0 because we're processing a single file
-        self.exif.update(json.loads(stdout.decode('utf-8'))[0])
+        self.exif_dict.update(json.loads(stdout.decode('utf-8'))[0])
 
-        self.debug('[IM] EXIF: %r' % self.exif)
+        self.debug('[IM] EXIF: %r' % self.exif_dict)
 
-        if 'ImageSize' in self.exif:
-            self.internal_size = [int(x) for x in self.exif['ImageSize'].split('x')]
+        if 'ImageSize' in self.exif_dict:
+            self.internal_size = [int(x) for x in self.exif_dict['ImageSize'].split('x')]
         else:
             # Have not been able to find a test file where that EXIF field comes up unpopulated
             self.internal_size = (1, 1)  # pragma: no cover
@@ -174,12 +174,12 @@ class Engine(BaseEngine):
         # If we encounter any non-sRGB ICC profile, we save it to re-apply
         # it to the result
 
-        if 'ProfileDescription' not in self.exif:
+        if 'ProfileDescription' not in self.exif_dict:
             self.debug('[IM] File has no ICC profile')
             return
 
         expected_profile = self.context.config.EXIF_TINYRGB_ICC_REPLACE.lower()
-        profile = self.exif['ProfileDescription'].lower()
+        profile = self.exif_dict['ProfileDescription'].lower()
 
         if profile == expected_profile:
             self.icc_profile_path = self.context.config.EXIF_TINYRGB_PATH
@@ -220,8 +220,8 @@ class Engine(BaseEngine):
             command += ['-icc_profile<=%s' % self.icc_profile_path]
 
         for field in self.context.config.EXIF_FIELDS_TO_KEEP:
-            if field in self.exif:
-                value = self.exif[field]
+            if field in self.exif_dict:
+                value = self.exif_dict[field]
                 command += ['-%s=%s' % (field, value)]
 
         postCommand = [
@@ -251,11 +251,11 @@ class Engine(BaseEngine):
         original_quality = quality
 
         if extension == 'webp':
-            lossless = ('FileType' in self.exif and self.exif['FileType'] in ['SVG', 'PNG'])
+            lossless = ('FileType' in self.exif_dict and self.exif_dict['FileType'] in ['SVG', 'PNG'])
 
             # We need to use a JPG as an intermediary for WebP conversion in order to
             # be able to apply the EXIF filtering
-            if 'FileType' in self.exif and self.exif['FileType'] == 'JPEG':
+            if 'FileType' in self.exif_dict and self.exif_dict['FileType'] == 'JPEG':
                 extension = 'jpg'
                 quality = 100
             else:
@@ -382,13 +382,13 @@ class Engine(BaseEngine):
                 'jpeg:size=%s' % self.jpeg_size(),
             ]
 
-        exif_image_size = self.exif['ImageSize']
+        exif_image_size = self.exif_dict['ImageSize']
         buffer_size = exif_image_size.split('x')
         buffer_size = [float(x) for x in buffer_size]
         buffer_ratio = buffer_size[0] / buffer_size[1]
 
-        if 'Pyexiv2Orientation' in self.exif:
-            if self.exif['Pyexiv2Orientation'] in (6, 8):
+        if 'Pyexiv2Orientation' in self.exif_dict:
+            if self.exif_dict['Pyexiv2Orientation'] in (6, 8):
                 buffer_ratio = buffer_size[1] / buffer_size[0]
 
         # We have a slightly different calculation/rounding strategy than Thumbor
@@ -419,9 +419,9 @@ class Engine(BaseEngine):
         # on the Debian Jessie version of IM (6.8.9-9). Only apply to RGBA and Palette (indexed)
         # PNGs, because otherwise it would turn thumbnails of RGB PNGs into RGBA, thumbnails
         # increasing their file size significantly.
-        if ('ColorType' in self.exif
-            and self.exif['ColorType'] in ['RGB with Alpha', 'Grayscale with Alpha', 'Palette']) \
-                or 'Transparency' in self.exif:
+        if ('ColorType' in self.exif_dict
+            and self.exif_dict['ColorType'] in ['RGB with Alpha', 'Grayscale with Alpha', 'Palette']) \
+                or 'Transparency' in self.exif_dict:
             operators += ['-background', 'none']
 
         self.queue_operators(operators)
@@ -447,12 +447,12 @@ class Engine(BaseEngine):
         # T173804 Avoid ImageMagick -auto-orient which is overzealous
         # in interpreting various EXIF fields instead of just Orientation
 
-        if 'Pyexiv2Orientation' in self.exif:
-            if self.exif['Pyexiv2Orientation'] == 6:
+        if 'Pyexiv2Orientation' in self.exif_dict:
+            if self.exif_dict['Pyexiv2Orientation'] == 6:
                 self.queue_operators(['-rotate', '90'])
-            elif self.exif['Pyexiv2Orientation'] == 8:
+            elif self.exif_dict['Pyexiv2Orientation'] == 8:
                 self.queue_operators(['-rotate', '270'])
-            elif self.exif['Pyexiv2Orientation'] == 3:
+            elif self.exif_dict['Pyexiv2Orientation'] == 3:
                 self.queue_operators(['-rotate', '180'])
 
     @property
