@@ -13,7 +13,6 @@
 
 import json
 import logging
-import platform
 from tempfile import NamedTemporaryFile
 from pyexiv2 import ImageMetadata, ExifValueError
 
@@ -496,14 +495,7 @@ class Engine(BaseEngine):
         ]
 
         if self.webp['lossless']:
-            # The -exact option was introduced in webp 0.5, which is only available on Stretch
-            distname, distversion, distid = platform.linux_distribution()
-            distversion = 10.0 if distversion == 'buster/sid' else float(distversion)
-
-            if distname == 'debian' and distversion >= 9:
-                command += ['-lossless', '-exact']
-            else:
-                command += ['-lossless']
+            command += ['-lossless', '-exact']
         else:
             command += ['-q', '%s' % self.webp['quality']]
 
