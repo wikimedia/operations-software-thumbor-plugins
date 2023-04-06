@@ -1,4 +1,4 @@
-# syntax=docker-registry.wikimedia.org/repos/releng/blubber:v0.12.1
+# syntax=docker-registry.wikimedia.org/repos/releng/blubber:v0.17.0
 version: v4
 base: docker-registry.wikimedia.org/python3-build-buster
 apt:
