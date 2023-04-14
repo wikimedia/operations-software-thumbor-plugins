@@ -12,9 +12,12 @@
 # SVG engine
 
 import codecs
+import os
 import re
+import tempfile
 
-from wikimedia_thumbor.engine import BaseWikimediaEngine
+from wikimedia_thumbor.engine import BaseWikimediaEngine, CommandError
+from wikimedia_thumbor.shell_runner import ShellRunner
 
 BaseWikimediaEngine.add_format(
     'image/svg+xml',
@@ -40,12 +43,18 @@ class Engine(BaseWikimediaEngine):
     def create_image(self, buffer):
         self.prepare_source(buffer)
 
+        tmp_handle, tmp_name = tempfile.mkstemp()
+        # tempfile opens the file on create
+        os.close(tmp_handle)
+
         command = [
             self.context.config.RSVG_CONVERT_PATH,
             self.source,
             '-u',
             '-f',
-            'png'
+            'png',
+            '-o',
+            tmp_name
         ]
 
         if self.context.request.width > 0:
@@ -58,7 +67,15 @@ class Engine(BaseWikimediaEngine):
         if hasattr(self.context.request, 'lang'):
             env = {'LANG': self.context.request.lang.upper()}
 
-        png = self.command(command, env)
+        try:
+            self.command(command, env)
+        except CommandError as e:
+            ShellRunner.rm_f(tmp_name)
+            raise e
+
+        with open(tmp_name, 'rb') as tmpfile:
+            png = tmpfile.read()
+        ShellRunner.rm_f(tmp_name)
 
         return super(Engine, self).create_image(png)
 
