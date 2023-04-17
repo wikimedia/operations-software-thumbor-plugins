@@ -28,37 +28,34 @@ class ShellRunner:
     def wrap_command(cls, command, context):
         wrapped_command = command
 
-        if getattr(context.config, 'SUBPROCESS_USE_TIMEOUT', False):
+        if getattr(context.config, "SUBPROCESS_USE_TIMEOUT", False):
             timeout = context.config.SUBPROCESS_TIMEOUT
             timeout_path = context.config.SUBPROCESS_TIMEOUT_PATH
             wrapped_command = [
                 timeout_path,
-                '--foreground',
-                '%s' % timeout
+                "--foreground",
+                "%s" % timeout,
             ] + wrapped_command
 
         return wrapped_command
 
     @classmethod
     def preexec(cls, context):  # pragma: no cover
-        if not getattr(context.config, 'SUBPROCESS_CGROUP_TASKS_PATH', False):
+        if not getattr(context.config, "SUBPROCESS_CGROUP_TASKS_PATH", False):
             return
 
         pid = os.getpid()
 
-        cls.debug(context, '[ShellRunner] Adding pid %r to cgroup' % pid)
+        cls.debug(context, "[ShellRunner] Adding pid %r to cgroup" % pid)
 
-        with open(context.config.SUBPROCESS_CGROUP_TASKS_PATH, 'a+') as tasks:
-            tasks.write('%s\n' % pid)
+        with open(context.config.SUBPROCESS_CGROUP_TASKS_PATH, "a+") as tasks:
+            tasks.write("%s\n" % pid)
 
     @classmethod
     def popen(cls, command, context, env=None):
-        wrapped_command = ShellRunner.wrap_command(
-            command,
-            context
-        )
+        wrapped_command = ShellRunner.wrap_command(command, context)
 
-        cls.debug(context, '[ShellRunner] Command: %r' % wrapped_command)
+        cls.debug(context, "[ShellRunner] Command: %r" % wrapped_command)
 
         combined_env = os.environ.copy()
 
@@ -70,7 +67,7 @@ class ShellRunner:
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             env=combined_env,
-            preexec_fn=partial(cls.preexec, context)
+            preexec_fn=partial(cls.preexec, context),
         )
 
         return proc
@@ -89,24 +86,27 @@ class ShellRunner:
         length = len(stdout)
 
         if length > 1000:
-            cls.debug(context, '[ShellRunner] Stdout: <too long to display (%d bytes)>' % length)
+            cls.debug(
+                context,
+                "[ShellRunner] Stdout: <too long to display (%d bytes)>" % length,
+            )
         else:
-            cls.debug(context, '[ShellRunner] Stdout: %s' % stdout)
+            cls.debug(context, "[ShellRunner] Stdout: %s" % stdout)
 
-        cls.debug(context, '[ShellRunner] Stderr: %s' % stderr)
-        cls.debug(context, '[ShellRunner] Return code: %d' % proc.returncode)
-        cls.debug(context, '[ShellRunner] Duration: %r' % duration)
+        cls.debug(context, "[ShellRunner] Stderr: %s" % stderr)
+        cls.debug(context, "[ShellRunner] Return code: %d" % proc.returncode)
+        cls.debug(context, "[ShellRunner] Duration: %r" % duration)
 
         simple_command_name = os.path.basename(command[0])
-        simple_command_name = re.sub(r'[^a-zA-Z0-9-]', r'', simple_command_name)
+        simple_command_name = re.sub(r"[^a-zA-Z0-9-]", r"", simple_command_name)
 
         if context.request_handler is not None:
             context.request_handler.add_header(
-                'Thumbor-%s-Time' % simple_command_name,
+                "Thumbor-%s-Time" % simple_command_name,
                 # In order to copy Python 2 behaviour of round() method, namely "round
                 # half away from zero" rounding, method math.floor() and adding 0.5 to
                 # the value which will be rounded are used.
-                math.floor(duration + 0.5)
+                math.floor(duration + 0.5),
             )
 
         return proc.returncode, stderr, stdout
