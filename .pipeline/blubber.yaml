@@ -24,6 +24,16 @@ apt:
     - xauth
     - xcftools
     - xvfb
+    - fonts-noto-cjk
+    - fonts-noto-color-emoji
+    - fonts-noto-core
+    - fonts-noto-extra
+    - fonts-noto-mono
+    - fonts-noto-ui-core
+    - fonts-noto-cjk-extra
+    - fonts-noto-unhinted
+    - fonts-ancient-scripts
+    - fonts-symbola
 
 lives:
   in: /srv/service/
