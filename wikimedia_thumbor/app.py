@@ -21,19 +21,16 @@ from tc_core.app import App as CommunityCoreApp
 
 class App(CommunityCoreApp):
     def __init__(self, context):
-        if context.config.get('MANHOLE_DEBUGGING', None):
-            logger.debug('Installing manhole')
-            socket = 'manhole-%s' % context.server.port
-            socket_path = os.path.join(
-                tempfile.gettempdir(),
-                socket
-            )
+        if context.config.get("MANHOLE_DEBUGGING", None):
+            logger.debug("Installing manhole")
+            socket = "manhole-%s" % context.server.port
+            socket_path = os.path.join(tempfile.gettempdir(), socket)
 
             manhole.install(socket_path=socket_path)
 
         # The gifsicle engine needs to work, regardless of
         # USE_GIFSICLE_ENGINE being on or not
-        context.server.gifsicle_path = which('gifsicle')
+        context.server.gifsicle_path = which("gifsicle")
 
         # T178072 Disable Thumbor's built-in EXIF parsing, which
         # emits logger.error messages constantly because it's trying
@@ -47,8 +44,7 @@ class App(CommunityCoreApp):
     # Thumbor which prevents us from 404ing properly on completely
     # broken URLs.
     def get_handlers(self):
-        '''Return a list of tornado web handlers.
-        '''
+        """Return a list of tornado web handlers."""
 
         handlers = []
 
@@ -61,7 +57,7 @@ class App(CommunityCoreApp):
                         handler = list(handler)
                         handler.append(dict(context=self.context))
                     else:
-                        handler[2]['context'] = self.context
+                        handler[2]["context"] = self.context
 
                 handlers.append(handler)
 
