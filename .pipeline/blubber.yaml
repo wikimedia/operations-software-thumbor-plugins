@@ -9,7 +9,12 @@ apt:
     - ffmpeg
     - ghostscript
     - gifsicle
-    - imagemagick
+    # T334863
+    - imagemagick=8:6.9.10.23+dfsg-2.1+deb10u1+wmf1
+    - imagemagick-6.q16=8:6.9.10.23+dfsg-2.1+deb10u1+wmf1
+    - libmagickcore-6.q16-6=8:6.9.10.23+dfsg-2.1+deb10u1+wmf1
+    - libmagickcore-6.q16-6=8:6.9.10.23+dfsg-2.1+deb10u1+wmf1
+    - libmagickwand-6.q16-6=8:6.9.10.23+dfsg-2.1+deb10u1+wmf1
     - libboost-python1.67.0
     - exiv2
     - libgl1-mesa-dri
