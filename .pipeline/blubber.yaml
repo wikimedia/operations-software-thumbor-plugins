@@ -29,16 +29,75 @@ apt:
     - xauth
     - xcftools
     - xvfb
+    # begin mediawiki::packages::fonts
+    - culmus
+    - culmus-fancy
+    - fonts-alee
+    - fonts-ancient-scripts
+    - fonts-arabeyes
+    - fonts-arphic-ukai
+    - fonts-arphic-uming
+    - fonts-beng
+    - fonts-crosextra-caladea
+    - fonts-crosextra-carlito
+    - fonts-dejavu-core
+    - fonts-dejavu-extra
+    - fonts-deva
+    - fonts-farsiweb
+    - fonts-gujr
+    - fonts-gujr-extra
+    - fonts-guru
+    - fonts-hosny-amiri
+    - fonts-ipafont-gothic
+    - fonts-ipafont-mincho
+    - fonts-kacst
+    - fonts-khmeros
+    - fonts-knda
+    - fonts-lao
+    - fonts-liberation
+    - fonts-liberation2
+    - fonts-linuxlibertine
+    - fonts-lklug-sinhala
+    - fonts-lyx
+    - fonts-manchufont
+    - fonts-mlym
+    - fonts-nafees
     - fonts-noto-cjk
+    - fonts-noto-cjk-extra
     - fonts-noto-color-emoji
     - fonts-noto-core
     - fonts-noto-extra
+    - fonts-noto-hinted
     - fonts-noto-mono
     - fonts-noto-ui-core
-    - fonts-noto-cjk-extra
     - fonts-noto-unhinted
-    - fonts-ancient-scripts
+    - fonts-orya
+    - fonts-sil-abyssinica
+    - fonts-sil-ezra
+    - fonts-sil-lateef
+    - fonts-sil-nuosusil
+    - fonts-sil-padauk
+    - fonts-sil-scheherazade
+    - fonts-smc
     - fonts-symbola
+    - fonts-takao-gothic
+    - fonts-takao-mincho
+    - fonts-taml
+    - fonts-taml-tscu
+    - fonts-telu
+    - fonts-thai-tlwg
+    - fonts-tibetan-machine
+    - fonts-unfonts-core
+    - fonts-unfonts-extra
+    - fonts-vlgothic
+    - fonts-wqy-zenhei
+    - texlive-fonts-recommended
+    - xfonts-100dpi
+    - xfonts-75dpi
+    - xfonts-base
+    - xfonts-mplus
+    - xfonts-scalable
+    # end mediawiki::packages::fonts
 
 lives:
   in: /srv/service/
