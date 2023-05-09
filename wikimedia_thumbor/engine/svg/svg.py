@@ -65,7 +65,7 @@ class Engine(BaseWikimediaEngine):
 
         env = None
         if hasattr(self.context.request, 'lang'):
-            env = {'LANG': self.context.request.lang.upper()}
+            env = {'LC_ALL': self.context.request.lang.upper()}
 
         try:
             self.command(command, env)
