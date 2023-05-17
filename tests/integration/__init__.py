@@ -133,11 +133,11 @@ class WikimediaTestCase(AsyncHTTPTestCase):
         Arguments:
         url -- thumbnail URL
         mediawiki_reference_thumbnail -- reference thumbnail file
+        perfect_reference_thumbnail -- perfect lossless version of the target thumbnail, for visual comparison
         expected_width -- expected thumbnail width
         expected_height -- expected thumbnail height
         expected_ssim -- minimum SSIM score
         size_tolerance -- maximum file size ratio between reference and result
-        perfect_reference_thumbnail -- perfect lossless version of the target thumbnail, for visual comparison
         headers -- headers to be passed alongside the HTTP get
         """
         try:

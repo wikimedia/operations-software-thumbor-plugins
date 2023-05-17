@@ -39,7 +39,7 @@ class WikimediaTest(WikimediaTestCase):
             400,
             673,
             0.96,
-            0.54,
+            0.55,
         )
         self.run_and_check_ssim_and_size(
             '/thumbor/unsafe/400x/filters:page(19):format(webp)/Jeremy_Bentham.pdf',
@@ -47,7 +47,7 @@ class WikimediaTest(WikimediaTestCase):
             'page19-400px-Jeremy_Bentham.pdf.png',
             400,
             673,
-            0.98,
+            0.96,
             0.42,
         )
 

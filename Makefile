@@ -60,5 +60,5 @@ bash:
 
 3d2png:
 	git clone https://github.com/wikimedia/3d2png.git
-	npm install 3d2png
-	ln -s /srv/service/node_modules/.bin/3d2png /opt/lib/python/site-packages/bin/
+	cd 3d2png; npm install
+	ln -s /srv/service/3d2png/3d2png.js /opt/lib/python/site-packages/bin/3d2png

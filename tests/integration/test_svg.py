@@ -66,8 +66,8 @@ class WikimediaTest(WikimediaTestCase):
             '400px-Northumberland_in_England.svg.png',
             400,
             486,
-            1.0,
-            0.99
+            0.99,
+            1.0
         )
         self.run_and_check_ssim_and_size(
             '/thumbor/unsafe/400x/filters:format(webp)/Northumberland_in_England.svg',
@@ -102,7 +102,7 @@ class WikimediaTest(WikimediaTestCase):
             '400px-Westmoreland_Heritage_Trail.svg.png',
             400,
             161,
-            1.0,
+            0.99,
             0.99
         )
         self.run_and_check_ssim_and_size(
@@ -111,7 +111,7 @@ class WikimediaTest(WikimediaTestCase):
             '400px-Westmoreland_Heritage_Trail.svg.png',
             400,
             161,
-            1.0,
+            0.99,
             0.63
         )
         self.run_and_check_ssim_and_size(

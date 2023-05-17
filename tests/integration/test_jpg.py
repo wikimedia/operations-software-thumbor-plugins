@@ -225,5 +225,5 @@ class WikimediaTest(WikimediaTestCase):
             expected_width=450,
             expected_height=600,
             expected_ssim=0.88,
-            size_tolerance=0.82,
+            size_tolerance=0.83,
         )

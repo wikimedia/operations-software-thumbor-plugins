@@ -1,6 +1,6 @@
 # syntax=docker-registry.wikimedia.org/repos/releng/blubber:v0.17.0
 version: v4
-base: docker-registry.wikimedia.org/python3-build-buster
+base: docker-registry.wikimedia.org/python3-build-bullseye
 apt:
   packages:
     - ca-certificates
@@ -9,13 +9,12 @@ apt:
     - ffmpeg
     - ghostscript
     - gifsicle
-    # T334863
     - imagemagick
     - imagemagick-6.q16
     - libmagickcore-6.q16-6
     - libmagickcore-6.q16-6
     - libmagickwand-6.q16-6
-    - libboost-python1.67.0
+    - libboost-python1.74.0
     - exiv2
     - libgl1-mesa-dri
     - libjpeg-turbo-progs
@@ -97,6 +96,7 @@ apt:
     - xfonts-mplus
     - xfonts-scalable
     # end mediawiki::packages::fonts
+    - python-is-python3 # required for 3d2png
 
 lives:
   in: /srv/service/
@@ -124,8 +124,12 @@ variants:
         - libopenblas-dev
         - libssl-dev
         - libwebp-dev
-        - npm
-        - pkg-config
+        - npm # 3d2png
+        - pkg-config # 3d2png
+        - libx11-dev # 3d2png
+        - libxi-dev # 3d2png
+        - libglx-dev # 3d2png
+        - libgl1-mesa-dev # 3d2png
     copies: [local]
     builder:
       command: [make, 3d2png]

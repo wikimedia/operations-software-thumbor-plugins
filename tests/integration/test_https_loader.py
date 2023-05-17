@@ -99,7 +99,7 @@ class WikimediaHttpsLoaderTest(WikimediaTestCase):
             400,
             486,
             1.0,
-            0.99
+            1.0
         )
 
     def test_pdf(self):
@@ -110,7 +110,7 @@ class WikimediaHttpsLoaderTest(WikimediaTestCase):
             400,
             673,
             0.96,
-            0.54,
+            0.55,
         )
 
     def test_xcf(self):

@@ -105,8 +105,14 @@ def _http_code_from_stderr(context, process, result, normalized_url):
     extra['stderr'] = stderr
     extra['normalized_url'] = normalized_url
 
-    logger.error('[Video] Fprobe/ffmpeg errored', extra=extra)
-    code = re.match(r'.*Server returned (\d\d\d).*', stderr.decode('utf-8'))
+    logger.error(f'[Video] Fprobe/ffmpeg errored: {stderr}', extra=extra)
+    http_error_re = re.compile(r'.*Server returned (\d\d\d).*', re.MULTILINE)
+    code = None
+    for stderr_line in stderr.decode('utf-8').split("\n"):
+        logger.error("got code")
+        code_match = http_error_re.match(stderr_line)
+        if code_match:
+            code = code_match
 
     if code:
         code = int(code.group(1))
