@@ -126,6 +126,7 @@ class WikimediaTestCase(AsyncHTTPTestCase):
         expected_height,
         expected_ssim,
         size_tolerance,
+        headers={}
     ):
         """Request URL and check ssim and size.
 
@@ -137,9 +138,10 @@ class WikimediaTestCase(AsyncHTTPTestCase):
         expected_ssim -- minimum SSIM score
         size_tolerance -- maximum file size ratio between reference and result
         perfect_reference_thumbnail -- perfect lossless version of the target thumbnail, for visual comparison
+        headers -- headers to be passed alongside the HTTP get
         """
         try:
-            result = self.fetch(url)
+            result = self.fetch(url, headers=headers)
         except Exception as e:
             assert False, 'Exception occured: %r' % e
 

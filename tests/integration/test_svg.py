@@ -153,3 +153,13 @@ class WikimediaTest(WikimediaTestCase):
             0.99,
             0.67
         )
+        self.run_and_check_ssim_and_size(
+            '/thumbor/unsafe/640x/filters:format(png)/IPv6_header-en.svg',
+            'IPv6_header-langaz.svg.png',
+            'IPv6_header-langaz.svg.png',
+            640,
+            295,
+            0.99,
+            0.99,
+            {"lang": "az"}
+        )

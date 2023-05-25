@@ -12,6 +12,8 @@
 # SVG engine
 
 import codecs
+import locale
+import logging
 import os
 import re
 import tempfile
@@ -64,8 +66,34 @@ class Engine(BaseWikimediaEngine):
             command += ['-h', '%d' % self.context.request.height]
 
         env = None
+
         if hasattr(self.context.request, 'lang'):
-            env = {'LC_ALL': self.context.request.lang.upper()}
+
+            """
+            This is the wrong way to do this - until we move to a version
+            of rsvg-convert that lets us explicitly pass --accept-languages
+            this is a best-effort attempt to fix the issue of language
+            specification in SVGs.
+            """
+            lang_str = self.context.request.lang
+            if "-" in lang_str:
+                lang_str_underscore = lang_str.lower().replace("-", "_")
+                if lang_str_underscore in locale.locale_alias.keys():
+                    # We have a valid language according to our locale table -
+                    # for example zh-hk becomes zh_hk which is valid
+                    lang_str = lang_str_underscore
+                else:
+                    # We don't have a valid locale - make an attempt to get a
+                    # base locale by splitting off everything after the dash.
+                    lang_str = lang_str.split("-")[0]
+
+                    if lang_str not in locale.locale_alias.keys():
+                        logging.error("Failed to find valid locale for %s (original %s) after trying conversion",
+                                      lang_str, lang_str_underscore)
+                        # Default to en
+                        lang_str = "en"
+
+            env = {'LC_ALL': lang_str}
 
         try:
             self.command(command, env)
