@@ -547,3 +547,8 @@ Engine.add_format(
     '.webp',
     lambda buffer: buffer[:4] == b'RIFF' and buffer[8:12] == b'WEBP'
 )
+Engine.add_format(
+    'image/xcf',
+    '.xcf',
+    lambda buffer: buffer[:8] == b'gimp xcf'
+)

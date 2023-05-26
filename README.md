@@ -25,7 +25,6 @@ FFMPEG_PATH = '/usr/bin/ffmpeg'
 EXIFTOOL_PATH = '/usr/bin/exiftool'
 VIPS_PATH = '/usr/bin/vips'
 FFPROBE_PATH = '/usr/bin/ffprobe'
-XCF2PNG_PATH = '/usr/bin/xcf2png'
 GHOSTSCRIPT_PATH = '/usr/bin/gs'
 DDJVU_PATH = '/usr/bin/ddjvu'
 RSVG_CONVERT_PATH = '/usr/bin/rsvg-convert'
@@ -57,7 +56,6 @@ EXIF_TINYRGB_ICC_REPLACE = 'sRGB IEC61966-2.1'
 VIPS_ENGINE_MIN_PIXELS = 20000000
 
 PROXY_ENGINE_ENGINES = [
-    ('wikimedia_thumbor.engine.xcf', ['xcf']),
     ('wikimedia_thumbor.engine.djvu', ['djvu']),
     ('wikimedia_thumbor.engine.vips', ['tiff', 'png']),
     ('wikimedia_thumbor.engine.tiff', ['tiff']),
@@ -65,7 +63,7 @@ PROXY_ENGINE_ENGINES = [
     ('wikimedia_thumbor.engine.gif', ['gif']),
     ('wikimedia_thumbor.engine.stl', ['stl']),
     ('wikimedia_thumbor.engine.svg', ['svg']),
-    ('wikimedia_thumbor.engine.imagemagick', ['jpg', 'png', 'webp']),
+    ('wikimedia_thumbor.engine.imagemagick', ['jpg', 'png', 'webp', 'xcf']),
 ]
 
 FILTERS = [

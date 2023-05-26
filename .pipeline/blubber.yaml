@@ -27,7 +27,6 @@ apt:
     - webp
     - wmf-certificates
     - xauth
-    - xcftools
     - xvfb
     # begin mediawiki::packages::fonts
     - culmus

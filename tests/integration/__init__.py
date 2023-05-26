@@ -44,7 +44,6 @@ class WikimediaTestCase(AsyncHTTPTestCase):
         cfg.EXIFTOOL_PATH = which('exiftool')
         cfg.VIPS_PATH = which('vips')
         cfg.FFPROBE_PATH = which('ffprobe')
-        cfg.XCF2PNG_PATH = which('xcf2png')
         cfg.GHOSTSCRIPT_PATH = which('gs')
         cfg.DDJVU_PATH = which('ddjvu')
         cfg.RSVG_CONVERT_PATH = which('rsvg-convert')
@@ -81,7 +80,6 @@ class WikimediaTestCase(AsyncHTTPTestCase):
         cfg.VIPS_ENGINE_MIN_PIXELS = 20000000
 
         cfg.PROXY_ENGINE_ENGINES = [
-            ('wikimedia_thumbor.engine.xcf', ['xcf']),
             ('wikimedia_thumbor.engine.djvu', ['djvu']),
             ('wikimedia_thumbor.engine.vips', ['tiff', 'png']),
             ('wikimedia_thumbor.engine.tiff', ['tiff']),
@@ -91,7 +89,7 @@ class WikimediaTestCase(AsyncHTTPTestCase):
             # SVG should alwayd be the one before last, because of how broad it is (trying all XML documents)
             ('wikimedia_thumbor.engine.svg', ['svg']),
             # Imagemagick should always be last, to act as a catch-all since Thumbor defaults to assuming JPG when the document is unknown
-            ('wikimedia_thumbor.engine.imagemagick', ['jpg', 'png', 'webp']),
+            ('wikimedia_thumbor.engine.imagemagick', ['jpg', 'png', 'webp', 'xcf']),
         ]
 
         cfg.FILTERS = [
