@@ -114,6 +114,7 @@ BaseHandler._error = _error
 def close_poolcounter(pc):
     logger.debug('[ImagesHandler] PoolCounter cleanup callback')
     if pc:
+        pc.release()
         pc.close()
 
 
