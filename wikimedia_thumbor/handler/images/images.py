@@ -466,6 +466,7 @@ class ImagesHandler(ImagingHandler):
 
     def on_finish(self):
         if hasattr(self, 'pc') and self.pc:
+            self.pc.release()
             self.pc.close()
             self.pc = None
             self.poolcounter_time = datetime.timedelta(0)
