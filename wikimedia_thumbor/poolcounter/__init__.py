@@ -49,9 +49,8 @@ class PoolCounter:
         return data.decode() == 'LOCKED\n'
 
     async def release(self):
-        if not self.stream:
-            await self.connect()
-
+        if self.stream is None:
+            return True
         try:
             self.debug('[PoolCounter] RELEASE')
             await self.stream.write('RELEASE\n'.encode())
