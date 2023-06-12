@@ -549,7 +549,7 @@ class ImagesHandler(ImagingHandler):
 
         cfg = self.context.config.get('POOLCOUNTER_CONFIG_EXPENSIVE', False)
         if cfg and extension.lower() in cfg['extensions']:
-            throttled = await self.poolcounter_throttle_key('thumbor-render-expensive', cfg)
+            throttled = await self.poolcounter_throttle_key(f'thumbor-render-expensive-{extension.lower()}', cfg)
 
             if throttled:
                 return True
