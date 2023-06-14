@@ -48,13 +48,13 @@ class PoolCounter:
         self.debug("[PoolCounter] Got data of '{}' from poolcounter during ACQ4ME".format(data))
         return data.decode() == 'LOCKED\n'
 
-    async def release(self):
+    def release(self):
         if self.stream is None:
             return True
         try:
             self.debug('[PoolCounter] RELEASE')
-            await self.stream.write('RELEASE\n'.encode())
-            data = await self.stream.read_until('\n'.encode())
+            self.stream.write('RELEASE\n'.encode())
+            data = self.stream.read_until('\n'.encode())
         except socket.error as e:
             self.stream = None
             raise e
