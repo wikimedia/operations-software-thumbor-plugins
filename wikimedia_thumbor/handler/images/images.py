@@ -506,7 +506,7 @@ class ImagesHandler(ImagingHandler):
         self.poolcounter_time += datetime.datetime.now() - start
         self.pc = None
 
-        logger.error('[ImagesHandler] Throttled by PoolCounter', extra=extra)
+        logger.error(f'[ImagesHandler] Throttled by PoolCounter for key {key}', extra=extra)
 
         record_timing(self.context, self.poolcounter_time, 'poolcounter.time', 'Thumbor-Poolcounter-Time')
 
