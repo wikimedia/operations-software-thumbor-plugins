@@ -8,7 +8,7 @@
 # Stores results in Swift via HTTP
 
 import datetime
-# import logging
+import logging
 import random
 
 from swiftclient import client
@@ -28,6 +28,7 @@ class Storage(BaseStorage):
     def swift(self):
         if self.context.private:
             if Storage.swiftconn_private:
+                logging.debug("Returning private connection for result storage")
                 return Storage.swiftconn_private
         else:
             if Storage.swiftconn:
@@ -56,6 +57,7 @@ class Storage(BaseStorage):
         )
 
         if self.context.private:
+            logging.debug("Setting private connection for result storage")
             Storage.swiftconn_private = conn
         else:
             Storage.swiftconn = conn

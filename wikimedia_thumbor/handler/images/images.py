@@ -14,6 +14,7 @@ from time import mktime
 import datetime
 import json
 import hashlib
+import logging
 import memcache
 import random
 import tornado.ioloop
@@ -217,6 +218,8 @@ class ImagesHandler(ImagingHandler):
         thumbnail_shard2 = kw['shard2']
 
         self.context.private = original_container in private_containers
+        if self.context.private:
+            logging.debug("Image %s is in a private container", kw["filename"])
 
         # Temp is different from any other case. Originals are thumbnails are
         # stored alongside each other in the same container. The hash prefix
@@ -241,6 +244,7 @@ class ImagesHandler(ImagingHandler):
             # in MediaWiki's codebase for the logic that sets the privacy level
             # of Swift containers.
             self.context.private = True
+            logging.debug("Image %s is in a temp path, setting private", kw["filename"])
 
         if original_container in sharded_containers:
             original_container += '.' + original_shard2

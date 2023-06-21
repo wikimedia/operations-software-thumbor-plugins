@@ -12,7 +12,7 @@
 # Swift loader. Streams objects from Swift with auth
 
 import datetime
-# import logging
+import logging
 import requests
 from functools import partial
 from tempfile import NamedTemporaryFile
@@ -46,6 +46,7 @@ def swift(context):
 
     if context.private:
         if swiftconn_private:
+            logging.debug("Returning private connection for swift loader")
             return swiftconn_private
     else:
         if swiftconn:
@@ -74,6 +75,7 @@ def swift(context):
     )
 
     if context.private:
+        logging.debug("Setting private connection for swift loader")
         swiftconn_private = conn
     else:
         swiftconn = conn
