@@ -540,6 +540,7 @@ class ImagesHandler(ImagingHandler):
                 throttled = await self.poolcounter_throttle_key('thumbor-ip-%s' % ff, cfg)
 
                 if throttled:
+                    self.context.metrics.incr('poolcounter.throttle_class.ip')
                     return True
 
         cfg = self.context.config.get('POOLCOUNTER_CONFIG_PER_ORIGINAL', False)
@@ -549,6 +550,7 @@ class ImagesHandler(ImagingHandler):
             throttled = await self.poolcounter_throttle_key('thumbor-render-%s' % name_sha1, cfg)
 
             if throttled:
+                self.context.metrics.incr('poolcounter.throttle_class.original')
                 return True
 
         cfg = self.context.config.get('POOLCOUNTER_CONFIG_EXPENSIVE', False)
@@ -556,6 +558,7 @@ class ImagesHandler(ImagingHandler):
             throttled = await self.poolcounter_throttle_key(f'thumbor-render-expensive-{extension.lower()}', cfg)
 
             if throttled:
+                self.context.metrics.incr('poolcounter.throttle_class.expensive')
                 return True
 
         # This closes the PoolCounter connection in case it hasn't been closed normally.
