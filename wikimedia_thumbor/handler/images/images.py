@@ -49,10 +49,12 @@ def _error(self, status, msg=None):
 
         counter = mc.get(key)
         if not counter:
+            logging.debug(f"[MEMCACHED] Setting new counter for {self.context.request.url} at {key}")
             # We add randomness to the expiry to avoid stampedes
             duration = self.context.config.get('FAILURE_THROTTLING_DURATION', 3600)
             mc.set(key, '1', duration + random.randint(0, 300))
         else:
+            logging.debug(f"[MEMCACHED] Incrementing counter for {self.context.request.url} at {key}")
             mc.incr(key)
 
         record_timing(self.context, datetime.datetime.now() - start, 'memcache.set', 'Thumbor-Memcache-Set-Time')
@@ -84,6 +86,7 @@ def _error(self, status, msg=None):
 
 def _mc(self):
     if not hasattr(self.context.config, 'FAILURE_THROTTLING_MEMCACHE'):
+        logging.debug("[MEMCACHED] No config defined, not using memcache")
         return False
 
     if hasattr(self, 'failure_mc'):
@@ -427,16 +430,21 @@ class ImagesHandler(ImagingHandler):
         if mc and xkey:
             key = self._mc_encode_key(xkey)
 
+            logging.debug(f"[MEMCACHED] Checking limit for {kw['filename']} using memcache key {key}")
             start = datetime.datetime.now()
             counter = mc.get(key)
             record_timing(self.context, datetime.datetime.now() - start, 'memcache.get', 'Thumbor-Memcache-Get-Time')
+            logging.debug(f"[MEMCACHED] Got value of {int(counter)} for {kw['filename']} using mc key {key}")
 
             if counter and int(counter) >= self.context.config.get('FAILURE_THROTTLING_MAX', 4):
+                logging.debug(f"[MEMCACHED] Hit failure throttling limit for {kw['filename']} using mc key {key}")
                 self._error(
                     429,
                     'Too many thumbnail requests for failing image'
                 )
                 return
+        elif mc and not xkey:
+            logging.debug(f"[MEMCACHED] Couldn't increment {kw['filename']} because xkey was missing")
 
         if self.context.config.MAX_ID_LENGTH > 0:
             # Check if an image with an uuid exists in storage
