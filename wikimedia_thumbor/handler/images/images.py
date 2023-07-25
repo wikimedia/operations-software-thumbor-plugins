@@ -434,7 +434,10 @@ class ImagesHandler(ImagingHandler):
             start = datetime.datetime.now()
             counter = mc.get(key)
             record_timing(self.context, datetime.datetime.now() - start, 'memcache.get', 'Thumbor-Memcache-Get-Time')
-            logging.debug(f"[MEMCACHED] Got value of {int(counter)} for {kw['filename']} using mc key {key}")
+            if counter:
+                logging.debug(f"[MEMCACHED] Got value of {int(counter)} for {kw['filename']} using mc key {key}")
+            else:
+                logging.debug(f"[MEMCACHED] Counter is NoneType for {kw['filename']} using mc key {key}")
 
             if counter and int(counter) >= self.context.config.get('FAILURE_THROTTLING_MAX', 4):
                 logging.debug(f"[MEMCACHED] Hit failure throttling limit for {kw['filename']} using mc key {key}")
