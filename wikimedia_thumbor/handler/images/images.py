@@ -90,9 +90,14 @@ def _mc(self):
         return False
 
     if hasattr(self, 'failure_mc'):
+
+        dead_servers = all([i._check_dead() for i in self.failure_mc.servers])
+        if dead_servers:
+            logging.error("[MEMCACHED] Returning client object when all servers are marked dead")
+
         return self.failure_mc
 
-    self.failure_mc = memcache.Client(self.context.config.FAILURE_THROTTLING_MEMCACHE)
+    self.failure_mc = memcache.Client(self.context.config.FAILURE_THROTTLING_MEMCACHE, debug=1)
     return self.failure_mc
 
 
