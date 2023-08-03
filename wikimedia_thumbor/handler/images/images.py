@@ -446,6 +446,7 @@ class ImagesHandler(ImagingHandler):
 
             if counter and int(counter) >= self.context.config.get('FAILURE_THROTTLING_MAX', 4):
                 logging.debug(f"[MEMCACHED] Hit failure throttling limit for {kw['filename']} using mc key {key}")
+                self.context.metrics.incr('memcached.throttled')
                 self._error(
                     429,
                     'Too many thumbnail requests for failing image'
