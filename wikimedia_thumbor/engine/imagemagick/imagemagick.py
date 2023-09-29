@@ -318,14 +318,8 @@ class Engine(BaseEngine):
             returncode, stderr, result = self.run_operators(last_operators)
 
         if returncode != 0:
-            # T179200 ImageMagick may return a non-zero exit code while having
-            # actually rendered a thumbnail of a semi-broken file
-            if self.is_valid_thumbnail(result):
-                self.debug('[IM] errored but still rendered: %s' % stderr)
-            else:
-                # Haven't been able to find a test file that meets this criteria
-                ShellRunner.rm_f(self.image.name)  # pragma: no cover
-                raise ImageMagickException('Failed to convert image %s' % stderr)  # pragma: no cover
+            ShellRunner.rm_f(self.image.name)  # pragma: no cover
+            raise ImageMagickException('Failed to convert image %s' % stderr)  # pragma: no cover
 
         self.operators = []
 
@@ -519,27 +513,6 @@ class Engine(BaseEngine):
 
     def debug(self, message):
         logger.debug(message, extra=log_extra(self.context))
-
-    def is_valid_thumbnail(self, result):
-        temp_file = NamedTemporaryFile(delete=False)
-
-        with open(temp_file.name, 'wb') as f:
-            f.write(result)
-
-        command = [
-            self.context.config.CONVERT_PATH,
-            temp_file.name,
-            'info:'
-        ]
-
-        returncode, stderr, stdout = ShellRunner.command(
-            command,
-            self.context,
-        )
-
-        ShellRunner.rm_f(temp_file.name)
-
-        return returncode == 0
 
 
 Engine.add_format(
