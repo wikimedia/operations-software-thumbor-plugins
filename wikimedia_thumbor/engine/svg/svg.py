@@ -94,6 +94,8 @@ class Engine(BaseWikimediaEngine):
                         lang_str = "en"
 
             env = {'LC_ALL': lang_str}
+        else:
+            env = {'LC_ALL': "en"}
 
         try:
             self.command(command, env)
