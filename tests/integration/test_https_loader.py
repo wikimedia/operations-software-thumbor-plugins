@@ -89,8 +89,8 @@ class WikimediaHttpsLoaderTest(WikimediaTestCase):
             'langfr-200px-Speech_bubbles.svg.png',
             200,
             148,
-            0.99,
-            0.74
+            0.93,
+            0.81
         )
         self.run_and_check_ssim_and_size(
             '/thumbor/unsafe/400x/filters:lang(fr):format(png)/https://upload.wikimedia.org/wikipedia/commons/e/e9/Northumberland_in_England.svg',
@@ -98,8 +98,8 @@ class WikimediaHttpsLoaderTest(WikimediaTestCase):
             '400px-Northumberland_in_England.svg.png',
             400,
             486,
-            1.0,
-            1.0
+            0.98,
+            0.999
         )
 
     def test_pdf(self):

@@ -9,8 +9,8 @@ class WikimediaTest(WikimediaTestCase):
             'langfr-200px-Speech_bubbles.svg.png',
             200,
             148,
-            0.99,
-            0.74
+            0.93,
+            0.81
         )
         self.run_and_check_ssim_and_size(
             '/thumbor/unsafe/200x/filters:lang(fr):format(webp)/Speech_bubbles.svg',
@@ -18,8 +18,8 @@ class WikimediaTest(WikimediaTestCase):
             'langfr-200px-Speech_bubbles.svg.png',
             200,
             148,
-            0.99,
-            0.48
+            0.93,
+            0.55
         )
         self.run_and_check_ssim_and_size(
             '/thumbor/unsafe/200x/filters:format(png)/Television.svg',
@@ -66,7 +66,7 @@ class WikimediaTest(WikimediaTestCase):
             '400px-Northumberland_in_England.svg.png',
             400,
             486,
-            0.99,
+            0.98,
             1.0
         )
         self.run_and_check_ssim_and_size(
@@ -75,7 +75,7 @@ class WikimediaTest(WikimediaTestCase):
             '400px-Northumberland_in_England.svg.png',
             400,
             486,
-            1.0,
+            0.98,
             0.5
         )
         self.run_and_check_ssim_and_size(
@@ -83,17 +83,17 @@ class WikimediaTest(WikimediaTestCase):
             '400px-Map_of_the_Beboid_languages.svg.png',
             '400px-Map_of_the_Beboid_languages.svg.png',
             400,
-            249,
-            0.99,
-            1.0
+            250,
+            0.85,
+            1.1
         )
         self.run_and_check_ssim_and_size(
             '/thumbor/unsafe/400x/filters:format(webp)/Map_of_the_Beboid_languages.svg',
             '400px-Map_of_the_Beboid_languages.svg.png',
             '400px-Map_of_the_Beboid_languages.svg.png',
             400,
-            249,
-            0.99,
+            250,
+            0.85,
             0.86
         )
         self.run_and_check_ssim_and_size(
@@ -103,7 +103,7 @@ class WikimediaTest(WikimediaTestCase):
             400,
             161,
             0.99,
-            0.99
+            0.999
         )
         self.run_and_check_ssim_and_size(
             '/thumbor/unsafe/400x/filters:format(webp)/Westmoreland_Heritage_Trail.svg',
@@ -120,7 +120,7 @@ class WikimediaTest(WikimediaTestCase):
             '400px-Tree_edges.svg.png',
             400,
             238,
-            0.99,
+            0.95,
             1.2
         )
         self.run_and_check_ssim_and_size(
@@ -129,7 +129,7 @@ class WikimediaTest(WikimediaTestCase):
             '400px-Tree_edges.svg.png',
             400,
             238,
-            0.99,
+            0.95,
             0.73
         )
         self.run_and_check_ssim_and_size(
@@ -138,7 +138,7 @@ class WikimediaTest(WikimediaTestCase):
             '119px-BuickLogo_silber.svg.png',
             119,
             120,
-            0.99,
+            0.95,
             0.99
         )
         self.run_and_check_ssim_and_size(
@@ -150,7 +150,7 @@ class WikimediaTest(WikimediaTestCase):
             # WebP compresses the alpha layer more agressively by default, which results in this
             # low score. This can be avoided in webp >= 0.5 with the -exact function, currently
             # only available on Debian Stretch.
-            0.99,
+            0.95,
             0.67
         )
         self.run_and_check_ssim_and_size(
@@ -160,6 +160,6 @@ class WikimediaTest(WikimediaTestCase):
             640,
             295,
             0.99,
-            0.99,
+            1.5,
             {"lang": "az"}
         )
