@@ -9,6 +9,6 @@ if [ ${#} -ne 1 ] && [ ${#} -ne 2 ]; then
     exit 1
 fi
 
-export PYTHONPATH="/srv/service:/opt/lib/python/site-packages"
+export PYTHONPATH="/srv/service:/opt/lib/venv/lib/python3.11/site-packages/"
 od --read-bytes 16 --output-duplicates --address-radix n --format x2 /dev/urandom | tr -d ' ' > /var/tmp/thumbor.key
-/opt/lib/python/site-packages/bin/thumbor --port ${1} --keyfile /var/tmp/thumbor.key --conf /etc/thumbor.d/ ${2}
+/opt/lib/venv/bin/thumbor --port ${1} --keyfile /var/tmp/thumbor.key --conf /etc/thumbor.d/ ${2}
