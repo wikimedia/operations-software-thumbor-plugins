@@ -12,19 +12,18 @@
 # SVG engine
 
 import codecs
-import locale
-import logging
 import os
 import re
 import tempfile
 
+from thumbor.utils import logger
+
 from wikimedia_thumbor.engine import BaseWikimediaEngine, CommandError
+from wikimedia_thumbor.logging import log_extra
 from wikimedia_thumbor.shell_runner import ShellRunner
 
 BaseWikimediaEngine.add_format(
-    'image/svg+xml',
-    '.svg',
-    lambda buffer: Engine.is_svg(buffer)
+    "image/svg+xml", ".svg", lambda buffer: Engine.is_svg(buffer)
 )
 
 
@@ -36,11 +35,13 @@ class Engine(BaseWikimediaEngine):
         # T186500 There can be an optional UTF-8 BOM at the beginning
         # T187088 The namespace might not be in the excerpt
         try:
-            decoded_text = buffer[:10].decode('utf-8')
+            decoded_text = buffer[:10].decode("utf-8")
         except UnicodeDecodeError:
             return False
 
-        return re.match(r'^(' + codecs.BOM_UTF8.decode('utf-8') + r')?<(\?xml|svg)', decoded_text)
+        return re.match(
+            r"^(" + codecs.BOM_UTF8.decode("utf-8") + r")?<(\?xml|svg)", decoded_text
+        )
 
     def create_image(self, buffer):
         self.prepare_source(buffer)
@@ -52,58 +53,42 @@ class Engine(BaseWikimediaEngine):
         command = [
             self.context.config.RSVG_CONVERT_PATH,
             self.source,
-            '-u',
-            '-f',
-            'png',
-            '-o',
-            tmp_name
+            "-u",
+            "-f",
+            "png",
+            "-o",
+            tmp_name,
         ]
 
         if self.context.request.width > 0:
-            command += ['-w', '%d' % self.context.request.width]
+            command += ["-w", "%d" % self.context.request.width]
 
         if self.context.request.height > 0:  # pragma: no cover
-            command += ['-h', '%d' % self.context.request.height]
+            command += ["-h", "%d" % self.context.request.height]
 
-        env = None
+        lang_str = getattr(self.context.request, "lang", "en")
 
-        if hasattr(self.context.request, 'lang'):
+        # rsvg-convert errors out on a malformed language tag, which
+        # would turn a bogus filter value into a failed
+        # thumbnail. Only pass on something tag-shaped with a vague
+        # attempt at something that looks RFC-compliant, otherwise
+        # fall back to en.
+        if not re.fullmatch(r"[A-Za-z]{1,8}(?:-[A-Za-z0-9]{1,8})*", lang_str):
+            logger.error(
+                "[SVG] Invalid language tag %r, defaulting to en" % lang_str,
+                extra=log_extra(self.context),
+            )
+            lang_str = "en"
 
-            """
-            This is the wrong way to do this - until we move to a version
-            of rsvg-convert that lets us explicitly pass --accept-languages
-            this is a best-effort attempt to fix the issue of language
-            specification in SVGs.
-            """
-            lang_str = self.context.request.lang
-            if "-" in lang_str:
-                lang_str_underscore = lang_str.lower().replace("-", "_")
-                if lang_str_underscore in locale.locale_alias.keys():
-                    # We have a valid language according to our locale table -
-                    # for example zh-hk becomes zh_hk which is valid
-                    lang_str = lang_str_underscore
-                else:
-                    # We don't have a valid locale - make an attempt to get a
-                    # base locale by splitting off everything after the dash.
-                    lang_str = lang_str.split("-")[0]
-
-                    if lang_str not in locale.locale_alias.keys():
-                        logging.error("Failed to find valid locale for %s (original %s) after trying conversion",
-                                      lang_str, lang_str_underscore)
-                        # Default to en
-                        lang_str = "en"
-
-            env = {'LC_ALL': lang_str}
-        else:
-            env = {'LC_ALL': "en"}
+        command += ["--accept-language", lang_str]
 
         try:
-            self.command(command, env)
+            self.command(command)
         except CommandError as e:
             ShellRunner.rm_f(tmp_name)
             raise e
 
-        with open(tmp_name, 'rb') as tmpfile:
+        with open(tmp_name, "rb") as tmpfile:
             png = tmpfile.read()
         ShellRunner.rm_f(tmp_name)
 
