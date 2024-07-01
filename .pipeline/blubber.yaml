@@ -125,13 +125,14 @@ variants:
         - libopenblas-dev
         - libssl-dev
         - libwebp-dev
-        - npm # 3d2png
-        - pkg-config # 3d2png
-        - libx11-dev # 3d2png
-        - libxi-dev # 3d2png
-        - libglx-dev # 3d2png
-        - libgl1-mesa-dev # 3d2png
-        - libxi-dev # 3d2png
+        # Packages required for 3d2png
+        - npm
+        - pkg-config
+        - libx11-dev
+        - libxi-dev
+        - libglx-dev
+        - libgl1-mesa-dev
+        - libxi-dev
     copies: [local]
     builder:
       command: [make, 3d2png]
