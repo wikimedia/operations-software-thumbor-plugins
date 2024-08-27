@@ -28,7 +28,8 @@ apt:
     - wmf-certificates
     - xauth # 3d2png
     - xvfb # 3d2png
-    # begin mediawiki::packages::fonts
+    - python-is-python3 # 3d2png
+      # begin mediawiki::packages::fonts
     - culmus
     - culmus-fancy
     - fonts-alee
@@ -97,7 +98,6 @@ apt:
     - xfonts-mplus
     - xfonts-scalable
     # end mediawiki::packages::fonts
-    - python-is-python3 # required for 3d2png
 
 lives:
   in: /srv/service/
