@@ -8,4 +8,4 @@
 # PYTHONPATH.
 
 export PYTHONPATH="/srv/service:/opt/lib/python/site-packages"
-thumbor --port 8800 --conf=thumbor.conf -a wikimedia_thumbor.app.App
+/opt/lib/venv/bin/thumbor --port 8800 --conf=thumbor.conf -a wikimedia_thumbor.app.App
