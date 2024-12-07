@@ -12,7 +12,6 @@
 # ImageMagick engine
 
 import json
-import logging
 from tempfile import NamedTemporaryFile
 from pyexiv2 import ImageMetadata, ExifValueError
 
@@ -133,25 +132,16 @@ class Engine(BaseEngine):
 
         metadata = ImageMetadata(input_temp_file.name)
         try:
-            try:
-                # T178072 pyexviv2 writes to stderr even if the exception is caught
-                logging.disable(logging.ERROR)
-                metadata.read()
-            finally:
-                logging.disable(logging.NOTSET)
+            metadata.read()
 
             if 'Exif.Image.Orientation' in metadata.exif_keys:
                 # Distinctive key name to avoid colliding with EXIF_FIELDS_TO_KEEP
                 self.exif_dict['Pyexiv2Orientation'] = metadata.get('Exif.Image.Orientation').value
-        except (IOError, ExifValueError, TypeError):
-            self.debug('[IM] Could not read EXIF with pyexiv2')
-        except RuntimeError as e:
-            # T245440 exiv2 0.25-3.1+deb9u1 handles missing metadata as corruption, and
-            # pyexiv2 raises that as a generic runtime error.
-            if e.args[0] == 'corrupted image metadata':
-                self.debug('[IM] Could not read EXIF with pyexiv2')
-            else:
-                raise
+        except (IOError, ExifValueError, TypeError, ValueError):
+            # T381594: py3exiv2 can be more picky about some things than the other tools,
+            # but we can safely ignore all exceptions from it because we only use it
+            # for Orientation.
+            self.debug('[IM] Could not read EXIF with py3exiv2')
 
         stdout = Engine.exiftool.command(
             context=self.context,
