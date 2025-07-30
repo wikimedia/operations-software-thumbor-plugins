@@ -26,18 +26,29 @@ from wikimedia_thumbor.logging import log_extra
 class ShellRunner:
     @classmethod
     def wrap_command(cls, command, context):
-        wrapped_command = command
+        if not getattr(context.config, "SUBPROCESS_USE_TIMEOUT", False):
+            return command
 
-        if getattr(context.config, "SUBPROCESS_USE_TIMEOUT", False):
-            timeout = context.config.SUBPROCESS_TIMEOUT
-            timeout_path = context.config.SUBPROCESS_TIMEOUT_PATH
-            wrapped_command = [
+        timeout = context.config.SUBPROCESS_TIMEOUT
+        timeout_path = context.config.SUBPROCESS_TIMEOUT_PATH
+
+        timeout_command = [
                 timeout_path,
-                "--foreground",
-                "%s" % timeout,
-            ] + wrapped_command
+                "--foreground"
+        ]
+        # The timeout command sends a SIGTERM signal by default.
+        # --kill-after tells timeout to send a SIGKILL signal if the
+        # command is still running after the initial SIGTERM was sent.
+        # A value of 0 disables this.
+        kill_after = getattr(context.config, "SUBPROCESS_TIMEOUT_KILL_AFTER", 0)
+        if kill_after > 0:
+            timeout_command.extend(["--kill-after", f"{kill_after}s"])
 
-        return wrapped_command
+        # Add the timeout, format is timeout $TIMEOUT_ARGS $TIMEOUT_TIME $ACTUAL_COMMAND $ACTUAL_ARGS
+        timeout_command.append(str(timeout))
+        command = timeout_command + command
+
+        return command
 
     @classmethod
     def preexec(cls, context):  # pragma: no cover
