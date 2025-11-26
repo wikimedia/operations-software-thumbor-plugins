@@ -296,6 +296,16 @@ class ImagesHandler(ImagingHandler):
         if normalized_format in ('jpe', 'jpeg'):
             normalized_format = 'jpg'
 
+        if normalized_format == "svg":
+            if hasattr(self.context.config, 'SVG_MAX_SIZE') and (
+                    self.request.width > self.context.SVG_MAX_SIZE or
+                    self.request.height > self.config.SVG_MAX_SIZE
+            ):
+                self._error(
+                    422,
+                    f"Requested size {self.context.request.width} is larger than maximum ({self.context.config.SVG_MAX_SIZE})"
+                )
+
         if kw['extension'].lower() in ('jpg', 'jpe', 'jpeg'):
             if (
                 kw['qlow'] == 'qlow-' and

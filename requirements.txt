@@ -1,3 +1,5 @@
+# Pinning pillow because thumbor 7.[34].* uses removed flags
+pillow==11.3.0
 thumbor==7.3.2
 python-swiftclient==4.0.0
 manhole==1.8.0

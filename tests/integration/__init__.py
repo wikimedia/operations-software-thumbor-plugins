@@ -79,6 +79,7 @@ class WikimediaTestCase(AsyncHTTPTestCase):
         cfg.EXIF_TINYRGB_ICC_REPLACE = 'sRGB IEC61966-2.1'
 
         cfg.VIPS_ENGINE_MIN_PIXELS = 20000000
+        cfg.SVG_MAX_SIZE = 4096
 
         cfg.PROXY_ENGINE_ENGINES = [
             ('wikimedia_thumbor.engine.djvu', ['djvu']),
