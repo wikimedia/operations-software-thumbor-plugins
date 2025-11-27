@@ -296,7 +296,7 @@ class ImagesHandler(ImagingHandler):
         if normalized_format in ('jpe', 'jpeg'):
             normalized_format = 'jpg'
 
-        if normalized_format == "svg":
+        if kw['extension'] == "svg":
             if hasattr(self.context.config, 'SVG_MAX_SIZE') and (
                     self.request.width > self.context.SVG_MAX_SIZE or
                     self.request.height > self.config.SVG_MAX_SIZE
