@@ -1,3 +1,5 @@
+import io
+from PIL import Image
 from . import WikimediaTestCase
 
 
@@ -21,3 +23,15 @@ class WikimediaWebpTest(WikimediaTestCase):
             expected_ssim=0.97,
             size_tolerance=0.14
         )
+
+    def test_animated_webp(self):
+        # Animated WebP should result in an animated WebP thumbnail.
+        # animated.webp is 50x50.
+        response = self.fetch('/thumbor/unsafe/25x/animated.webp')
+        self.assertEqual(response.code, 200)
+        img = Image.open(io.BytesIO(response.body))
+        self.assertEqual(img.size, (25, 25))
+        self.assertTrue(getattr(img, 'is_animated', False))
+        self.assertEqual(img.format, 'WEBP')
+        # Check frame count
+        self.assertEqual(img.n_frames, 2)

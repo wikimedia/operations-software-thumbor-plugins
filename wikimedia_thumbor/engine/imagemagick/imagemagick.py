@@ -240,18 +240,32 @@ class Engine(BaseEngine):
         extension = extension.lstrip('.')
         original_quality = quality
 
+        is_animated_webp = (
+            'FileType' in self.exif_dict and self.exif_dict['FileType'] in ['WEBP', 'Extended WEBP']
+            and 'WebP_Flags' in self.exif_dict and 'Animation' in self.exif_dict['WebP_Flags']
+        )
+
         if extension == 'webp':
             lossless = ('FileType' in self.exif_dict and self.exif_dict['FileType'] in ['SVG', 'PNG'])
 
-            # We need to use a JPG as an intermediary for WebP conversion in order to
-            # be able to apply the EXIF filtering
-            if 'FileType' in self.exif_dict and self.exif_dict['FileType'] == 'JPEG':
+            if is_animated_webp:
+                # If it's an animated WebP and we want a WebP output, we don't go through
+                # the JPG/PNG intermediary because cwebp doesn't support animated inputs.
+                # We'll handle it directly in read() using convert.
+                extension = 'webp'
+            elif 'FileType' in self.exif_dict and self.exif_dict['FileType'] == 'JPEG':
+                # We need to use a JPG as an intermediary for WebP conversion in order to
+                # be able to apply the EXIF filtering
                 extension = 'jpg'
                 quality = 100
             else:
                 extension = 'png32'
 
-            self.webp = {'quality': original_quality, 'lossless': lossless}
+            self.webp = {
+                'quality': original_quality,
+                'lossless': lossless,
+                'animated': is_animated_webp
+            }
         else:
             self.webp = False
 
@@ -292,10 +306,19 @@ class Engine(BaseEngine):
 
         self.queue_operators(operators)
 
-        last_operators = [
-            '%s[%d]' % (self.image.name, self.page),
-            '%s:-' % extension,
-        ]
+        if hasattr(self, 'webp') and self.webp and self.webp.get('animated'):
+            # For animated WebP, we want all frames and we want to coalesce them
+            # to avoid artifacts when resizing
+            last_operators = [
+                self.image.name,
+                '-coalesce',
+                'webp:-',
+            ]
+        else:
+            last_operators = [
+                '%s[%d]' % (self.image.name, self.page),
+                '%s:-' % extension,
+            ]
 
         returncode, stderr, result = self.run_operators(last_operators)
 
@@ -322,7 +345,11 @@ class Engine(BaseEngine):
             result = self.process_exif(result)
 
         if hasattr(self, 'webp') and self.webp:
-            result = self.maybe_convert_to_webp(result)
+            if self.webp.get('animated'):
+                # Already WebP, no need to convert
+                pass
+            else:
+                result = self.maybe_convert_to_webp(result)
 
         ShellRunner.rm_f(self.image.name)
 
