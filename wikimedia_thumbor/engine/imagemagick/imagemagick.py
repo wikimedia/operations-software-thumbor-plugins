@@ -84,7 +84,7 @@ class Engine(BaseEngine):
         buffer_ratio = buffer_size[0] / buffer_size[1]
 
         if 'Pyexiv2Orientation' in self.exif_dict:
-            if self.exif_dict['Pyexiv2Orientation'] in (6, 8):
+            if self.exif_dict['Pyexiv2Orientation'] in (5, 6, 7, 8):
                 buffer_ratio = buffer_size[1] / buffer_size[0]
 
         # If the JPEG size hint is too close to the target size,
@@ -372,7 +372,7 @@ class Engine(BaseEngine):
         buffer_ratio = buffer_size[0] / buffer_size[1]
 
         if 'Pyexiv2Orientation' in self.exif_dict:
-            if self.exif_dict['Pyexiv2Orientation'] in (6, 8):
+            if self.exif_dict['Pyexiv2Orientation'] in (5, 6, 7, 8):
                 buffer_ratio = buffer_size[1] / buffer_size[0]
 
         # We have a slightly different calculation/rounding strategy than Thumbor
@@ -434,12 +434,21 @@ class Engine(BaseEngine):
         # in interpreting various EXIF fields instead of just Orientation
 
         if 'Pyexiv2Orientation' in self.exif_dict:
-            if self.exif_dict['Pyexiv2Orientation'] == 6:
-                self.queue_operators(['-rotate', '90'])
-            elif self.exif_dict['Pyexiv2Orientation'] == 8:
-                self.queue_operators(['-rotate', '270'])
-            elif self.exif_dict['Pyexiv2Orientation'] == 3:
+            orientation = self.exif_dict['Pyexiv2Orientation']
+            if orientation == 2:
+                self.queue_operators(['-flop'])
+            elif orientation == 3:
                 self.queue_operators(['-rotate', '180'])
+            elif orientation == 4:
+                self.queue_operators(['-flip'])
+            elif orientation == 5:
+                self.queue_operators(['-transpose'])
+            elif orientation == 6:
+                self.queue_operators(['-rotate', '90'])
+            elif orientation == 7:
+                self.queue_operators(['-transverse'])
+            elif orientation == 8:
+                self.queue_operators(['-rotate', '270'])
 
     @property
     def size(self):
