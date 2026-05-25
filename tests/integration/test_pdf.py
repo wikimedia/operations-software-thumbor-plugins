@@ -4,7 +4,7 @@ from shutil import which
 from . import WikimediaTestCase
 
 
-class WikimediaTest(WikimediaTestCase):
+class WikimediaPdfTest(WikimediaTestCase):
     @pytest.fixture
     def inject_fixtures(self, caplog, monkeypatch):
         self.caplog = caplog
@@ -16,100 +16,100 @@ class WikimediaTest(WikimediaTestCase):
     def test_pdf(self):
         self.run_and_check_ssim_and_size(
             '/thumbor/unsafe/400x/filters:page(3)/Internationalisation.pdf',
-            'page3-400px-Internationalisation.pdf.jpg',
-            'page3-400px-Internationalisation.pdf.png',
-            400,
-            300,
-            0.92,
-            0.55,
+            mediawiki_reference_thumbnail='page3-400px-Internationalisation.pdf.jpg',
+            perfect_reference_thumbnail='page3-400px-Internationalisation.pdf.png',
+            expected_width=400,
+            expected_height=300,
+            expected_ssim=0.92,
+            size_tolerance=0.55,
         )
         self.run_and_check_ssim_and_size(
             '/thumbor/unsafe/400x/filters:page(3):format(webp)/Internationalisation.pdf',
-            'page3-400px-Internationalisation.pdf.jpg',
-            'page3-400px-Internationalisation.pdf.png',
-            400,
-            300,
-            0.93,
-            0.62,
+            mediawiki_reference_thumbnail='page3-400px-Internationalisation.pdf.jpg',
+            perfect_reference_thumbnail='page3-400px-Internationalisation.pdf.png',
+            expected_width=400,
+            expected_height=300,
+            expected_ssim=0.93,
+            size_tolerance=0.62,
         )
         self.run_and_check_ssim_and_size(
             '/thumbor/unsafe/400x/filters:page(19)/Jeremy_Bentham.pdf',
-            'page19-400px-Jeremy_Bentham.pdf.jpg',
-            'page19-400px-Jeremy_Bentham.pdf.png',
-            400,
-            673,
-            0.96,
-            0.55,
+            mediawiki_reference_thumbnail='page19-400px-Jeremy_Bentham.pdf.jpg',
+            perfect_reference_thumbnail='page19-400px-Jeremy_Bentham.pdf.png',
+            expected_width=400,
+            expected_height=673,
+            expected_ssim=0.96,
+            size_tolerance=0.55,
         )
         self.run_and_check_ssim_and_size(
             '/thumbor/unsafe/400x/filters:page(19):format(webp)/Jeremy_Bentham.pdf',
-            'page19-400px-Jeremy_Bentham.pdf.jpg',
-            'page19-400px-Jeremy_Bentham.pdf.png',
-            400,
-            673,
-            0.96,
-            0.42,
+            mediawiki_reference_thumbnail='page19-400px-Jeremy_Bentham.pdf.jpg',
+            perfect_reference_thumbnail='page19-400px-Jeremy_Bentham.pdf.png',
+            expected_width=400,
+            expected_height=673,
+            expected_ssim=0.96,
+            size_tolerance=0.42,
         )
 
     def test_pdf_without_page_filter(self):
         self.run_and_check_ssim_and_size(
             '/thumbor/unsafe/400x/Internationalisation.pdf',
-            'page1-400px-Internationalisation.pdf.jpg',
-            'page1-400px-Internationalisation.pdf.png',
-            400,
-            300,
-            0.92,
-            0.54,
+            mediawiki_reference_thumbnail='page1-400px-Internationalisation.pdf.jpg',
+            perfect_reference_thumbnail='page1-400px-Internationalisation.pdf.png',
+            expected_width=400,
+            expected_height=300,
+            expected_ssim=0.92,
+            size_tolerance=0.54,
         )
         self.run_and_check_ssim_and_size(
             '/thumbor/unsafe/400x/filters:format(webp)/Internationalisation.pdf',
-            'page1-400px-Internationalisation.pdf.jpg',
-            'page1-400px-Internationalisation.pdf.png',
-            400,
-            300,
-            0.93,
-            0.6,
+            mediawiki_reference_thumbnail='page1-400px-Internationalisation.pdf.jpg',
+            perfect_reference_thumbnail='page1-400px-Internationalisation.pdf.png',
+            expected_width=400,
+            expected_height=300,
+            expected_ssim=0.93,
+            size_tolerance=0.6,
         )
 
     def test_pdf_with_out_of_bounds_page(self):
         self.run_and_check_ssim_and_size(
             '/thumbor/unsafe/400x/filters:page(500)/Internationalisation.pdf',
-            'page1-400px-Internationalisation.pdf.jpg',
-            'page1-400px-Internationalisation.pdf.png',
-            400,
-            300,
-            0.92,
-            0.54,
+            mediawiki_reference_thumbnail='page1-400px-Internationalisation.pdf.jpg',
+            perfect_reference_thumbnail='page1-400px-Internationalisation.pdf.png',
+            expected_width=400,
+            expected_height=300,
+            expected_ssim=0.92,
+            size_tolerance=0.54,
         )
         self.run_and_check_ssim_and_size(
             '/thumbor/unsafe/400x/filters:page(500):format(webp)/Internationalisation.pdf',
-            'page1-400px-Internationalisation.pdf.jpg',
-            'page1-400px-Internationalisation.pdf.png',
-            400,
-            300,
-            0.93,
-            0.6,
+            mediawiki_reference_thumbnail='page1-400px-Internationalisation.pdf.jpg',
+            perfect_reference_thumbnail='page1-400px-Internationalisation.pdf.png',
+            expected_width=400,
+            expected_height=300,
+            expected_ssim=0.93,
+            size_tolerance=0.6,
         )
 
     def test_pdf_nonfatal_gs_errors(self):
         """Regression test for T236240"""
         self.run_and_check_ssim_and_size(
             '/thumbor/unsafe/400x/18KOZ-1.pdf',
-            'page1-400px-18KOZ-1.pdf.jpg',
-            'page1-400px-18KOZ-1.pdf.png',
-            400,
-            566,
-            0.9,
-            0.63,
+            mediawiki_reference_thumbnail='page1-400px-18KOZ-1.pdf.jpg',
+            perfect_reference_thumbnail='page1-400px-18KOZ-1.pdf.png',
+            expected_width=400,
+            expected_height=566,
+            expected_ssim=0.9,
+            size_tolerance=0.63,
         )
         self.run_and_check_ssim_and_size(
             '/thumbor/unsafe/400x/filters:format(webp)/18KOZ-1.pdf',
-            'page1-400px-18KOZ-1.pdf.jpg',
-            'page1-400px-18KOZ-1.pdf.png',
-            400,
-            566,
-            0.9,
-            0.6,
+            mediawiki_reference_thumbnail='page1-400px-18KOZ-1.pdf.jpg',
+            perfect_reference_thumbnail='page1-400px-18KOZ-1.pdf.png',
+            expected_width=400,
+            expected_height=566,
+            expected_ssim=0.9,
+            size_tolerance=0.6,
         )
 
     @pytest.mark.usefixtures("inject_fixtures")

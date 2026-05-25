@@ -18,137 +18,137 @@ class WikimediaHttpsLoaderTest(WikimediaTestCase):
     def test_huge_djvu(self):
         self.run_and_check_ssim_and_size(
             '/thumbor/unsafe/400x/filters:page(440)/https://upload.wikimedia.org/wikipedia/commons/e/ef/Zibaldone_di_pensieri_V.djvu',
-            'page440-400px-Zibaldone_di_pensieri_V.djvu.jpg',
-            'page440-400px-Zibaldone_di_pensieri_V.djvu.png',
-            400,
-            712,
-            0.95,
-            1.06
+            mediawiki_reference_thumbnail='page440-400px-Zibaldone_di_pensieri_V.djvu.jpg',
+            perfect_reference_thumbnail='page440-400px-Zibaldone_di_pensieri_V.djvu.png',
+            expected_width=400,
+            expected_height=712,
+            expected_ssim=0.95,
+            size_tolerance=1.06
         )
 
     def test_jpg(self):
         self.run_and_check_ssim_and_size(
             ('/thumbor/unsafe/400x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85)/'
                 'https://upload.wikimedia.org/wikipedia/commons/6/6d/Christophe_Henner_-_June_2016.jpg'),
-            '400px-Christophe_Henner_-_June_2016.jpg',
-            '400px-Christophe_Henner_-_June_2016.png',
-            400,
-            267,
-            0.92,
-            1.02
+            mediawiki_reference_thumbnail='400px-Christophe_Henner_-_June_2016.jpg',
+            perfect_reference_thumbnail='400px-Christophe_Henner_-_June_2016.png',
+            expected_width=400,
+            expected_height=267,
+            expected_ssim=0.92,
+            size_tolerance=1.02
         )
 
     def test_png(self):
         self.run_and_check_ssim_and_size(
             '/thumbor/unsafe/400x/https://upload.wikimedia.org/wikipedia/commons/d/d6/1Mcolors.png',
-            '400px-1Mcolors.png',
-            '400px-1Mcolors.png',
-            400,
-            400,
-            0.99,
-            0.75
+            mediawiki_reference_thumbnail='400px-1Mcolors.png',
+            perfect_reference_thumbnail='400px-1Mcolors.png',
+            expected_width=400,
+            expected_height=400,
+            expected_ssim=0.99,
+            size_tolerance=0.75
         )
 
     def test_tiff(self):
         self.run_and_check_ssim_and_size(
             '/thumbor/unsafe/400x/https://upload.wikimedia.org/wikipedia/commons/0/0e/0729.tiff',
-            'lossy-page1-400px-0729.tiff.jpg',
-            'lossy-page1-400px-0729.tiff.png',
-            400,
-            254,
-            0.97,
-            0.68,
+            mediawiki_reference_thumbnail='lossy-page1-400px-0729.tiff.jpg',
+            perfect_reference_thumbnail='lossy-page1-400px-0729.tiff.png',
+            expected_width=400,
+            expected_height=254,
+            expected_ssim=0.97,
+            size_tolerance=0.68,
         )
 
     def test_multipage_tiff(self):
         self.run_and_check_ssim_and_size(
             '/thumbor/unsafe/400x/filters:page(3)/https://upload.wikimedia.org/wikipedia/commons/2/28/International_Convention_for_Regulation_of_Whaling.tiff',
-            'lossy-page3-400px-International_Convention_for_Regulation_of_Whaling.tiff.jpg',
-            'lossy-page3-400px-International_Convention_for_Regulation_of_Whaling.tiff.png',
-            400,
-            566,
-            0.99,
-            0.8,
+            mediawiki_reference_thumbnail='lossy-page3-400px-International_Convention_for_Regulation_of_Whaling.tiff.jpg',
+            perfect_reference_thumbnail='lossy-page3-400px-International_Convention_for_Regulation_of_Whaling.tiff.png',
+            expected_width=400,
+            expected_height=566,
+            expected_ssim=0.99,
+            size_tolerance=0.8,
         )
 
     def test_multipage_tiff_with_out_of_bounds_page(self):
         self.run_and_check_ssim_and_size(
             '/thumbor/unsafe/400x/filters:page(500)/https://upload.wikimedia.org/wikipedia/commons/2/28/International_Convention_for_Regulation_of_Whaling.tiff',
-            'lossy-page1-400px-International_Convention_for_Regulation_of_Whaling.tiff.jpg',
-            'lossy-page1-400px-International_Convention_for_Regulation_of_Whaling.tiff.png',
-            400,
-            566,
-            0.99,
-            0.77,
+            mediawiki_reference_thumbnail='lossy-page1-400px-International_Convention_for_Regulation_of_Whaling.tiff.jpg',
+            perfect_reference_thumbnail='lossy-page1-400px-International_Convention_for_Regulation_of_Whaling.tiff.png',
+            expected_width=400,
+            expected_height=566,
+            expected_ssim=0.99,
+            size_tolerance=0.77,
         )
 
     def test_svg(self):
         self.run_and_check_ssim_and_size(
             '/thumbor/unsafe/200x/filters:lang(fr):format(png)/https://upload.wikimedia.org/wikipedia/commons/3/39/Speech_bubbles.svg',
-            'langfr-200px-Speech_bubbles.svg.png',
-            'langfr-200px-Speech_bubbles.svg.png',
-            200,
-            148,
-            0.93,
-            0.81
+            mediawiki_reference_thumbnail='langfr-200px-Speech_bubbles.svg.png',
+            perfect_reference_thumbnail='langfr-200px-Speech_bubbles.svg.png',
+            expected_width=200,
+            expected_height=148,
+            expected_ssim=0.93,
+            size_tolerance=0.81
         )
         self.run_and_check_ssim_and_size(
             '/thumbor/unsafe/400x/filters:lang(fr):format(png)/https://upload.wikimedia.org/wikipedia/commons/e/e9/Northumberland_in_England.svg',
-            '400px-Northumberland_in_England.svg.png',
-            '400px-Northumberland_in_England.svg.png',
-            400,
-            486,
-            0.98,
-            0.999
+            mediawiki_reference_thumbnail='400px-Northumberland_in_England.svg.png',
+            perfect_reference_thumbnail='400px-Northumberland_in_England.svg.png',
+            expected_width=400,
+            expected_height=486,
+            expected_ssim=0.98,
+            size_tolerance=0.999
         )
 
     def test_pdf(self):
         self.run_and_check_ssim_and_size(
             '/thumbor/unsafe/400x/filters:page(19)/https://upload.wikimedia.org/wikipedia/commons/d/dc/Jeremy_Bentham%2C_A_Fragment_on_Government_(1891).pdf',
-            'page19-400px-Jeremy_Bentham.pdf.jpg',
-            'page19-400px-Jeremy_Bentham.pdf.png',
-            400,
-            673,
-            0.96,
-            0.55,
+            mediawiki_reference_thumbnail='page19-400px-Jeremy_Bentham.pdf.jpg',
+            perfect_reference_thumbnail='page19-400px-Jeremy_Bentham.pdf.png',
+            expected_width=400,
+            expected_height=673,
+            expected_ssim=0.96,
+            size_tolerance=0.55,
         )
 
     def test_xcf(self):
         self.run_and_check_ssim_and_size(
             '/thumbor/unsafe/400x/filters:format(png)/https://upload.wikimedia.org/wikipedia/commons/8/86/Janus.xcf',
-            '400px-Janus.xcf.png',
-            '400px-Janus.xcf.png',
-            400,
-            431,
+            mediawiki_reference_thumbnail='400px-Janus.xcf.png',
+            perfect_reference_thumbnail='400px-Janus.xcf.png',
+            expected_width=400,
+            expected_height=431,
             # Compression/sharpening artifacts explain the SSIM difference, but
             # it's impossible to say when eyeballing if one if higher quality
             # than the other
-            0.92,
-            1.01
+            expected_ssim=0.92,
+            size_tolerance=1.01
         )
 
     def test_gif(self):
         self.run_and_check_ssim_and_size(
             '/thumbor/unsafe/300x/https://upload.wikimedia.org/wikipedia/commons/f/fb/Pacific-Electric-Red-Cars-Awaiting-Destruction.gif',
-            '300px-Pacific-Electric-Red-Cars-Awaiting-Destruction.gif',
-            '300px-Pacific-Electric-Red-Cars-Awaiting-Destruction.gif',
-            300,
-            187,
-            0.98,
-            1.11
+            mediawiki_reference_thumbnail='300px-Pacific-Electric-Red-Cars-Awaiting-Destruction.gif',
+            perfect_reference_thumbnail='300px-Pacific-Electric-Red-Cars-Awaiting-Destruction.gif',
+            expected_width=300,
+            expected_height=187,
+            expected_ssim=0.98,
+            size_tolerance=1.11
         )
 
     def test_question_mark_original(self):
         self.run_and_check_ssim_and_size(
             '/thumbor/unsafe/300x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85)/https://upload.wikimedia.org/wikipedia/commons/'
             + 'c/c4/Interieur,_overzicht_tijdens_restauratie_%28%3F%29_-_Rolduc_-_20357536_-_RCE.jpg',
-            '300px-Interieur.jpg',
-            '300px-Interieur.png',
-            300,
-            299,
+            mediawiki_reference_thumbnail='300px-Interieur.jpg',
+            perfect_reference_thumbnail='300px-Interieur.png',
+            expected_width=300,
+            expected_height=299,
             # HACK: drop ssim and size threshold significantly to unblock
             # updates to openjpeg, which significantly changes the
             # output image here
-            0.8,
-            1.2
+            expected_ssim=0.8,
+            size_tolerance=1.2
         )
