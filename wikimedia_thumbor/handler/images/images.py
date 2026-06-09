@@ -81,6 +81,10 @@ def _error(self, status, msg=None):
             logger.warn(msg, extra=log_extra(self.context.request.url))
         except AttributeError:
             logger.warn(msg)
+        # Set a response body so clients (and intermediaries) get a
+        # human-readable explanation rather than an empty error response.
+        self.set_header('Content-Type', 'text/plain; charset=UTF-8')
+        self.write(msg)
     self.finish()
 
 
