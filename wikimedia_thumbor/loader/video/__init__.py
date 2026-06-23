@@ -99,7 +99,11 @@ def _http_code_from_stderr(context, process, result, normalized_url):
     result.successful = False
 
     stderr = bytearray(4096)
-    process.stderr.read_from_fd(stderr)
+    nread = process.stderr.read_from_fd(stderr)
+    # read_from_fd writes into the buffer but doesn't resize it; truncate to
+    # the number of bytes actually read so we don't log thousands of trailing
+    # null bytes.
+    stderr = stderr[:nread] if nread else bytearray()
 
     extra = log_extra(context)
     extra['stderr'] = stderr
@@ -109,7 +113,6 @@ def _http_code_from_stderr(context, process, result, normalized_url):
     http_error_re = re.compile(r'.*Server returned (\d\d\d).*', re.MULTILINE)
     code = None
     for stderr_line in stderr.decode('utf-8').split("\n"):
-        logger.error("got code")
         code_match = http_error_re.match(stderr_line)
         if code_match:
             code = code_match
