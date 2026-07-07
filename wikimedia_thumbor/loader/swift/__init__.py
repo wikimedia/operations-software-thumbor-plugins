@@ -12,7 +12,6 @@
 # Swift loader. Streams objects from Swift with auth
 
 import datetime
-import logging
 import requests
 from functools import partial
 from tempfile import NamedTemporaryFile
@@ -28,10 +27,6 @@ from wikimedia_thumbor.shell_runner import ShellRunner
 from wikimedia_thumbor.logging import record_timing, log_extra
 
 
-swiftconn = None
-swiftconn_private = None
-
-
 def should_run(url):  # pragma: no cover
     return True
 
@@ -42,16 +37,6 @@ def cleanup_temp_file(context, path):
 
 
 def swift(context):
-    global swiftconn, swiftconn_private
-
-    if context.private:
-        if swiftconn_private:
-            logging.debug("Returning private connection for swift loader")
-            return swiftconn_private
-    else:
-        if swiftconn:
-            return swiftconn
-
     authurl = (
         context.config.SWIFT_HOST +
         context.config.SWIFT_AUTH_PATH
@@ -74,12 +59,6 @@ def swift(context):
         os_options=os_options
     )
 
-    if context.private:
-        logging.debug("Setting private connection for swift loader")
-        swiftconn_private = conn
-    else:
-        swiftconn = conn
-
     return conn
 
 
@@ -100,7 +79,9 @@ async def load(context, url):
         start = datetime.datetime.now()
 
         # logging.disable(logging.ERROR)
-        headers, response = swift(context).get_object(
+        headers, response = await tornado.ioloop.IOLoop.instance().run_in_executor(
+            None,
+            swift(context).get_object,
             container,
             path
         )
