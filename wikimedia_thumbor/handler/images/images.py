@@ -451,7 +451,7 @@ class ImagesHandler(ImagingHandler):
 
             logging.debug(f"[MEMCACHED] Checking limit for {kw['filename']} using memcache key {key}")
             start = datetime.datetime.now()
-            counter = mc.get(key)
+            counter = await tornado.ioloop.IOLoop.instance().run_in_executor(None, mc.get, key)
             record_timing(self.context, datetime.datetime.now() - start, 'memcache.get', 'Thumbor-Memcache-Get-Time')
             if counter:
                 logging.debug(f"[MEMCACHED] Got value of {int(counter)} for {kw['filename']} using mc key {key}")
