@@ -10,7 +10,9 @@
 import datetime
 import logging
 import random
+from functools import partial
 
+import tornado.ioloop
 from swiftclient import client
 from swiftclient.exceptions import ClientException
 
@@ -21,19 +23,8 @@ from wikimedia_thumbor.logging import record_timing, log_extra
 
 
 class Storage(BaseStorage):
-    swiftconn = None
-    swiftconn_private = None
-
     @property
     def swift(self):
-        if self.context.private:
-            if Storage.swiftconn_private:
-                logging.debug("Returning private connection for result storage")
-                return Storage.swiftconn_private
-        else:
-            if Storage.swiftconn:
-                return Storage.swiftconn
-
         authurl = (
             self.context.config.SWIFT_HOST +
             self.context.config.SWIFT_AUTH_PATH
@@ -58,9 +49,6 @@ class Storage(BaseStorage):
 
         if self.context.private:
             logging.debug("Setting private connection for result storage")
-            Storage.swiftconn_private = conn
-        else:
-            Storage.swiftconn = conn
 
         return conn
 
@@ -106,12 +94,17 @@ class Storage(BaseStorage):
             content_type = content_type[0] if len(content_type) else None
 
             start = datetime.datetime.now()
-            self.swift.put_object(
-                self.context.wikimedia_thumbnail_container,
-                self.context.wikimedia_thumbnail_save_path,
-                bytes,
-                headers=headers,
-                content_type=content_type
+
+            await tornado.ioloop.IOLoop.current().run_in_executor(
+                None,  # Uses the default ThreadPoolExecutor
+                partial(
+                    self.swift.put_object,
+                    self.context.wikimedia_thumbnail_container,
+                    self.context.wikimedia_thumbnail_save_path,
+                    bytes,
+                    headers=headers,
+                    content_type=content_type,
+                ),
             )
             record_timing(self.context, datetime.datetime.now() - start, 'swift.thumbnail.write.success')
 
