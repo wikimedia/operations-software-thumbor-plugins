@@ -112,6 +112,11 @@ class WikimediaPdfTest(WikimediaTestCase):
             size_tolerance=0.6,
         )
 
+    def test_pdf_gif_disallowed(self):
+        result = self.fetch('/thumbor/unsafe/filters:format(gif)/Internationalisation.pdf')
+        assert result is not None, 'No result'
+        assert result.code == 400, 'Response code: %s' % result.code
+
     @pytest.mark.usefixtures("inject_fixtures")
     def test_gs_commanderror_raise(self):
         with self.caplog.at_level(logging.ERROR):
