@@ -142,7 +142,10 @@ variants:
         - Makefile
     python:
       requirements: [requirements.txt]
-    runs: { insecurely: true }
+    runs:
+      insecurely: true
+      environment:
+        IN_DOCKER: "true"
   test:
     python:
       requirements: [requirements.txt, requirements-dev.txt]

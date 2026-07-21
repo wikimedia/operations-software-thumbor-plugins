@@ -6,7 +6,7 @@ More info about Thumbor Plugins - https://wikitech.wikimedia.org/wiki/Thumbor
 ## Quick setup for local development
 
 1. Clone this repository
-2. Install Docker - https://www.docker.com
+2. Install [Docker](https://www.docker.com) and Docker Compose version 2.
 3. In the project folder create configuration file **thumbor.conf** with extensions or other options that you want to use, see example below:
 ```ini
 FILE_LOADER_ROOT_PATH = '/srv/service/tests/integration/originals'
@@ -80,26 +80,49 @@ FILTERS = [
 More information about configuration options you could find in the Thumbor docs - https://thumbor.readthedocs.io/en/latest/configuration.html
 Also, you can use the current Thumbor Plugins configurations that are used in the production, this can help to set up pretty much the same environment as in the production version - https://gerrit.wikimedia.org/r/plugins/gitiles/operations/deployment-charts/+/refs/heads/master/charts/thumbor/templates/_thumbor_server.tpl
 
-## Important check before building and running the project
+## Installation and running
 
-Please make sure the version of your docker compose is recent enough to build the project; we would recommend using from v3
+To build and start the Thumbor server:
 
-## Run project and tests
-
-1. Build and run project:
 ```bash
-make build
+$ make build
 ```
+
 After starting the project you should be able to access the application at http://localhost:8800
-Healthcheck of Thumbor custom application at http://localhost:8800/healthcheck
-To understand how to make requests to the local Thumbor server, it will be useful to learn how tests work. For instance, here is the link which returns a cropped image - http://localhost:8800/thumbor/unsafe/450x/Carrie.jpg For this case, the minimal Thumbor configurations that are mentioned above will be enough.
-2. Run both flake8 linter and all tests:
-It requires an internet connection because there are test cases that make HTTP requests to third-party services.
+There is also a healthcheck of the Thumbor custom application at http://localhost:8800/healthcheck
+To understand how to make requests to the local Thumbor server, it will be useful to learn how tests work.
+For instance, here is the link which returns a cropped image: http://localhost:8800/thumbor/unsafe/450x/Carrie.jpg
+For this case, the minimal Thumbor configurations that are mentioned above will be enough.
+
+In addition to `build`, the `up` and `down` targets can be used to start and stop the project,
+and `bash` will get you a shell inside the container.
+
 ```bash
-make docker_test
+$ make up
+$ make down
+$ make bash
 ```
-3. Run code coverage:
+
+## Running tests
+
+To run all tests and linting:
+
 ```bash
-make docker_code-coverage
+$ make docker_test
 ```
-When the thumbor-code-coverage container will finish its work, you can see the HTML code coverage report by opening the following file *coverage/index.html* in a browser.
+
+Note that this requires an internet connection because there are test cases that make HTTP requests to third-party services.
+To run only the online or offline tests, the following targets can be used:
+
+```bash
+$ make docker_online-test
+$ make docker_offline-test
+```
+
+Run code coverage:
+```bash
+$ make docker_code-coverage
+```
+
+When the thumbor-code-coverage container finishes its work,
+you can see the HTML code coverage report by opening `coverage/index.html` in a browser.
