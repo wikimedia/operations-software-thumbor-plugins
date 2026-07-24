@@ -147,16 +147,7 @@ variants:
     python:
       requirements: [requirements.txt, requirements-dev.txt]
     includes: [build]
-    entrypoint: [make, test]
-  offline-test:
-    includes: [test]
-    entrypoint: [make, offline-test]
-  online-test:
-    includes: [test]
-    entrypoint: [make, online-test]
-  code-coverage:
-    includes: [test]
-    entrypoint: [make, code-coverage]
+    entrypoint: [make]
   prep:
     includes: [build]
     node: { env: prep }
