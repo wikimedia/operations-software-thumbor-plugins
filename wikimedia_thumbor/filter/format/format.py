@@ -27,6 +27,13 @@ ALLOWED_CONVERSIONS = {
     'png': {'png', 'webp'},
     'gif': {'gif', 'png', 'webp'},
     'webp': {'webp', 'png'},
+    # Disallow all audio formats.
+    'ogg': {},
+    'oga': {},
+    'wav': {},
+    'flac': {},
+    'mp3': {},
+    'midi': {},
 }
 
 
@@ -40,6 +47,8 @@ class Filter(BaseFilter):
         format_in = PurePosixPath(urlpath).suffix.lower().lstrip(".")
         if format_in == 'jpeg':
             format_in = 'jpg'
+        if format_in == 'mid':
+            format_in = 'midi'
         # Normalise the requested format.
         format_out = format.lower()
         if format_out in ('jpe', 'jpeg'):
