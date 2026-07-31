@@ -110,6 +110,7 @@ class Engine(BaseEngine):
             'ImageSize',
             'ProfileDescription',
             'ColorType',
+            'WebP_Flags',
             'FileType',
             'Transparency'
         ]
@@ -398,13 +399,15 @@ class Engine(BaseEngine):
             target_size
         ]
 
-        # T198370 "-background none" is necessary to preserve transparency of PNG thumbnails
-        # on the Debian Jessie version of IM (6.8.9-9). Only apply to RGBA and Palette (indexed)
+        # T198370 T283646 "-background none" is necessary to preserve transparency of PNG and WEBP thumbnails.
+        # Only apply to RGBA and Palette (indexed)
         # PNGs, because otherwise it would turn thumbnails of RGB PNGs into RGBA, thumbnails
         # increasing their file size significantly.
-        if ('ColorType' in self.exif_dict
-            and self.exif_dict['ColorType'] in ['RGB with Alpha', 'Grayscale with Alpha', 'Palette']) \
-                or 'Transparency' in self.exif_dict:
+        if (
+            ( 'WebP_Flags' in self.exif_dict and 'Alpha' in self.exif_dict['WebP_Flags'] )
+            or ( 'ColorType' in self.exif_dict and self.exif_dict['ColorType'] in ['RGB with Alpha', 'Grayscale with Alpha', 'Palette'] )
+            or 'Transparency' in self.exif_dict
+        ):
             operators += ['-background', 'none']
 
         self.queue_operators(operators)
