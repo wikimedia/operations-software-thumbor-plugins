@@ -1,10 +1,10 @@
 # syntax=docker-registry.wikimedia.org/repos/releng/blubber/buildkit:v1.8.0
 # dummy date of last forced rebuild: 2026-06-24
 version: v4
-base: docker-registry.wikimedia.org/python3-build-bookworm
+base: docker-registry.wikimedia.org/python3-build-trixie
 apt:
   packages:
-    - python3.11-venv
+    - python3.13-venv
     - ca-certificates
     - djvulibre-bin
     - exiftool
@@ -12,11 +12,8 @@ apt:
     - ghostscript
     - gifsicle
     - imagemagick
-    - imagemagick-6.q16
-    - libmagickcore-6.q16-6
-    - libmagickcore-6.q16-6
-    - libmagickwand-6.q16-6
-    - libboost-python1.74.0
+    - imagemagick-7.q16
+    - libboost-python1.83.0
     - exiv2
     - libgl1-mesa-dri
     - libjpeg-turbo-progs
@@ -31,14 +28,14 @@ apt:
     - xvfb # 3d2png
     - python-is-python3 # 3d2png
       # begin mediawiki::packages::fonts
-    - culmus
-    - culmus-fancy
     - fonts-alee
     - fonts-ancient-scripts
     - fonts-arabeyes
     - fonts-arphic-ukai
     - fonts-arphic-uming
     - fonts-beng
+    - fonts-culmus
+    - fonts-culmus-fancy
     - fonts-crosextra-caladea
     - fonts-crosextra-carlito
     - fonts-dejavu-core
@@ -51,7 +48,7 @@ apt:
     - fonts-hosny-amiri
     - fonts-ipafont-gothic
     - fonts-ipafont-mincho
-    - fonts-kacst
+    - fonts-kacst-one
     - fonts-khmeros
     - fonts-knda
     - fonts-lao
