@@ -27,8 +27,8 @@ ALLOWED_CONVERSIONS = {
     'png': {'png', 'webp'},
     'gif': {'gif', 'png', 'webp'},
     'webp': {'webp', 'png'},
-    # Disallow all audio formats.
-    'ogg': {},
+    'ogg': {'png', 'jpg', 'webp'},
+    # Disallow all other audio formats.
     'oga': {},
     'wav': {},
     'flac': {},
