@@ -1,3 +1,8 @@
+import os.path
+from unittest.mock import patch
+
+from wikimedia_thumbor.shell_runner import ShellRunner
+
 from . import WikimediaTestCase
 
 
@@ -163,3 +168,35 @@ class WikimediaSvgTest(WikimediaTestCase):
             size_tolerance=1.5,
             headers={"lang": "az"}
         )
+
+    def test_lang_variant_not_stripped(self):
+        # Ensure that language codes get passed to rsvg-convert properly
+        commands = []
+        original_popen = ShellRunner.popen
+
+        def record_popen(command, context, env=None):
+            commands.append(command)
+            return original_popen(command, context, env)
+
+        with patch.object(ShellRunner, 'popen', record_popen):
+            result = self.fetch(
+                '/thumbor/unsafe/200x/filters:lang(sr-latn):format(png)/Speech_bubbles.svg'
+            )
+
+        assert result.code == 200, 'Response code: %s' % result.code
+
+        rsvg_commands = [
+            command for command in commands
+            if os.path.basename(command[0]) == 'rsvg-convert'
+        ]
+
+        assert rsvg_commands, 'rsvg-convert was never called: %r' % commands
+
+        for command in rsvg_commands:
+            assert '--accept-language' in command, \
+                'No language passed to rsvg-convert: %r' % command
+
+            passed_lang = command[command.index('--accept-language') + 1]
+
+            assert passed_lang == 'sr-latn', \
+                'Language tag altered: %s (should be sr-latn)' % passed_lang

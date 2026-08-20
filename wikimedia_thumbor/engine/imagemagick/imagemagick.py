@@ -404,8 +404,8 @@ class Engine(BaseEngine):
         # PNGs, because otherwise it would turn thumbnails of RGB PNGs into RGBA, thumbnails
         # increasing their file size significantly.
         if (
-            ( 'WebP_Flags' in self.exif_dict and 'Alpha' in self.exif_dict['WebP_Flags'] )
-            or ( 'ColorType' in self.exif_dict and self.exif_dict['ColorType'] in ['RGB with Alpha', 'Grayscale with Alpha', 'Palette'] )
+            ('WebP_Flags' in self.exif_dict and 'Alpha' in self.exif_dict['WebP_Flags'])
+            or ('ColorType' in self.exif_dict and self.exif_dict['ColorType'] in ['RGB with Alpha', 'Grayscale with Alpha', 'Palette'])
             or 'Transparency' in self.exif_dict
         ):
             operators += ['-background', 'none']

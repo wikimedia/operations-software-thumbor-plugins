@@ -76,6 +76,8 @@ apt:
     - fonts-sil-nuosusil
     - fonts-sil-padauk
     - fonts-sil-scheherazade
+    - fonts-sil-charis
+    - fonts-sil-doulos
     - fonts-smc
     - fonts-symbola
     - fonts-takao-gothic
@@ -87,6 +89,7 @@ apt:
     - fonts-tibetan-machine
     - fonts-unfonts-core
     - fonts-unfonts-extra
+    - fonts-uralic
     - fonts-vlgothic
     - fonts-wqy-zenhei
     - texlive-fonts-recommended
