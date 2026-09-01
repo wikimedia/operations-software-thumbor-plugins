@@ -14,7 +14,6 @@ from time import mktime
 import datetime
 import json
 import hashlib
-import logging
 import memcache
 import random
 import tornado.ioloop
@@ -49,12 +48,12 @@ def _error(self, status, msg=None):
 
         counter = mc.get(key)
         if not counter:
-            logging.debug(f"[MEMCACHED] Setting new counter for {self.context.request.url} at {key}")
+            logger.debug(f"[MEMCACHED] Setting new counter for {self.context.request.url} at {key}", extra=log_extra(self.context))
             # We add randomness to the expiry to avoid stampedes
             duration = self.context.config.get('FAILURE_THROTTLING_DURATION', 3600)
             mc.set(key, '1', duration + random.randint(0, 300))
         else:
-            logging.debug(f"[MEMCACHED] Incrementing counter for {self.context.request.url} at {key}")
+            logger.debug(f"[MEMCACHED] Incrementing counter for {self.context.request.url} at {key}", extra=log_extra(self.context))
             mc.incr(key)
 
         record_timing(self.context, datetime.datetime.now() - start, 'memcache.set', 'Thumbor-Memcache-Set-Time')
@@ -77,10 +76,7 @@ def _error(self, status, msg=None):
     self.set_status(status, msg)
 
     if msg is not None:
-        try:
-            logger.warn(msg, extra=log_extra(self.context.request.url))
-        except AttributeError:
-            logger.warn(msg)
+        logger.warning(msg, extra=log_extra(self.context))
         # Set a response body so clients (and intermediaries) get a
         # human-readable explanation rather than an empty error response.
         self.set_header('Content-Type', 'text/plain; charset=UTF-8')
@@ -90,14 +86,17 @@ def _error(self, status, msg=None):
 
 def _mc(self):
     if not hasattr(self.context.config, 'FAILURE_THROTTLING_MEMCACHE'):
-        logging.debug("[MEMCACHED] No config defined, not using memcache")
+        logger.debug("[MEMCACHED] No config defined, not using memcache", extra=log_extra(self.context))
         return False
 
     if hasattr(self, 'failure_mc'):
 
         dead_servers = all([i._check_dead() for i in self.failure_mc.servers])
         if dead_servers:
-            logging.error("[MEMCACHED] Returning client object when all servers are marked dead")
+            logger.error(
+                "[MEMCACHED] Returning client object when all servers are marked dead",
+                extra=log_extra(self.context)
+            )
 
         return self.failure_mc
 
@@ -231,7 +230,7 @@ class ImagesHandler(ImagingHandler):
 
         self.context.private = original_container in private_containers
         if self.context.private:
-            logging.debug("Image %s is in a private container", kw["filename"])
+            logger.debug("Image %s is in a private container", kw["filename"], extra=log_extra(self.context))
 
         # Temp is different from any other case. Originals are thumbnails are
         # stored alongside each other in the same container. The hash prefix
@@ -256,7 +255,7 @@ class ImagesHandler(ImagingHandler):
             # in MediaWiki's codebase for the logic that sets the privacy level
             # of Swift containers.
             self.context.private = True
-            logging.debug("Image %s is in a temp path, setting private", kw["filename"])
+            logger.debug("Image %s is in a temp path, setting private", kw["filename"], extra=log_extra(self.context))
 
         if original_container in sharded_containers:
             original_container += '.' + original_shard2
@@ -449,17 +448,17 @@ class ImagesHandler(ImagingHandler):
         if mc and xkey:
             key = self._mc_encode_key(xkey)
 
-            logging.debug(f"[MEMCACHED] Checking limit for {kw['filename']} using memcache key {key}")
+            logger.debug(f"[MEMCACHED] Checking limit for {kw['filename']} using memcache key {key}", extra=log_extra(self.context))
             start = datetime.datetime.now()
             counter = await tornado.ioloop.IOLoop.instance().run_in_executor(None, mc.get, key)
             record_timing(self.context, datetime.datetime.now() - start, 'memcache.get', 'Thumbor-Memcache-Get-Time')
             if counter:
-                logging.debug(f"[MEMCACHED] Got value of {int(counter)} for {kw['filename']} using mc key {key}")
+                logger.debug(f"[MEMCACHED] Got value of {int(counter)} for {kw['filename']} using mc key {key}", extra=log_extra(self.context))
             else:
-                logging.debug(f"[MEMCACHED] Counter is NoneType for {kw['filename']} using mc key {key}")
+                logger.debug(f"[MEMCACHED] Counter is NoneType for {kw['filename']} using mc key {key}", extra=log_extra(self.context))
 
             if counter and int(counter) >= self.context.config.get('FAILURE_THROTTLING_MAX', 4):
-                logging.debug(f"[MEMCACHED] Hit failure throttling limit for {kw['filename']} using mc key {key}")
+                logger.debug(f"[MEMCACHED] Hit failure throttling limit for {kw['filename']} using mc key {key}", extra=log_extra(self.context))
                 self.context.metrics.incr('memcached.throttled')
                 self._error(
                     429,
@@ -467,7 +466,7 @@ class ImagesHandler(ImagingHandler):
                 )
                 return
         elif mc and not xkey:
-            logging.debug(f"[MEMCACHED] Couldn't increment {kw['filename']} because xkey was missing")
+            logger.debug(f"[MEMCACHED] Couldn't increment {kw['filename']} because xkey was missing", extra=log_extra(self.context))
 
         if self.context.config.MAX_ID_LENGTH > 0:
             # Check if an image with an uuid exists in storage
@@ -565,7 +564,7 @@ class ImagesHandler(ImagingHandler):
         if cfg:
             ff = self.request.headers.get('X-Forwarded-For', False)
             if not ff:
-                logger.warn('[ImagesHandler] No X-Forwarded-For header in request, cannot throttle per IP')
+                logger.warning('[ImagesHandler] No X-Forwarded-For header in request, cannot throttle per IP')
             else:
                 ff = ff.split(', ')[0]
                 throttled = await self.poolcounter_throttle_key('thumbor-ip-%s' % ff, cfg)

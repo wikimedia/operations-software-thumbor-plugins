@@ -8,7 +8,6 @@
 # Stores results in Swift via HTTP
 
 import datetime
-import logging
 import random
 from functools import partial
 
@@ -48,7 +47,7 @@ class Storage(BaseStorage):
         )
 
         if self.context.private:
-            logging.debug("Setting private connection for result storage")
+            logger.debug("Setting private connection for result storage", extra=log_extra(self.context))
 
         return conn
 
