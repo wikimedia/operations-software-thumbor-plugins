@@ -142,9 +142,20 @@ variants:
         - libxi-dev
     copies: [local]
     builder:
-      command: [make, 3d2png]
+      command: [make, install]
       requirements:
         - Makefile
+        - pyproject.toml
+        - README.md
+        - LICENSE
+        # Needs an explicit destination: a bare `- wikimedia_thumbor` is
+        # grouped by its parent directory and becomes `COPY wikimedia_thumbor
+        # ./`, which spills the package's *contents* into /srv/service. That
+        # leaves a /srv/service/logging that shadows the stdlib one, since
+        # /srv/service is on PYTHONPATH in the dev variant.
+        - from: local
+          source: wikimedia_thumbor
+          destination: wikimedia_thumbor/
     python:
       requirements: [requirements.txt]
     runs:

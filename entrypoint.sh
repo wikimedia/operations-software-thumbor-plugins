@@ -1,11 +1,5 @@
 #!/bin/bash
-# Script to inject service directory into PYTHONPATH in Docker -
-# currently Blubber will set PYTHONPATH immediately before running the
-# entrypoint, overriding PYTHONPATH if set via the `runs.environment`
-# parameter in blubber.yaml.
-# Thumbor uses importlib to import custom applications
-# like ours and it will not look in the cwd, it will only obey
-# PYTHONPATH.
+# wikimedia_thumbor is pip-installed into the image's venv, so Thumbor's
+# importlib-based extension loading finds it without any PYTHONPATH juggling.
 
-export PYTHONPATH="/srv/service:/opt/lib/python/site-packages"
 /opt/lib/venv/bin/thumbor --port 8800 --conf=thumbor.conf -a wikimedia_thumbor.app.App

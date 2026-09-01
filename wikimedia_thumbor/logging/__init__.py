@@ -1,5 +1,18 @@
-import pkg_resources
 import math
+from importlib.metadata import PackageNotFoundError, version
+
+
+def _distribution_version(name):
+    try:
+        return version(name)
+    except PackageNotFoundError:
+        return None
+
+
+# Looked up once at import time: log_extra() runs on every single debug log
+# line, and resolving distribution metadata hits the filesystem.
+THUMBOR_VERSION = _distribution_version('thumbor')
+WIKIMEDIA_THUMBOR_VERSION = _distribution_version('wikimedia_thumbor')
 
 
 def record_timing(context, duration, statsd_key, header_name=None):
@@ -31,20 +44,10 @@ def log_extra(context):
     except AttributeError:
         request_id = None
 
-    try:
-        thumbor_version = pkg_resources.get_distribution('thumbor').version
-    except pkg_resources.DistributionNotFound:
-        thumbor_version = None
-
-    try:
-        wikimedia_thumbor_version = pkg_resources.get_distribution('wikimedia_thumbor').version
-    except pkg_resources.DistributionNotFound:
-        wikimedia_thumbor_version = None
-
     extras = {
         'url': url,
         'thumbor-request-id': request_id,
-        'thumbor-version': thumbor_version,
-        'wikimedia-thumbor-version': wikimedia_thumbor_version
+        'thumbor-version': THUMBOR_VERSION,
+        'wikimedia-thumbor-version': WIKIMEDIA_THUMBOR_VERSION
     }
     return extras

@@ -69,3 +69,11 @@ bash:
 	git clone https://github.com/wikimedia/3d2png.git
 	cd 3d2png; npm install
 	ln -s /srv/service/3d2png/3d2png.js /opt/lib/venv/bin/3d2png
+
+# Build-time setup for the Docker image: fetch 3d2png and install this package
+# into the image's venv. The install is editable so the distribution metadata
+# resolves against /srv/service, which is where `copies: [local]` puts the
+# source in the final image -- this is what used to be done by exporting
+# PYTHONPATH in the entrypoints.
+install: 3d2png
+	pip install --no-deps -e .
