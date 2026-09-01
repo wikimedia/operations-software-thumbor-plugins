@@ -49,6 +49,7 @@ class WikimediaTestCase(AsyncHTTPTestCase):
         cfg.RSVG_CONVERT_PATH = which('rsvg-convert')
         cfg.THREED2PNG_PATH = which('3d2png')
         cfg.XVFB_RUN_PATH = which('xvfb-run')
+        cfg.MAGICK_PATH = which('magick')
         cfg.CONVERT_PATH = which('convert')
         cfg.CWEBP_PATH = which('cwebp')
         timeout = which(

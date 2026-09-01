@@ -30,7 +30,7 @@ DDJVU_PATH = '/usr/bin/ddjvu'
 RSVG_CONVERT_PATH = '/usr/bin/rsvg-convert'
 THREED2PNG_PATH = '/opt/lib/python/site-packages/bin/3d2png'
 XVFB_RUN_PATH = '/usr/bin/xvfb-run'
-CONVERT_PATH = '/usr/bin/convert'
+MAGICK_PATH = '/usr/bin/magick'  # ImageMagick 7; CONVERT_PATH is the deprecated fallback
 CWEBP_PATH = '/usr/bin/cwebp'
 SUBPROCESS_TIMEOUT_PATH = '/usr/bin/timeout'
 
