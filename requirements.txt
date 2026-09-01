@@ -2,7 +2,7 @@ pillow==12.3.0
 thumbor==7.8.0
 python-swiftclient==4.10.0
 manhole==1.8.1
-python-memcached==1.62
+pymemcache==4.0.0
 webcolors==1.13
 pyssim==0.7.1
 urllib3==2.7.0

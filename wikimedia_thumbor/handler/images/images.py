@@ -14,9 +14,10 @@ from time import mktime
 import datetime
 import json
 import hashlib
-import memcache
 import random
 import tornado.ioloop
+
+from pymemcache.client.hash import HashClient
 
 from thumbor.context import RequestParameters
 from thumbor.handlers import BaseHandler
@@ -46,15 +47,15 @@ def _error(self, status, msg=None):
 
         start = datetime.datetime.now()
 
-        counter = mc.get(key)
+        counter = _counter_value(mc.get(key))
         if not counter:
             logger.debug(f"[MEMCACHED] Setting new counter for {self.context.request.url} at {key}", extra=log_extra(self.context))
             # We add randomness to the expiry to avoid stampedes
             duration = self.context.config.get('FAILURE_THROTTLING_DURATION', 3600)
-            mc.set(key, '1', duration + random.randint(0, 300))
+            mc.set(key, b'1', expire=duration + random.randint(0, 300))
         else:
             logger.debug(f"[MEMCACHED] Incrementing counter for {self.context.request.url} at {key}", extra=log_extra(self.context))
-            mc.incr(key)
+            mc.incr(key, 1)
 
         record_timing(self.context, datetime.datetime.now() - start, 'memcache.set', 'Thumbor-Memcache-Set-Time')
 
@@ -84,15 +85,33 @@ def _error(self, status, msg=None):
     self.finish()
 
 
+def _counter_value(raw):
+    """Decode a failure counter read out of memcached.
+
+    pymemcache hands back raw bytes rather than the str python-memcached
+    used to reconstruct from its flags, and a corrupt value must not take
+    down a thumbnail request.
+    """
+    if raw is None:
+        return None
+
+    try:
+        return int(raw)
+    except (TypeError, ValueError):
+        return None
+
+
 def _mc(self):
     if not hasattr(self.context.config, 'FAILURE_THROTTLING_MEMCACHE'):
         logger.debug("[MEMCACHED] No config defined, not using memcache", extra=log_extra(self.context))
         return False
 
-    if hasattr(self, 'failure_mc'):
+    servers = self.context.config.FAILURE_THROTTLING_MEMCACHE
 
-        dead_servers = all([i._check_dead() for i in self.failure_mc.servers])
-        if dead_servers:
+    if hasattr(self, 'failure_mc'):
+        dead_servers = self.failure_mc._dead_clients
+
+        if dead_servers and len(dead_servers) == len(servers):
             logger.error(
                 "[MEMCACHED] Returning client object when all servers are marked dead",
                 extra=log_extra(self.context)
@@ -100,7 +119,11 @@ def _mc(self):
 
         return self.failure_mc
 
-    self.failure_mc = memcache.Client(self.context.config.FAILURE_THROTTLING_MEMCACHE, debug=1)
+    self.failure_mc = HashClient(
+        servers,
+        ignore_exc=True,
+        dead_timeout=30,
+    )
     return self.failure_mc
 
 
@@ -450,14 +473,16 @@ class ImagesHandler(ImagingHandler):
 
             logger.debug(f"[MEMCACHED] Checking limit for {kw['filename']} using memcache key {key}", extra=log_extra(self.context))
             start = datetime.datetime.now()
-            counter = await tornado.ioloop.IOLoop.instance().run_in_executor(None, mc.get, key)
+            counter = _counter_value(
+                await tornado.ioloop.IOLoop.instance().run_in_executor(None, mc.get, key)
+            )
             record_timing(self.context, datetime.datetime.now() - start, 'memcache.get', 'Thumbor-Memcache-Get-Time')
             if counter:
-                logger.debug(f"[MEMCACHED] Got value of {int(counter)} for {kw['filename']} using mc key {key}", extra=log_extra(self.context))
+                logger.debug(f"[MEMCACHED] Got value of {counter} for {kw['filename']} using mc key {key}", extra=log_extra(self.context))
             else:
                 logger.debug(f"[MEMCACHED] Counter is NoneType for {kw['filename']} using mc key {key}", extra=log_extra(self.context))
 
-            if counter and int(counter) >= self.context.config.get('FAILURE_THROTTLING_MAX', 4):
+            if counter and counter >= self.context.config.get('FAILURE_THROTTLING_MAX', 4):
                 logger.debug(f"[MEMCACHED] Hit failure throttling limit for {kw['filename']} using mc key {key}", extra=log_extra(self.context))
                 self.context.metrics.incr('memcached.throttled')
                 self._error(
