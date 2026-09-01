@@ -17,7 +17,6 @@ from functools import partial
 import os
 import re
 import subprocess
-import math
 
 from thumbor.utils import logger
 from wikimedia_thumbor.logging import log_extra
@@ -51,18 +50,6 @@ class ShellRunner:
         return command
 
     @classmethod
-    def preexec(cls, context):  # pragma: no cover
-        if not getattr(context.config, "SUBPROCESS_CGROUP_TASKS_PATH", False):
-            return
-
-        pid = os.getpid()
-
-        cls.debug(context, "[ShellRunner] Adding pid %r to cgroup" % pid)
-
-        with open(context.config.SUBPROCESS_CGROUP_TASKS_PATH, "a+") as tasks:
-            tasks.write("%s\n" % pid)
-
-    @classmethod
     def popen(cls, command, context, env=None):
         wrapped_command = ShellRunner.wrap_command(command, context)
 
@@ -78,7 +65,6 @@ class ShellRunner:
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             env=combined_env,
-            preexec_fn=partial(cls.preexec, context),
         )
 
         return proc
@@ -114,10 +100,7 @@ class ShellRunner:
         if context.request_handler is not None:
             context.request_handler.add_header(
                 "Thumbor-%s-Time" % simple_command_name,
-                # In order to copy Python 2 behaviour of round() method, namely "round
-                # half away from zero" rounding, method math.floor() and adding 0.5 to
-                # the value which will be rounded are used.
-                math.floor(duration + 0.5),
+                round(duration),
             )
 
         return proc.returncode, stderr, stdout

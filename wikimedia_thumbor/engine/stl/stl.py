@@ -97,9 +97,9 @@ class Engine(BaseWikimediaEngine):
             ShellRunner.rm_f(tmppng)
             raise e
 
-        tmpfile = open(tmppng, 'rb')
-        png = tmpfile.read()
-        tmpfile.close()
+        with open(tmppng, 'rb') as tmpfile:
+            png = tmpfile.read()
+
         ShellRunner.rm_f(tmppng)
 
         return super(Engine, self).create_image(png)

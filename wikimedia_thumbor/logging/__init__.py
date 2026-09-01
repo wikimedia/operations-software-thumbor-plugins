@@ -1,4 +1,3 @@
-import math
 from importlib.metadata import PackageNotFoundError, version
 
 
@@ -16,10 +15,7 @@ WIKIMEDIA_THUMBOR_VERSION = _distribution_version('wikimedia_thumbor')
 
 
 def record_timing(context, duration, statsd_key, header_name=None):
-    # In order to copy Python 2 behaviour of round() method, namely "round
-    # half away from zero" rounding, method math.floor() and adding 0.5 to
-    # the value which will be rounded are used.
-    duration = math.floor((duration.total_seconds() * 1000) + 0.5)
+    duration = round(duration.total_seconds() * 1000)
 
     context.metrics.timing(
         statsd_key,
