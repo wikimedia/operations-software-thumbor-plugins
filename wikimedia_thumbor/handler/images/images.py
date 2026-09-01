@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 
 # Copyright (c) 2016, thumbor-community, Wikimedia Foundation
 # Use of this source code is governed by the MIT license that can be
@@ -7,26 +6,24 @@
 # This handler translates mediawiki thumbnail urls into thumbor urls
 # And sets the xkey for Varnish purging purposes
 
+import datetime
+import hashlib
+import json
+import random
 from functools import partial
+from time import mktime
 from urllib.parse import quote
 from wsgiref.handlers import format_date_time
-from time import mktime
-import datetime
-import json
-import hashlib
-import random
+
 import tornado.ioloop
-
 from pymemcache.client.hash import HashClient
-
 from thumbor.context import RequestParameters
 from thumbor.handlers import BaseHandler
 from thumbor.handlers.imaging import ImagingHandler
 from thumbor.utils import logger
 
+from wikimedia_thumbor.logging import log_extra, record_timing
 from wikimedia_thumbor.poolcounter import PoolCounter
-from wikimedia_thumbor.logging import record_timing, log_extra
-
 
 BaseHandler._old_error = BaseHandler._error
 
@@ -227,7 +224,7 @@ class ImagesHandler(ImagingHandler):
         return path
 
     def translate(self, kw):
-        logger.debug('[ImagesHandler] translate: %r' % kw)
+        logger.debug(f'[ImagesHandler] translate: {kw!r}')
 
         translated = {'width': kw['width']}
 
@@ -348,7 +345,7 @@ class ImagesHandler(ImagingHandler):
             logger.debug('[ImagesHandler] apply TIFF default filters')
             filters.append(self.context.config.DEFAULT_FILTERS_TIFF)
 
-        filters.append('format(%s)' % normalized_format)
+        filters.append(f'format({normalized_format})')
 
         page = kw.get('page')
 
@@ -356,12 +353,12 @@ class ImagesHandler(ImagingHandler):
             page = kw.get('seek')
 
         if page:
-            filters.append('page(%s)' % page)
+            filters.append(f'page({page})')
 
         lang = kw.get('lang')
 
         if lang:
-            filters.append('lang(%s)' % lang)
+            filters.append(f'lang({lang})')
 
         if filters:
             translated['filters'] = ':'.join(filters)
@@ -402,7 +399,7 @@ class ImagesHandler(ImagingHandler):
 
         self.safe_set_header(
             'Content-Disposition',
-            'inline;filename*=UTF-8\'\'%s' % quote(content_disposition.encode('utf-8'))
+            'inline;filename*=UTF-8\'\'{}'.format(quote(content_disposition.encode('utf-8')))
         )
 
         self.safe_set_header(
@@ -536,7 +533,7 @@ class ImagesHandler(ImagingHandler):
 
         self.context.metrics.incr('response.status.' + str(self.get_status()))
 
-        super(ImagesHandler, self).on_finish()
+        super().on_finish()
 
     async def poolcounter_throttle_key(self, key, cfg):
         extra = log_extra(self.context)
@@ -592,7 +589,7 @@ class ImagesHandler(ImagingHandler):
                 logger.warning('[ImagesHandler] No X-Forwarded-For header in request, cannot throttle per IP')
             else:
                 ff = ff.split(', ')[0]
-                throttled = await self.poolcounter_throttle_key('thumbor-ip-%s' % ff, cfg)
+                throttled = await self.poolcounter_throttle_key(f'thumbor-ip-{ff}', cfg)
 
                 if throttled:
                     self.context.metrics.incr('poolcounter.throttle_class.ip')
@@ -602,7 +599,7 @@ class ImagesHandler(ImagingHandler):
         if cfg:
             name_sha1 = hashlib.sha1(filename.encode()).hexdigest()
 
-            throttled = await self.poolcounter_throttle_key('thumbor-render-%s' % name_sha1, cfg)
+            throttled = await self.poolcounter_throttle_key(f'thumbor-render-{name_sha1}', cfg)
 
             if throttled:
                 self.context.metrics.incr('poolcounter.throttle_class.original')

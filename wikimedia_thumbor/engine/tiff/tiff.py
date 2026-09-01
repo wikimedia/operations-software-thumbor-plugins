@@ -1,5 +1,4 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 # thumbor imaging service
 # https://github.com/thumbor/thumbor/wiki
@@ -13,7 +12,6 @@
 
 from wikimedia_thumbor.engine import BaseWikimediaEngine
 
-
 BaseWikimediaEngine.add_format(
     'image/tiff',
     '.tiff',
@@ -23,4 +21,4 @@ BaseWikimediaEngine.add_format(
 
 class Engine(BaseWikimediaEngine):
     def create_image(self, buffer):
-        return super(Engine, self).create_image(buffer)
+        return super().create_image(buffer)

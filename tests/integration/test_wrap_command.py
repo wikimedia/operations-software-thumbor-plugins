@@ -1,5 +1,6 @@
-from . import WikimediaTestCase
 from wikimedia_thumbor.shell_runner import ShellRunner
+
+from . import WikimediaTestCase
 
 
 class WikimediaShellRunnerWrapCommandTest(WikimediaTestCase):

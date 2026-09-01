@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 
 # Copyright (c) 2016, thumbor-community, Wikimedia Foundation
 # Use of this source code is governed by the MIT license that can be

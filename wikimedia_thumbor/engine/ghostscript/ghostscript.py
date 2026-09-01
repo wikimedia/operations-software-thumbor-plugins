@@ -1,5 +1,4 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 # thumbor imaging service
 # https://github.com/thumbor/thumbor/wiki
@@ -13,7 +12,6 @@
 
 from wikimedia_thumbor.engine import BaseWikimediaEngine, CommandError
 from wikimedia_thumbor.shell_runner import ShellRunner
-
 
 BaseWikimediaEngine.add_format(
     "application/pdf",
@@ -45,7 +43,7 @@ class Engine(BaseWikimediaEngine):
 
         self.extension = ".jpg"
 
-        return super(Engine, self).create_image(jpg)
+        return super().create_image(jpg)
 
     def get_jpg_for_page(self, buffer, page, dpi):
         # We use the command and not the python bindings because those can't
@@ -68,7 +66,7 @@ class Engine(BaseWikimediaEngine):
             "-dNOPAUSE",
             "-dSAFER",
             "-q",
-            "-f%s" % self.source,
+            f"-f{self.source}",
         ]
 
         returncode, stderr, stdout = ShellRunner.command(command, self.context)

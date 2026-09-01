@@ -1,5 +1,4 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 # thumbor imaging service
 # https://github.com/thumbor/thumbor/wiki
@@ -15,20 +14,17 @@
 # original for subsequent requests
 
 import errno
-import re
 import os
+import re
 from tempfile import NamedTemporaryFile
 
 from thumbor.loaders import LoaderResult
 from thumbor.utils import logger
-
 from tornado.process import Subprocess
 
-
-from wikimedia_thumbor.shell_runner import ShellRunner
-from wikimedia_thumbor.logging import log_extra
 from wikimedia_thumbor.loader.swift import swift
-
+from wikimedia_thumbor.logging import log_extra
+from wikimedia_thumbor.shell_runner import ShellRunner
 
 swiftconn = None
 swiftconn_private = None
@@ -70,14 +66,14 @@ async def load(context, url):
     if hasattr(context.config, 'SWIFT_HOST'):
         command += [
             '-headers',
-            'X-Auth-Token: %s' % get_swift_token(context),
+            f'X-Auth-Token: {get_swift_token(context)}',
         ]
 
-    command += ['%s' % normalized_url]
+    command += [f'{normalized_url}']
 
     command = ShellRunner.wrap_command(command, context)
 
-    logger.debug('[Video] load: %r' % command)
+    logger.debug(f'[Video] load: {command!r}')
 
     process = Subprocess(
         command,
@@ -176,12 +172,12 @@ async def seek_and_screenshot(context, normalized_url, seek):
     if hasattr(context.config, 'SWIFT_HOST'):
         command += [
             '-headers',
-            'X-Auth-Token: %s' % get_swift_token(context)
+            f'X-Auth-Token: {get_swift_token(context)}'
         ]
 
     command += [
         '-i',
-        '%s' % normalized_url,
+        f'{normalized_url}',
         '-y',
         '-vframes',
         '1',
@@ -198,7 +194,7 @@ async def seek_and_screenshot(context, normalized_url, seek):
 
     command = ShellRunner.wrap_command(command, context)
 
-    logger.debug('[Video] _parse_time: %r' % command)
+    logger.debug(f'[Video] _parse_time: {command!r}')
 
     process = Subprocess(
         command,

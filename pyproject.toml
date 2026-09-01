@@ -22,6 +22,23 @@ Homepage = "https://wikitech.wikimedia.org/wiki/Thumbor"
 [tool.setuptools.packages.find]
 include = ["wikimedia_thumbor*"]
 
+[tool.ruff]
+# Kept from the flake8 config this replaces; the codebase has a lot of long
+# lines and reflowing them all would bury the real changes.
+line-length = 200
+target-version = "py313"
+
+[tool.ruff.lint]
+# E/F/W: flake8 parity. I: import sorting (replaces isort).
+# UP: pyupgrade, which is what keeps Python 2 era idioms from creeping back.
+# B: bugbear, for the mutable-default and unused-loop-variable class of bug.
+select = ["E", "F", "W", "I", "UP", "B"]
+# UP031 rewrites printf formatting as f-strings. The %s and %r cases have been
+# converted; the remaining ones are %d and %f, where the f-string spelling is
+# not equivalent -- "%d" % 1.5 truncates, f"{1.5:d}" raises ValueError -- and
+# several of these format config values that are not guaranteed to be ints.
+ignore = ["UP031"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "--strict-markers --strict-config"

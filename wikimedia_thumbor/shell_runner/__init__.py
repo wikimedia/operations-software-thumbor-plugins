@@ -1,5 +1,4 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 # thumbor imaging service
 # https://github.com/thumbor/thumbor/wiki
@@ -13,12 +12,13 @@
 
 import datetime
 import errno
-from functools import partial
 import os
 import re
 import subprocess
+from functools import partial
 
 from thumbor.utils import logger
+
 from wikimedia_thumbor.logging import log_extra
 
 
@@ -53,7 +53,7 @@ class ShellRunner:
     def popen(cls, command, context, env=None):
         wrapped_command = ShellRunner.wrap_command(command, context)
 
-        cls.debug(context, "[ShellRunner] Command: %r" % wrapped_command)
+        cls.debug(context, f"[ShellRunner] Command: {wrapped_command!r}")
 
         combined_env = os.environ.copy()
 
@@ -88,18 +88,18 @@ class ShellRunner:
                 "[ShellRunner] Stdout: <too long to display (%d bytes)>" % length,
             )
         else:
-            cls.debug(context, "[ShellRunner] Stdout: %s" % stdout)
+            cls.debug(context, f"[ShellRunner] Stdout: {stdout}")
 
-        cls.debug(context, "[ShellRunner] Stderr: %s" % stderr)
+        cls.debug(context, f"[ShellRunner] Stderr: {stderr}")
         cls.debug(context, "[ShellRunner] Return code: %d" % proc.returncode)
-        cls.debug(context, "[ShellRunner] Duration: %r" % duration)
+        cls.debug(context, f"[ShellRunner] Duration: {duration!r}")
 
         simple_command_name = os.path.basename(command[0])
         simple_command_name = re.sub(r"[^a-zA-Z0-9-]", r"", simple_command_name)
 
         if context.request_handler is not None:
             context.request_handler.add_header(
-                "Thumbor-%s-Time" % simple_command_name,
+                f"Thumbor-{simple_command_name}-Time",
                 round(duration),
             )
 

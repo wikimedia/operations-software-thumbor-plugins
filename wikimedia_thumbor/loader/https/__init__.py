@@ -1,5 +1,4 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 # thumbor imaging service
 # https://github.com/thumbor/thumbor/wiki
@@ -15,9 +14,8 @@
 import re
 from functools import partial
 from tempfile import NamedTemporaryFile
+
 import tornado.simple_httpclient
-
-
 from thumbor.loaders import http_loader
 from thumbor.utils import logger
 
@@ -29,7 +27,7 @@ def should_run(url):  # pragma: no cover
 
 
 def cleanup_temp_file(path):
-    logger.debug('[HTTPS] cleanup_temp_file: %s' % path)
+    logger.debug(f'[HTTPS] cleanup_temp_file: {path}')
     ShellRunner.rm_f(path)
 
 
@@ -44,7 +42,7 @@ def return_contents(response, url, context, f):  # pragma: no cover
     response._body = body
 
     if len(body) == excerpt_length:
-        logger.debug('[HTTPS] return_contents: %s' % f.name)
+        logger.debug(f'[HTTPS] return_contents: {f.name}')
         context.wikimedia_original_file = f
 
         tornado.ioloop.IOLoop.instance().call_later(
@@ -76,7 +74,7 @@ def _normalize_url(url):
 
 
 async def load(context, url):
-    logger.debug('[HTTPS] load_sync: %s' % url)
+    logger.debug(f'[HTTPS] load_sync: {url}')
     client = tornado.simple_httpclient.SimpleAsyncHTTPClient(
         max_clients=context.config.HTTP_LOADER_MAX_CLIENTS,
         max_body_size=context.config.HTTP_LOADER_MAX_BODY_SIZE
@@ -93,7 +91,7 @@ async def load(context, url):
 
     url = _normalize_url(url)
 
-    logger.debug('[HTTPS] Loading normalized URL: %s' % url)
+    logger.debug(f'[HTTPS] Loading normalized URL: {url}')
 
     req = tornado.httpclient.HTTPRequest(
         url=url,

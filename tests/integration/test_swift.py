@@ -1,17 +1,17 @@
 import os
+
 from swiftclient.client import Connection
 from swiftclient.exceptions import ClientException
 from thumbor.config import Config
-from tornado.simple_httpclient import SimpleAsyncHTTPClient
 from tornado.httpclient import HTTPResponse
-
+from tornado.simple_httpclient import SimpleAsyncHTTPClient
 
 from . import WikimediaTestCase
 
 
 class WikimediaSwiftTestCase(WikimediaTestCase):
     def setUp(self):
-        super(WikimediaSwiftTestCase, self).setUp()
+        super().setUp()
 
         self.original_fetch_impl = SimpleAsyncHTTPClient.fetch_impl
 
@@ -43,7 +43,7 @@ class WikimediaSwiftTestCase(WikimediaTestCase):
         self.get_object_calls = 0
 
     def tearDown(self):
-        super(WikimediaSwiftTestCase, self).tearDown()
+        super().tearDown()
         SimpleAsyncHTTPClient.fetch_impl = self.original_fetch_impl
         Connection.get_object = self.original_get_object
         Connection.put_object = self.original_put_object
@@ -88,11 +88,11 @@ class WikimediaSwiftTestCase(WikimediaTestCase):
         self.put_object_calls += 1
 
         assert container == 'wikipedia-en-local-thumb.d3', \
-            'Unexpected swift container: %r' % container
+            f'Unexpected swift container: {container!r}'
         assert obj == 'thumbor/d/d3/1Mcolors.png/400px-1Mcolors.png', \
-            'Unexpected swift obj: %r' % obj
+            f'Unexpected swift obj: {obj!r}'
         assert headers == {'Content-Disposition': 'inline;filename*=UTF-8\'\'1Mcolors.png', 'Xkey': 'File:1Mcolors.png', 'X-Delete-After': 60}, \
-            'Unexpected swift headers: %r' % headers
+            f'Unexpected swift headers: {headers!r}'
 
     def mock_get_object(self, container, obj, resp_chunk_size=None,
                         query_string=None, response_dict=None, headers=None):
@@ -100,16 +100,16 @@ class WikimediaSwiftTestCase(WikimediaTestCase):
 
         if self.get_object_calls == 1:
             assert container == 'wikipedia-en-local-thumb.d3', \
-                'Unexpected swift container: %r' % container
+                f'Unexpected swift container: {container!r}'
             assert obj == 'thumbor/d/d3/1Mcolors.png/400px-1Mcolors.png', \
-                'Unexpected swift obj: %r' % obj
+                f'Unexpected swift obj: {obj!r}'
 
             raise ClientException('Object not found')
         elif self.get_object_calls == 2:
             assert container == 'wikipedia-en-local-public.d3', \
-                'Unexpected swift container: %r' % container
+                f'Unexpected swift container: {container!r}'
             assert obj == 'd/d3/1Mcolors.png', \
-                'Unexpected swift obj: %r' % obj
+                f'Unexpected swift obj: {obj!r}'
 
             path = os.path.join(
                 os.path.dirname(__file__),
@@ -120,9 +120,9 @@ class WikimediaSwiftTestCase(WikimediaTestCase):
                 return {}, f.read()
         else:
             assert container == 'wikipedia-en-local-thumb.d3', \
-                'Unexpected swift container: %r' % container
+                f'Unexpected swift container: {container!r}'
             assert obj == 'thumbor/d/d3/1Mcolors.png/400px-1Mcolors.png', \
-                'Unexpected swift obj: %r' % obj
+                f'Unexpected swift obj: {obj!r}'
 
             path = os.path.join(
                 os.path.dirname(__file__),

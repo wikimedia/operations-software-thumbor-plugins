@@ -1,6 +1,6 @@
 from tc_core import Extension, Extensions
-from .images import ImagesHandler
 
+from .images import ImagesHandler
 
 __all__ = ['ImagesHandler']
 

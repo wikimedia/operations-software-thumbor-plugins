@@ -1,5 +1,6 @@
 pytest
 coverage
-flake8
+ruff
+# pyssim: used only by the integration tests, via `from ssim import compute_ssim`.
 pyssim==0.7.1
 pip-tools

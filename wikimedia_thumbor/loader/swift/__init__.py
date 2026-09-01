@@ -1,5 +1,4 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 # thumbor imaging service
 # https://github.com/thumbor/thumbor/wiki
@@ -12,19 +11,18 @@
 # Swift loader. Streams objects from Swift with auth
 
 import datetime
-import requests
 from functools import partial
 from tempfile import NamedTemporaryFile
+
+import requests
+import tornado.simple_httpclient
 from swiftclient import client
 from swiftclient.exceptions import ClientException
-import tornado.simple_httpclient
-
-
 from thumbor.loaders import LoaderResult
 from thumbor.utils import logger
 
+from wikimedia_thumbor.logging import log_extra, record_timing
 from wikimedia_thumbor.shell_runner import ShellRunner
-from wikimedia_thumbor.logging import record_timing, log_extra
 
 
 def should_run(url):  # pragma: no cover
@@ -32,7 +30,7 @@ def should_run(url):  # pragma: no cover
 
 
 def cleanup_temp_file(context, path):
-    logger.debug('[SWIFT_LOADER] cleanup_temp_file: %s' % path, extra=log_extra(context))
+    logger.debug(f'[SWIFT_LOADER] cleanup_temp_file: {path}', extra=log_extra(context))
     ShellRunner.rm_f(path)
 
 
@@ -63,7 +61,7 @@ def swift(context):
 
 
 async def load(context, url):
-    logger.debug('[SWIFT_LOADER] load: %s' % url, extra=log_extra(context))
+    logger.debug(f'[SWIFT_LOADER] load: {url}', extra=log_extra(context))
 
     result = LoaderResult()
 
@@ -72,7 +70,7 @@ async def load(context, url):
 
     try:
         logger.debug(
-            '[SWIFT_LOADER] fetching %s from container %s' % (path, container),
+            f'[SWIFT_LOADER] fetching {path} from container {container}',
             extra=log_extra(context)
         )
 
@@ -113,10 +111,10 @@ async def load(context, url):
         # binary STLs ignore the first 80 bytes, so this string will
         # be ignored.
         if isSTL:
-            body = 'solid'.encode() + body[5:]
+            body = b'solid' + body[5:]
 
         if len(body) == excerpt_length:
-            logger.debug('[SWIFT_LOADER] return_contents: %s' % f.name, extra=log_extra(context))
+            logger.debug(f'[SWIFT_LOADER] return_contents: {f.name}', extra=log_extra(context))
             context.wikimedia_original_file = f
 
             tornado.ioloop.IOLoop.instance().call_later(
@@ -137,14 +135,14 @@ async def load(context, url):
         # logging.disable(logging.NOTSET)
         result.successful = False
         result.error = LoaderResult.ERROR_NOT_FOUND
-        logger.error('[SWIFT_LOADER] get_object failed: %s %r' % (url, e), extra=log_extra(context))
+        logger.error(f'[SWIFT_LOADER] get_object failed: {url} {e!r}', extra=log_extra(context))
         context.metrics.incr('swift_loader.status.client_exception')
     except requests.ConnectionError as e:
         record_timing(context, datetime.datetime.now() - start, 'swift.original.read.exception', 'Thumbor-Swift-Original-Exception-Time')
         # logging.disable(logging.NOTSET)
         result.successful = False
         result.error = LoaderResult.ERROR_UPSTREAM
-        logger.error('[SWIFT_LOADER] get_object failed: %s %r' % (url, e), extra=log_extra(context))
+        logger.error(f'[SWIFT_LOADER] get_object failed: {url} {e!r}', extra=log_extra(context))
         context.metrics.incr('swift_loader.status.connection_error')
 
     return result

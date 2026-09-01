@@ -3,7 +3,7 @@ from . import WikimediaTestCase
 
 class WikimediaVipsHttpsLoaderTest(WikimediaTestCase):
     def get_config(self):
-        cfg = super(WikimediaVipsHttpsLoaderTest, self).get_config()
+        cfg = super().get_config()
         cfg.VIPS_ENGINE_MIN_PIXELS = 0
         cfg.LOADER = 'wikimedia_thumbor.loader.proxy'
         cfg.HTTP_LOADER_MAX_BODY_SIZE = 1024*1024*1024  # 1GB

@@ -1,9 +1,8 @@
-import logging
 import json
+import logging
 
 from thumbor.config import Config
 from thumbor.handlers import BaseHandler
-
 from tornado.httpclient import HTTPRequest
 from tornado.testing import get_async_test_timeout
 
@@ -12,7 +11,7 @@ from . import WikimediaTestCase
 
 class WikimediaImagesHandlerTestCase(WikimediaTestCase):
     def setUp(self):
-        super(WikimediaImagesHandlerTestCase, self).setUp()
+        super().setUp()
 
         # Undo monkey-patching to be able to inspect headers
         # as if the test requests were successful
@@ -23,7 +22,7 @@ class WikimediaImagesHandlerTestCase(WikimediaTestCase):
 
     def tearDown(self):
         BaseHandler._error = BaseHandler._error
-        super(WikimediaImagesHandlerTestCase, self).tearDown()
+        super().tearDown()
 
     def get_config(self):
         cfg = Config(SECURITY_KEY='ACME-SEC')
@@ -140,31 +139,31 @@ class WikimediaImagesHandlerTestCase(WikimediaTestCase):
         except IndexError:
             wikimedia_content_diposition = None
 
-        assert xkey == expected_xkey, 'Incorrect Xkey: %s' % xkey
+        assert xkey == expected_xkey, f'Incorrect Xkey: {xkey}'
 
         assert wikimedia_original_container == expected_original_container, \
-            'Thumbor-Wikimedia-Original-Container: %s' % wikimedia_original_container
+            f'Thumbor-Wikimedia-Original-Container: {wikimedia_original_container}'
 
         assert wikimedia_original_path == expected_original_path, \
-            'Thumbor-Wikimedia-Original-Path: %s' % wikimedia_original_path
+            f'Thumbor-Wikimedia-Original-Path: {wikimedia_original_path}'
 
         assert wikimedia_thumbnail_container == expected_thumbnail_container, \
-            'Thumbor-Wikimedia-Thumbnail-Container: %s' % wikimedia_thumbnail_container
+            f'Thumbor-Wikimedia-Thumbnail-Container: {wikimedia_thumbnail_container}'
 
         assert wikimedia_thumbnail_path == expected_thumbnail_path, \
-            'Thumbor-Wikimedia-Thumbnail-Path: %s' % wikimedia_thumbnail_path
+            f'Thumbor-Wikimedia-Thumbnail-Path: {wikimedia_thumbnail_path}'
 
         assert thumbor_parameters['width'] == expected_width, \
-            'Thumbor-Parameters width: %s' % thumbor_parameters['width']
+            'Thumbor-Parameters width: {}'.format(thumbor_parameters['width'])
 
         assert thumbor_parameters['image'] == expected_image, \
-            'Thumbor-Parameters image: %s' % thumbor_parameters['image']
+            'Thumbor-Parameters image: {}'.format(thumbor_parameters['image'])
 
         assert thumbor_parameters['filters'] == expected_filters, \
-            'Thumbor-Parameters filters: %s' % thumbor_parameters['filters']
+            'Thumbor-Parameters filters: {}'.format(thumbor_parameters['filters'])
 
         assert wikimedia_content_diposition == expected_content_disposition, \
-            'Content-Disposition: %s' % wikimedia_content_diposition
+            f'Content-Disposition: {wikimedia_content_diposition}'
 
     def test_png(self):
         self.run_and_check_headers(

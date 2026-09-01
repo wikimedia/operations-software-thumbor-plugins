@@ -1,5 +1,4 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 # thumbor imaging service
 # https://github.com/thumbor/thumbor/wiki
@@ -15,6 +14,7 @@
 
 from thumbor.engines.gif import Engine as BaseEngine
 from thumbor.utils import logger
+
 from wikimedia_thumbor.engine import BaseWikimediaEngine
 from wikimedia_thumbor.shell_runner import ShellRunner
 
@@ -27,7 +27,7 @@ BaseWikimediaEngine.add_format(
 
 class Engine(BaseEngine):
     def resize(self, width, height):
-        super(Engine, self).resize(width, height)
+        super().resize(width, height)
         # Allow Gifsicle to add intermediate colors when resizing images.
         # Normally, Gifsicle’s resize algorithms use input images’ color
         # palettes without changes. When shrinking images with very few colors
@@ -43,7 +43,7 @@ class Engine(BaseEngine):
                 buffer = content_file.read()
             ShellRunner.rm_f(fname)
 
-        super(Engine, self).load(buffer, extension)
+        super().load(buffer, extension)
 
         logger.debug('[GIF] Frame count: %d Width: %d Height: %d' % (self.frame_count, self.image_size[0], self.image_size[1]))
 

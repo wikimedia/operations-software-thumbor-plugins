@@ -1,6 +1,8 @@
-import pytest
 import logging
 from shutil import which
+
+import pytest
+
 from . import WikimediaTestCase
 
 

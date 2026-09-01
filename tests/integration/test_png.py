@@ -1,4 +1,5 @@
 import platform
+
 import pytest
 
 from . import WikimediaTestCase

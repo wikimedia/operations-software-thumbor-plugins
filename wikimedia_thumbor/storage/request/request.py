@@ -1,5 +1,4 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
@@ -20,7 +19,7 @@ class Storage(BaseStorage):
         self.dict = {}
 
     def put(self, path, contents):
-        logger.debug("[REQUEST_STORAGE] put: %s" % path)
+        logger.debug(f"[REQUEST_STORAGE] put: {path}")
         self.dict[path] = contents
         return path
 
@@ -31,7 +30,7 @@ class Storage(BaseStorage):
         return path in self.dict
 
     async def get(self, path):
-        logger.debug("[REQUEST_STORAGE] get: %s" % path)
+        logger.debug(f"[REQUEST_STORAGE] get: {path}")
         try:
             value = self.dict[path]
             logger.debug("[REQUEST_STORAGE] found")

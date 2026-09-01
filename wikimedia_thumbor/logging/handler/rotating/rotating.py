@@ -14,14 +14,14 @@ class RotatingHandler(logging.handlers.RotatingFileHandler):
     '''
 
     def doRollover(self):
-        lockName = "%s.lock" % self.baseFilename
+        lockName = f"{self.baseFilename}.lock"
         f = open(lockName, 'a+')
 
         try:
             fcntl.lockf(f.fileno(), fcntl.LOCK_EX)
-        except IOError:
+        except OSError:
             # Couldn't acquire a lock, give up and rollover unsafely
-            super(RotatingHandler, self).doRollover()
+            super().doRollover()
             f.close()
             return
 
@@ -30,7 +30,7 @@ class RotatingHandler(logging.handlers.RotatingFileHandler):
         try:
             if filesize > self.maxBytes:
                 # The reference file hasn't been rotated yet, let's do it
-                super(RotatingHandler, self).doRollover()
+                super().doRollover()
             else:
                 # We are probably still be looking at the old file, close the stream
                 self.close()

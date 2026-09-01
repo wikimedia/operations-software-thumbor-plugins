@@ -8,7 +8,6 @@ from tornado.web import HTTPError
 
 from wikimedia_thumbor.filter.format.format import Filter
 
-
 Filter.pre_compile()
 
 
@@ -21,7 +20,7 @@ def run_filter(image_url, requested_format, **config):
     context = Context(config=Config(**config))
     context.request = SimpleNamespace(image_url=image_url, format=None)
 
-    asyncio.run(Filter('format(%s)' % requested_format, context).run())
+    asyncio.run(Filter(f'format({requested_format})', context).run())
 
     return context.request.format
 

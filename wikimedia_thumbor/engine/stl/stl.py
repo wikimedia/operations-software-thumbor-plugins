@@ -1,5 +1,4 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 # thumbor imaging service
 # https://github.com/thumbor/thumbor/wiki
@@ -11,14 +10,13 @@
 
 # STL engine
 
-import struct
-import os
-import tempfile
 import math
+import os
+import struct
+import tempfile
 
-from wikimedia_thumbor.engine import BaseWikimediaEngine
+from wikimedia_thumbor.engine import BaseWikimediaEngine, CommandError
 from wikimedia_thumbor.shell_runner import ShellRunner
-from wikimedia_thumbor.engine import CommandError
 
 BaseWikimediaEngine.add_format(
     'application/sla',
@@ -102,4 +100,4 @@ class Engine(BaseWikimediaEngine):
 
         ShellRunner.rm_f(tmppng)
 
-        return super(Engine, self).create_image(png)
+        return super().create_image(png)

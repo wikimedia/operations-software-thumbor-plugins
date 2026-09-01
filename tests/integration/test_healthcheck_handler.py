@@ -1,6 +1,5 @@
 from thumbor.config import Config
 
-
 from . import WikimediaTestCase
 
 
@@ -17,5 +16,5 @@ class WikimediaHealthcheckHandlerTestCase(WikimediaTestCase):
     def test_healthcheck(self):
         response = self.fetch('/healthcheck')
 
-        assert response.code == 200, 'Unexpected response code: %r' % response.code
-        assert response.body == b'WORKING', 'Unexpected response body: %r' % response.body
+        assert response.code == 200, f'Unexpected response code: {response.code!r}'
+        assert response.body == b'WORKING', f'Unexpected response body: {response.body!r}'

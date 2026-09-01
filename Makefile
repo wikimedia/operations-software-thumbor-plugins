@@ -70,8 +70,9 @@ docker_lock: build-test
 	docker run --mount type=bind,source=`pwd`,dst=/srv/service thumbor-test lock
 
 # Linter
-lint: needs-docker
-	flake8 ./tests ./wikimedia_thumbor
+lint:
+	@ruff check ./tests ./wikimedia_thumbor
+	@ruff format --check ./tests ./wikimedia_thumbor
 
 # Docker
 up:

@@ -1,9 +1,9 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 import traceback
 
 from thumbor.utils import logger
+
 from wikimedia_thumbor.logging import log_extra
 
 

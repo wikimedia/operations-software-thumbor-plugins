@@ -5,7 +5,7 @@ from . import WikimediaTestCase
 
 class WikimediaVideoTest(WikimediaTestCase):
     def get_config(self):
-        cfg = super(WikimediaVideoTest, self).get_config()
+        cfg = super().get_config()
         cfg.LOADER = 'wikimedia_thumbor.loader.video'
 
         return cfg

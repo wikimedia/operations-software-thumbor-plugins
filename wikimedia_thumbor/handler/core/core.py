@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 
 # Copyright (c) 2016, thumbor-community, Wikimedia Foundation
 # Use of this source code is governed by the MIT license that can be
@@ -8,8 +7,8 @@
 # handler with an appropriate URL prefix
 
 import re
-from libthumbor.url import Url
 
+from libthumbor.url import Url
 from thumbor.handlers.imaging import ImagingHandler
 
 
@@ -23,4 +22,4 @@ class CoreHandler(ImagingHandler):
         if result is None:
             self._error(404, 'Not Found')
             return
-        return await super(CoreHandler, self).check_image(result.groupdict())
+        return await super().check_image(result.groupdict())

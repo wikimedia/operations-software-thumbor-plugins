@@ -1,5 +1,4 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 # thumbor imaging service
 # https://github.com/thumbor/thumbor/wiki
@@ -16,10 +15,8 @@ import os
 import shutil
 from tempfile import mkdtemp
 
-from wikimedia_thumbor.engine import BaseWikimediaEngine
-from wikimedia_thumbor.engine import CommandError
+from wikimedia_thumbor.engine import BaseWikimediaEngine, CommandError
 from wikimedia_thumbor.shell_runner import ShellRunner  # noqa
-
 
 BaseWikimediaEngine.add_format(
     'image/tiff',
@@ -72,7 +69,7 @@ class Engine(BaseWikimediaEngine):
         # are serving a cached result. In which case no VIPS processing
         # is required.
         if not hasattr(self.context.request, 'extension'):
-            return super(Engine, self).create_image(buffer)
+            return super().create_image(buffer)
 
         # We shrink to roughly twice the size we need, then the rest of the resizing is done
         # by Imagemagick. We can't resize straight to the size we need since the shrink factor
@@ -86,11 +83,11 @@ class Engine(BaseWikimediaEngine):
         # T218272: If shrink_factor == 1, VIPS doesn't scale the image.
         # Don't bother running the command and just let ImageMagick handle it.
         if shrink_factor == 1:
-            return super(Engine, self).create_image(buffer)
+            return super().create_image(buffer)
 
         result = self.shrink(buffer, shrink_factor)
 
-        return super(Engine, self).create_image(result)
+        return super().create_image(result)
 
     def shrink(self, buffer, shrink_factor):
         self.debug('[VIPS] Shrinking with command')
@@ -118,7 +115,7 @@ class Engine(BaseWikimediaEngine):
                     # libpng doesn't want to write files with ICC profiles
                     # that it doesn't like. Force those images to use TinyRGB
                     self.debug('[VIPS] Forcing TinyRGB profile')
-                    output_args = "[profile=%s]" % self.context.config.EXIF_TINYRGB_PATH
+                    output_args = f"[profile={self.context.config.EXIF_TINYRGB_PATH}]"
                 elif i >= 1:
                     # Tried at least twice, but failed and we're out of ideas
                     self.cleanup_source()

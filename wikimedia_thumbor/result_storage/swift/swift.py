@@ -1,5 +1,4 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
@@ -14,11 +13,10 @@ from functools import partial
 import tornado.ioloop
 from swiftclient import client
 from swiftclient.exceptions import ClientException
-
 from thumbor.result_storages import BaseStorage, ResultStorageResult
 from thumbor.utils import logger
 
-from wikimedia_thumbor.logging import record_timing, log_extra
+from wikimedia_thumbor.logging import log_extra, record_timing
 
 
 class Storage(BaseStorage):
@@ -115,15 +113,12 @@ class Storage(BaseStorage):
             raise e
         except Exception as e:
             record_timing(self.context, datetime.datetime.now() - start, 'swift.thumbnail.write.exception')
-            self.error('[SWIFT_STORAGE] put exception: %r' % e)
+            self.error(f'[SWIFT_STORAGE] put exception: {e!r}')
             # We cannnot let exceptions bubble up, because they would leave
             # the client's connection hanging
 
     async def get(self):
-        self.debug('[SWIFT_STORAGE] get: %r %r' % (
-                self.context.wikimedia_thumbnail_container,
-                self.context.wikimedia_thumbnail_save_path
-            )
+        self.debug(f'[SWIFT_STORAGE] get: {self.context.wikimedia_thumbnail_container!r} {self.context.wikimedia_thumbnail_save_path!r}'
         )
 
         try:
@@ -160,7 +155,7 @@ class Storage(BaseStorage):
         except Exception as e:
             # logging.disable(logging.NOTSET)
             record_timing(self.context, datetime.datetime.now() - start, 'swift.thumbnail.read.exception', 'Thumbor-Swift-Thumbnail-Exception-Time')
-            self.error('[SWIFT_STORAGE] get exception: %r' % e)
+            self.error(f'[SWIFT_STORAGE] get exception: {e!r}')
             return None
 
     def debug(self, message):

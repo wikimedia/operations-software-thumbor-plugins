@@ -1,5 +1,4 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 # thumbor imaging service
 # https://github.com/thumbor/thumbor/wiki
@@ -75,7 +74,7 @@ class Engine(BaseWikimediaEngine):
         # fall back to en.
         if not re.fullmatch(r"[A-Za-z]{1,8}(?:-[A-Za-z0-9]{1,8})*", lang_str):
             logger.error(
-                "[SVG] Invalid language tag %r, defaulting to en" % lang_str,
+                f"[SVG] Invalid language tag {lang_str!r}, defaulting to en",
                 extra=log_extra(self.context),
             )
             lang_str = "en"
@@ -92,7 +91,7 @@ class Engine(BaseWikimediaEngine):
             png = tmpfile.read()
         ShellRunner.rm_f(tmp_name)
 
-        return super(Engine, self).create_image(png)
+        return super().create_image(png)
 
     # Disable this method in BaseEngine, do the conversion in create_image
     # instead

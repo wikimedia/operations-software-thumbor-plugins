@@ -3,7 +3,7 @@ from . import WikimediaTestCase
 
 class WikimediaHttpsLoaderTest(WikimediaTestCase):
     def get_config(self):
-        cfg = super(WikimediaHttpsLoaderTest, self).get_config()
+        cfg = super().get_config()
         cfg.LOADER = 'wikimedia_thumbor.loader.proxy'
         cfg.HTTP_LOADER_MAX_BODY_SIZE = 1024*1024*1024  # 1GB
         cfg.HTTP_LOADER_TEMP_FILE_TIMEOUT = 120

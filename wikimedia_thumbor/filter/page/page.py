@@ -1,5 +1,4 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 # thumbor imaging service
 # https://github.com/thumbor/thumbor/wiki
@@ -11,7 +10,7 @@
 
 # Simply passes the page parameter
 
-from thumbor.filters import BaseFilter, filter_method, PHASE_PRE_LOAD
+from thumbor.filters import PHASE_PRE_LOAD, BaseFilter, filter_method
 
 
 class Filter(BaseFilter):

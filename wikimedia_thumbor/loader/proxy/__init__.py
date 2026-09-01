@@ -1,5 +1,4 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 # thumbor imaging service
 # https://github.com/thumbor/thumbor/wiki
@@ -16,7 +15,6 @@ import importlib
 
 from thumbor.loaders import http_loader, https_loader
 from thumbor.utils import logger
-
 
 modules = {}
 
@@ -46,7 +44,7 @@ async def load(context, url):
         if loader in modules:
             mod = modules[loader]
         else:
-            logger.debug('Importing: %s' % loader)
+            logger.debug(f'Importing: {loader}')
             mod = importlib.import_module(loader)
             modules[loader] = mod
 

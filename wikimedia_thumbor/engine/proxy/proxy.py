@@ -1,5 +1,4 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 # thumbor imaging service
 # https://github.com/thumbor/thumbor/wiki
@@ -14,12 +13,13 @@
 
 import datetime
 import importlib
-import resource
 import math
+import resource
 from collections import OrderedDict
 
-from thumbor.utils import logger
 from thumbor.engines import BaseEngine
+from thumbor.utils import logger
+
 from wikimedia_thumbor.logging import log_extra
 
 
@@ -35,8 +35,8 @@ class Engine(BaseEngine):
         # Create an object that will store local values
         # Setting it this way avoids hitting the __setattr__
         # proxying
-        super(Engine, self).__setattr__('lcl', {})
-        super(Engine, self).__setattr__('multiple_engine', None)
+        super().__setattr__('lcl', {})
+        super().__setattr__('multiple_engine', None)
 
         self.lcl['context'] = context
         self.lcl['engines'] = engines
@@ -46,7 +46,7 @@ class Engine(BaseEngine):
 
     def init_engine(self, context, module):
         mod = importlib.import_module(module)
-        klass = getattr(mod, 'Engine')
+        klass = mod.Engine
 
         self.lcl[module] = klass(context)
 
@@ -59,7 +59,7 @@ class Engine(BaseEngine):
         else:
             ext = self.lcl['extension'].lstrip('.')
 
-        logger.debug('[Proxy] Looking for a %s engine' % ext)
+        logger.debug(f'[Proxy] Looking for a {ext} engine')
 
         for enginename, extensions in self.lcl['engines'].items():
             engine = self.lcl[enginename]
@@ -74,7 +74,7 @@ class Engine(BaseEngine):
                     return enginename
 
         raise Exception(
-            'Unable to find a suitable engine, tried %r' % self.lcl['engines']
+            'Unable to find a suitable engine, tried {!r}'.format(self.lcl['engines'])
         )  # pragma: no cover
 
     def record_timing(self, timing, header, end):
@@ -95,7 +95,7 @@ class Engine(BaseEngine):
 
         if (hasattr(self.lcl['context'].config, 'SLOW_PROCESSING_LIMIT') and
                 duration > self.lcl['context'].config.SLOW_PROCESSING_LIMIT):
-            logger.error('[Proxy] Request took a long time: %r' % duration, extra=log_extra(self.lcl['context']))
+            logger.error(f'[Proxy] Request took a long time: {duration!r}', extra=log_extra(self.lcl['context']))
 
         self.lcl['context'].request_handler.set_header(
             header,
@@ -104,7 +104,7 @@ class Engine(BaseEngine):
 
     # This is our entry point for the proxy, it's the first call to the engine
     def load(self, buffer, extension):
-        logger.debug('[Proxy] load: %r' % extension)
+        logger.debug(f'[Proxy] load: {extension!r}')
         self.lcl['processing_time'] = datetime.datetime.now()
         self.lcl['processing_utime'] = utime()
 
@@ -193,6 +193,6 @@ class Engine(BaseEngine):
 
     def cleanup(self):  # pragma: no cover
         # Call cleanup on all the engines
-        for enginename, extensions in self.lcl['engines'].items():
+        for enginename in self.lcl['engines']:
             engine = self.lcl[enginename]
             engine.cleanup()

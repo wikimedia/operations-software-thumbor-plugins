@@ -1,5 +1,4 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 # thumbor imaging service
 # https://github.com/thumbor/thumbor/wiki
@@ -14,8 +13,8 @@
 import socket
 
 import tornado.iostream
-
 from thumbor.utils import logger
+
 from wikimedia_thumbor.logging import log_extra
 
 
@@ -40,12 +39,12 @@ class PoolCounter:
             acq4me_msg = 'ACQ4ME %s %d %d %d\n' % (key, workers, maxqueue, timeout)
             self.debug(acq4me_msg)
             await self.stream.write(acq4me_msg.encode())
-            data = await self.stream.read_until('\n'.encode())
-        except socket.error as e:
+            data = await self.stream.read_until(b'\n')
+        except OSError as e:
             self.stream = None
             raise e
 
-        self.debug("[PoolCounter] Got data of '{}' from poolcounter during ACQ4ME".format(data))
+        self.debug(f"[PoolCounter] Got data of '{data}' from poolcounter during ACQ4ME")
         return data.decode() == 'LOCKED\n'
 
     async def release(self):
@@ -53,13 +52,13 @@ class PoolCounter:
             return True
         try:
             self.debug('[PoolCounter] RELEASE')
-            await self.stream.write('RELEASE\n'.encode())
-            data = await self.stream.read_until('\n'.encode())
-        except socket.error as e:
+            await self.stream.write(b'RELEASE\n')
+            data = await self.stream.read_until(b'\n')
+        except OSError as e:
             self.stream = None
             raise e
 
-        self.debug("[PoolCounter] Got data of '{}' from poolcounter during RELEASE".format(data))
+        self.debug(f"[PoolCounter] Got data of '{data}' from poolcounter during RELEASE")
         return data.decode() == 'RELEASED\n'
 
     def close(self):

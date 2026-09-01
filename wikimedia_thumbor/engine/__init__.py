@@ -1,5 +1,4 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 # thumbor imaging service
 # https://github.com/thumbor/thumbor/wiki
@@ -11,15 +10,15 @@
 
 # Base engine, not to be used directly, has to be extended
 
-import shutil
 import os
-
+import shutil
 from tempfile import mkdtemp
+
 from thumbor.utils import logger
 
-from wikimedia_thumbor.shell_runner import ShellRunner
 from wikimedia_thumbor.engine.imagemagick import Engine as IMEngine
 from wikimedia_thumbor.logging import log_extra
+from wikimedia_thumbor.shell_runner import ShellRunner
 
 
 class CommandError(Exception):
@@ -35,9 +34,9 @@ class BaseWikimediaEngine(IMEngine):
             extension = '.jpg'
         else:
             extension = self.context.request.format
-            self.debug('[BWE] Rendering %s' % extension)
+            self.debug(f'[BWE] Rendering {extension}')
 
-        return super(BaseWikimediaEngine, self).read(extension, quality)
+        return super().read(extension, quality)
 
     def prepare_source(self, buffer):
         if hasattr(self.context, 'wikimedia_original_file'):

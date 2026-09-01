@@ -24,4 +24,4 @@ class ThumborFormatter(ecs_logging.StdlibFormatter):
             if src in record.__dict__ and record.__dict__[src]:
                 record.__dict__[dst] = record.__dict__.pop(src)
 
-        return super(ThumborFormatter, self).format_to_ecs(record)
+        return super().format_to_ecs(record)

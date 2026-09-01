@@ -3,7 +3,7 @@ from . import WikimediaTestCase
 
 class WikimediaHugeVideoTest(WikimediaTestCase):
     def get_config(self):
-        cfg = super(WikimediaHugeVideoTest, self).get_config()
+        cfg = super().get_config()
         cfg.LOADER = 'wikimedia_thumbor.loader.video'
 
         return cfg
@@ -26,7 +26,7 @@ class WikimediaHugeVideoTest(WikimediaTestCase):
         try:
             result = self.fetch(url)
         except Exception as e:
-            assert False, 'Exception occured: %r' % e
+            raise AssertionError(f'Exception occured: {e!r}') from e
 
         assert result is not None, 'No result'
-        assert result.code == 404, 'Response code: %s' % result.code
+        assert result.code == 404, f'Response code: {result.code}'

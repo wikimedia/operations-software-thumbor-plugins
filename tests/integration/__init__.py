@@ -1,22 +1,18 @@
-import platform
 import os.path
+import platform
+from shutil import which
 from tempfile import NamedTemporaryFile
 
 from PIL import Image
-
 from ssim import compute_ssim
-
-from tornado.testing import AsyncHTTPTestCase, get_async_test_timeout
-from tornado.httpclient import HTTPRequest
-
 from thumbor.config import Config
 from thumbor.context import Context, ServerParameters
 from thumbor.importer import Importer
 from thumbor.utils import logger
-from shutil import which
+from tornado.httpclient import HTTPRequest
+from tornado.testing import AsyncHTTPTestCase, get_async_test_timeout
 
 from wikimedia_thumbor.app import App
-
 
 # AsyncHTTPTestCase doesn't set request_timeout
 HTTPRequest._DEFAULTS['request_timeout'] = get_async_test_timeout()
@@ -146,10 +142,10 @@ class WikimediaTestCase(AsyncHTTPTestCase):
         try:
             result = self.fetch(url, headers=headers or {})
         except Exception as e:
-            assert False, 'Exception occured: %r' % e
+            raise AssertionError(f'Exception occured: {e!r}') from e
 
         assert result is not None, 'No result'
-        assert result.code == 200, 'Response code: %s' % result.code
+        assert result.code == 200, f'Response code: {result.code}'
 
         result.buffer.seek(0)
 
@@ -177,12 +173,12 @@ class WikimediaTestCase(AsyncHTTPTestCase):
         ssim = compute_ssim(generated, visual_expected)
 
         try:
-            assert ssim >= expected_ssim, 'Images too dissimilar: %f (should be >= %f)\n' % (ssim, expected_ssim)
+            assert ssim >= expected_ssim, f'Images too dissimilar: {ssim:f} (should be >= {expected_ssim:f})\n'
         except AssertionError as e:
             output_file = NamedTemporaryFile(delete=False)
             output_file.write(result.buffer.getvalue())
             output_file.close()
-            logger.error('Dumped generated test image for debugging purposes: %s' % output_file.name)
+            logger.error(f'Dumped generated test image for debugging purposes: {output_file.name}')
             raise e
 
         expected_filesize = os.path.getsize(expected_path)
@@ -190,6 +186,6 @@ class WikimediaTestCase(AsyncHTTPTestCase):
 
         ratio = generated_filesize / expected_filesize
         assert ratio <= size_tolerance, \
-            'Generated file bigger than size tolerance: %f (should be <= %f)' % (ratio, size_tolerance)
+            f'Generated file bigger than size tolerance: {ratio:f} (should be <= {size_tolerance:f})'
 
         return result.buffer

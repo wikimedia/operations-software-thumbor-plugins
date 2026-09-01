@@ -1,6 +1,6 @@
 from tc_core import Extension, Extensions
-from .core import CoreHandler
 
+from .core import CoreHandler
 
 __all__ = ['CoreHandler']
 

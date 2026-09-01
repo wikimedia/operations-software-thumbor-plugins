@@ -1,6 +1,8 @@
-import pytest
 import logging
 from shutil import which
+
+import pytest
+
 from . import WikimediaTestCase
 
 
@@ -115,7 +117,7 @@ class WikimediaPdfTest(WikimediaTestCase):
     def test_pdf_gif_disallowed(self):
         result = self.fetch('/thumbor/unsafe/filters:format(gif)/Internationalisation.pdf')
         assert result is not None, 'No result'
-        assert result.code == 400, 'Response code: %s' % result.code
+        assert result.code == 400, f'Response code: {result.code}'
 
     @pytest.mark.usefixtures("inject_fixtures")
     def test_gs_commanderror_raise(self):

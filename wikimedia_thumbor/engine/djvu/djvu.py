@@ -1,5 +1,4 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 # thumbor imaging service
 # https://github.com/thumbor/thumbor/wiki
@@ -12,7 +11,6 @@
 # DjVu engine
 
 from wikimedia_thumbor.engine import BaseWikimediaEngine
-
 
 BaseWikimediaEngine.add_format(
     'image/vnd.djvu',
@@ -40,4 +38,4 @@ class Engine(BaseWikimediaEngine):
 
         ppm = self.command(command)
 
-        return super(Engine, self).create_image(ppm)
+        return super().create_image(ppm)

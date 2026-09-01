@@ -1,5 +1,4 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 # thumbor imaging service
 # https://github.com/thumbor/thumbor/wiki
@@ -12,11 +11,12 @@
 # Simply passes the format parameter
 # This is a fork of thumbor's format parameter, running in the PRE_LOAD phase
 
-from thumbor.filters import BaseFilter, filter_method, PHASE_PRE_LOAD
-from thumbor.utils import logger
-from tornado.web import HTTPError
 from pathlib import PurePosixPath
 from urllib.parse import urlparse
+
+from thumbor.filters import PHASE_PRE_LOAD, BaseFilter, filter_method
+from thumbor.utils import logger
+from tornado.web import HTTPError
 
 ALLOWED_FORMATS = ['jpg', 'jpeg', 'jpe', 'gif', 'png', 'webp']
 
@@ -61,8 +61,8 @@ class Filter(BaseFilter):
             raise HTTPError(400, f"Conversion from {format_in} to {format_out} is not allowed (permitted: " + ", ".join(allowed) + ")")
 
         if format.lower() not in ALLOWED_FORMATS:
-            logger.debug('Format not allowed: %s' % format.lower())
+            logger.debug(f'Format not allowed: {format.lower()}')
             self.context.request.format = None
         else:
-            logger.debug('Format specified: %s' % format.lower())
+            logger.debug(f'Format specified: {format.lower()}')
             self.context.request.format = format.lower()

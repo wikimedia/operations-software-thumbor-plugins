@@ -1,11 +1,13 @@
 import json
+import logging
 import os
 import shutil
-import pytest
-import logging
-from PIL import Image
 from shutil import which
 from tempfile import NamedTemporaryFile
+
+import pytest
+from PIL import Image
+
 from wikimedia_thumbor.exiftool_runner import ExiftoolRunner
 from wikimedia_thumbor.shell_runner import ShellRunner
 
@@ -43,7 +45,7 @@ class WikimediaExifTest(WikimediaTestCase):
 
         if expected_icc_profile:
             assert result_image.info['icc_profile'] == expected_icc_profile, \
-                'ICC profile: %s' % result_image.info['icc_profile']
+                'ICC profile: {}'.format(result_image.info['icc_profile'])
 
     def check_exif(self, result_buffer, expected):
         temp_file = NamedTemporaryFile(delete=False)
@@ -66,7 +68,7 @@ class WikimediaExifTest(WikimediaTestCase):
         found = json.loads(stdout)[0]
         del found['SourceFile']
 
-        assert found == expected, 'EXIF fields mismatch. Expected: %r Found: %r' % (expected, found)
+        assert found == expected, f'EXIF fields mismatch. Expected: {expected!r} Found: {found!r}'
 
     def test_adobe_rgb(self):
         adobe_rgb = (

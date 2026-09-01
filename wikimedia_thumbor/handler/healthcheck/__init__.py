@@ -1,6 +1,6 @@
 from tc_core import Extension, Extensions
-from .healthcheck import HealthcheckHandler
 
+from .healthcheck import HealthcheckHandler
 
 __all__ = ['HealthcheckHandler']
 

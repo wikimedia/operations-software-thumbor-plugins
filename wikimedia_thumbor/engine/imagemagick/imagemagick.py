@@ -1,5 +1,4 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 # thumbor imaging service
 # https://github.com/thumbor/thumbor/wiki
@@ -12,16 +11,16 @@
 # ImageMagick engine
 
 import json
+from decimal import ROUND_HALF_DOWN, Decimal
 from tempfile import NamedTemporaryFile
-from pyexiv2 import ImageMetadata, ExifValueError
 
-from thumbor.utils import logger
+from pyexiv2 import ExifValueError, ImageMetadata
 from thumbor.engines import BaseEngine
+from thumbor.utils import logger
 
-from wikimedia_thumbor.shell_runner import ShellRunner
 from wikimedia_thumbor.exiftool_runner import ExiftoolRunner
 from wikimedia_thumbor.logging import log_extra
-from decimal import Decimal, ROUND_HALF_DOWN
+from wikimedia_thumbor.shell_runner import ShellRunner
 
 
 class ImageMagickException(Exception):
@@ -102,7 +101,7 @@ class Engine(BaseEngine):
             height = Decimal(width / buffer_ratio).quantize(0, ROUND_HALF_DOWN)
 
         jpeg_size = '%dx%d' % (width, height)
-        self.debug('[IM] jpeg:size hint: %r' % jpeg_size)
+        self.debug(f'[IM] jpeg:size hint: {jpeg_size!r}')
         return jpeg_size
 
     def read_exif(self, input_temp_file):
@@ -121,7 +120,7 @@ class Engine(BaseEngine):
             '-j'
         ]
 
-        command += ['-{0}'.format(i) for i in fields]
+        command += [f'-{i}' for i in fields]
 
         # T172556 We read EXIF Orientation with pyexiv2 because exiftool is
         # unreliable for that field (overzealous in the way it interprets the field).
@@ -138,7 +137,7 @@ class Engine(BaseEngine):
             if 'Exif.Image.Orientation' in metadata.exif_keys:
                 # Distinctive key name to avoid colliding with EXIF_FIELDS_TO_KEEP
                 self.exif_dict['Pyexiv2Orientation'] = metadata.get('Exif.Image.Orientation').value
-        except (IOError, ExifValueError, TypeError, ValueError):
+        except (OSError, ExifValueError, TypeError, ValueError):
             # T381594: py3exiv2 can be more picky about some things than the other tools,
             # but we can safely ignore all exceptions from it because we only use it
             # for Orientation.
@@ -153,7 +152,7 @@ class Engine(BaseEngine):
         # index at 0 because we're processing a single file
         self.exif_dict.update(json.loads(stdout.decode('utf-8'))[0])
 
-        self.debug('[IM] EXIF: %r' % self.exif_dict)
+        self.debug(f'[IM] EXIF: {self.exif_dict!r}')
 
         if 'ImageSize' in self.exif_dict:
             self.internal_size = [int(x) for x in self.exif_dict['ImageSize'].split('x')]
@@ -207,12 +206,12 @@ class Engine(BaseEngine):
 
         # Copy the ICC profile
         if hasattr(self, 'icc_profile_path'):
-            command += ['-icc_profile<=%s' % self.icc_profile_path]
+            command += [f'-icc_profile<={self.icc_profile_path}']
 
         for field in self.context.config.EXIF_FIELDS_TO_KEEP:
             if field in self.exif_dict:
                 value = self.exif_dict[field]
-                command += ['-%s=%s' % (field, value)]
+                command += [f'-{field}={value}']
 
         postCommand = [
             '-o',
@@ -290,7 +289,7 @@ class Engine(BaseEngine):
 
         if hasattr(config, 'CHROMA_SUBSAMPLING') and config.CHROMA_SUBSAMPLING:
             cs = config.CHROMA_SUBSAMPLING
-            self.debug('[IM] Chroma subsampling: %r' % cs)
+            self.debug(f'[IM] Chroma subsampling: {cs!r}')
             operators += [
                 '-sampling-factor',
                 cs
@@ -317,7 +316,7 @@ class Engine(BaseEngine):
         else:
             last_operators = [
                 '%s[%d]' % (self.image.name, self.page),
-                '%s:-' % extension,
+                f'{extension}:-',
             ]
 
         returncode, stderr, result = self.run_operators(last_operators)
@@ -327,13 +326,13 @@ class Engine(BaseEngine):
             self.page = 0
             last_operators = [
                 '%s[%d]' % (self.image.name, self.page),
-                '%s:-' % extension,
+                f'{extension}:-',
             ]
             returncode, stderr, result = self.run_operators(last_operators)
 
         if returncode != 0:
             ShellRunner.rm_f(self.image.name)  # pragma: no cover
-            raise ImageMagickException('Failed to convert image %s' % stderr)  # pragma: no cover
+            raise ImageMagickException(f'Failed to convert image {stderr}')  # pragma: no cover
 
         self.operators = []
 
@@ -362,12 +361,7 @@ class Engine(BaseEngine):
 
     def realcrop(self, crop_left, crop_top, crop_right, crop_bottom):
         self.debug(
-            '[IM] crop: %r %r %r %r' % (
-                crop_left,
-                crop_top,
-                crop_right,
-                crop_bottom
-            )
+            f'[IM] crop: {crop_left!r} {crop_top!r} {crop_right!r} {crop_bottom!r}'
         )
 
         width = int(crop_right) - int(crop_left)
@@ -381,7 +375,7 @@ class Engine(BaseEngine):
         self.queue_operators(operators)
 
     def resize(self, width, height):
-        self.debug('[IM] resize: %r %r' % (width, height))
+        self.debug(f'[IM] resize: {width!r} {height!r}')
 
         self.internal_size = (width, height)
 
@@ -390,7 +384,7 @@ class Engine(BaseEngine):
         if self.extension == '.jpg':
             operators += [
                 '-define',
-                'jpeg:size=%s' % self.jpeg_size(),
+                f'jpeg:size={self.jpeg_size()}',
             ]
 
         exif_image_size = self.exif_dict['ImageSize']
@@ -419,7 +413,7 @@ class Engine(BaseEngine):
 
         operators += [
             '-resize',
-            '%s^' % target_size,
+            f'{target_size}^',
             '-gravity',
             'center',
             '-extent',
@@ -450,9 +444,9 @@ class Engine(BaseEngine):
         self.queue_operators(['-flip'])
 
     def rotate(self, degrees):
-        self.debug('[IM] rotate: %r' % degrees)
+        self.debug(f'[IM] rotate: {degrees!r}')
 
-        self.queue_operators(['-rotate', '%s' % degrees])
+        self.queue_operators(['-rotate', f'{degrees}'])
 
     def reorientate(self):
         self.debug('[IM] reorientate')
@@ -484,7 +478,7 @@ class Engine(BaseEngine):
     def queue_operators(self, operators):
         self.operators += operators
 
-        self.debug('[IM] Queued operators: %r' % self.operators)
+        self.debug(f'[IM] Queued operators: {self.operators!r}')
 
     @property
     def magick_path(self):
@@ -530,7 +524,7 @@ class Engine(BaseEngine):
         if self.webp['lossless']:
             command += ['-lossless', '-exact']
         else:
-            command += ['-q', '%s' % self.webp['quality']]
+            command += ['-q', '{}'.format(self.webp['quality'])]
 
         self.webp = False
 

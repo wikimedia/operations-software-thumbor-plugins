@@ -1,6 +1,8 @@
-import pytest
 import logging
 from shutil import which
+
+import pytest
+
 from . import WikimediaTestCase
 
 
@@ -14,7 +16,7 @@ class WikimediaVipsTest(WikimediaTestCase):
         )
 
     def get_config(self):
-        cfg = super(WikimediaVipsTest, self).get_config()
+        cfg = super().get_config()
         cfg.VIPS_ENGINE_MIN_PIXELS = 0
 
         return cfg

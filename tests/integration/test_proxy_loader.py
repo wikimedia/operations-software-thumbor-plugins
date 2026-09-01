@@ -3,7 +3,7 @@ from . import WikimediaTestCase
 
 class WikimediaProxyLoaderTest(WikimediaTestCase):
     def get_config(self):
-        cfg = super(WikimediaProxyLoaderTest, self).get_config()
+        cfg = super().get_config()
         cfg.LOADER = 'wikimedia_thumbor.loader.proxy'
         cfg.PROXY_LOADER_LOADERS = [
             'wikimedia_thumbor.loader.video'

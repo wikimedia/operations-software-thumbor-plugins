@@ -1,5 +1,4 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 # thumbor imaging service
 # https://github.com/thumbor/thumbor/wiki
@@ -23,8 +22,8 @@ from tempfile import NamedTemporaryFile
 
 from thumbor.utils import logger
 
-from wikimedia_thumbor.shell_runner import ShellRunner
 from wikimedia_thumbor.logging import log_extra
+from wikimedia_thumbor.shell_runner import ShellRunner
 
 
 class ExiftoolRunner:
@@ -32,11 +31,14 @@ class ExiftoolRunner:
     def command(
         cls,
         context,
-        pre=[],
-        post=[],
+        pre=None,
+        post=None,
         buffer='',
         input_temp_file=None
     ):
+        pre = pre or []
+        post = post or []
+
         if not input_temp_file:
             input_temp_file = NamedTemporaryFile()
             input_temp_file.write(buffer)
@@ -49,13 +51,13 @@ class ExiftoolRunner:
         command.append(input_temp_file.name)
         command += post
 
-        logger.debug('[ExiftoolRunner] command: %r' % command, extra=log_extra(context))
+        logger.debug(f'[ExiftoolRunner] command: {command!r}', extra=log_extra(context))
 
         code, stderr, stdout = ShellRunner.command(command, context)
 
         input_temp_file.close()
 
         if stderr:
-            logger.error('[ExiftoolRunner] error: %r' % stderr, extra=log_extra(context))
+            logger.error(f'[ExiftoolRunner] error: {stderr!r}', extra=log_extra(context))
 
         return stdout

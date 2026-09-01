@@ -1,5 +1,4 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 # thumbor imaging service
 # https://github.com/thumbor/thumbor/wiki
@@ -56,7 +55,7 @@ class Filter(BaseFilter):
             logger.debug('[conditional_sharpen] apply unsharp mask')
             operators = [
                 '-unsharp',
-                '%fx%f+%f+%f' % (radius, sigma, amount, threshold)
+                f'{radius:f}x{sigma:f}+{amount:f}+{threshold:f}'
             ]
             self.engine.queue_operators(operators)
         else:

@@ -103,6 +103,28 @@ $ make down
 $ make bash
 ```
 
+## Linting
+
+Linting is [ruff](https://docs.astral.sh/ruff/), and it needs no media binaries, so it
+runs fine on the host:
+
+```bash
+$ pip install ruff
+$ make lint
+```
+
+That checks both style (`ruff check`) and formatting (`ruff format --check`); use
+`ruff format ./tests ./wikimedia_thumbor` to apply the formatting.
+
+To run it in the container instead:
+
+```bash
+$ make build-test
+$ docker run thumbor-test lint
+```
+
+`make docker_test` already runs the linter before the tests.
+
 ## Running tests
 
 The test suite has two layers. `tests/unit` runs on the host with no container and no

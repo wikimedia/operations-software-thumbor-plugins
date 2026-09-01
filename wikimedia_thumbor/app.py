@@ -1,29 +1,26 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/mit-license
 # Copyright (c) 2016 Wikimedia Foundation
 
-import manhole
 import os.path
 import tempfile
 from shutil import which
 
+import manhole
 import thumbor.engines
-
-from thumbor.utils import logger
-
-from thumbor.handlers import ContextHandler
 from tc_core import Extensions
 from tc_core.app import App as CommunityCoreApp
+from thumbor.handlers import ContextHandler
+from thumbor.utils import logger
 
 
 class App(CommunityCoreApp):
     def __init__(self, context):
         if context.config.get("MANHOLE_DEBUGGING", None):
             logger.debug("Installing manhole")
-            socket = "manhole-%s" % context.server.port
+            socket = f"manhole-{context.server.port}"
             socket_path = os.path.join(tempfile.gettempdir(), socket)
 
             manhole.install(socket_path=socket_path)
@@ -38,7 +35,7 @@ class App(CommunityCoreApp):
         # imagemagick engine instead.
         thumbor.engines.METADATA_AVAILABLE = False
 
-        super(App, self).__init__(context)
+        super().__init__(context)
 
     # We override this to avoid the catch-all ImagingHandler from
     # Thumbor which prevents us from 404ing properly on completely

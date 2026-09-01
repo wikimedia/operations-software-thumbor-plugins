@@ -1,5 +1,4 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 # thumbor imaging service
 # https://github.com/thumbor/thumbor/wiki
@@ -14,12 +13,12 @@
 # what the other custom loaders do.
 
 from datetime import datetime
-from os import fstat
-from os.path import join, exists, abspath
-from tempfile import NamedTemporaryFile
-import tornado.simple_httpclient
 from functools import partial
+from os import fstat
+from os.path import abspath, exists, join
+from tempfile import NamedTemporaryFile
 
+import tornado.simple_httpclient
 from thumbor.loaders import LoaderResult
 
 from wikimedia_thumbor.shell_runner import ShellRunner

@@ -1,5 +1,7 @@
 import io
+
 from PIL import Image
+
 from . import WikimediaTestCase
 
 

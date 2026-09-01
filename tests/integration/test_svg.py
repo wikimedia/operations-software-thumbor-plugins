@@ -183,20 +183,20 @@ class WikimediaSvgTest(WikimediaTestCase):
                 '/thumbor/unsafe/200x/filters:lang(sr-latn):format(png)/Speech_bubbles.svg'
             )
 
-        assert result.code == 200, 'Response code: %s' % result.code
+        assert result.code == 200, f'Response code: {result.code}'
 
         rsvg_commands = [
             command for command in commands
             if os.path.basename(command[0]) == 'rsvg-convert'
         ]
 
-        assert rsvg_commands, 'rsvg-convert was never called: %r' % commands
+        assert rsvg_commands, f'rsvg-convert was never called: {commands!r}'
 
         for command in rsvg_commands:
             assert '--accept-language' in command, \
-                'No language passed to rsvg-convert: %r' % command
+                f'No language passed to rsvg-convert: {command!r}'
 
             passed_lang = command[command.index('--accept-language') + 1]
 
             assert passed_lang == 'sr-latn', \
-                'Language tag altered: %s (should be sr-latn)' % passed_lang
+                f'Language tag altered: {passed_lang} (should be sr-latn)'
