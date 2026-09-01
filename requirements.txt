@@ -1,12 +1,15 @@
-pillow==12.3.0
+# Direct dependencies of wikimedia_thumbor.
 thumbor==7.8.0
-python-swiftclient==4.10.0
-manhole==1.8.1
-pymemcache==4.0.0
-webcolors==1.13
-pyssim==0.7.1
-urllib3==2.7.0
-py3exiv2==0.12.0
-pycurl==7.47.0
 tc_core==0.5
+python-swiftclient==4.10.0
+pymemcache==4.0.0
+py3exiv2==0.12.0
+manhole==1.8.1
 ecs-logging==2.3.0
+pillow==12.3.0
+
+# Transitive dependencies pinned here on purpose.
+# pycurl: thumbor's http_loader imports it when USE_CURL is enabled.
+pycurl==7.47.0
+# urllib3: pulled in by python-swiftclient via requests.
+urllib3==2.7.0

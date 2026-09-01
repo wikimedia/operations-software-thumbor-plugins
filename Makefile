@@ -1,4 +1,4 @@
-.PHONY: code-coverage docker_code-coverage test offline-test online-test lint up down build bash docker_test docker_offline-test docker_online-test 3d2png needs-docker install
+.PHONY: lock docker_lock code-coverage docker_code-coverage test offline-test online-test lint up down build bash docker_test docker_offline-test docker_online-test 3d2png needs-docker install
 
 # Settings
 # The default timeout is not enough while testing some asynchronous methods. So
@@ -47,6 +47,19 @@ online-test: needs-docker
 # cases that make HTTP requests to third-party services.
 docker_online-test: build-test
 	docker run --env ASYNC_TEST_TIMEOUT=$(ENV_ASYNC_TEST_TIMEOUT) thumbor-test online-test
+
+# Dependency locking
+#
+# requirements.txt pins direct dependencies, but their transitive
+# dependencies float, so two builds of the same commit are not guaranteed to
+# be the same. `make docker_lock` resolves the full tree into
+# requirements.lock inside the build image -- it has to run there because
+# pycurl and py3exiv2 need system headers to build.
+lock: needs-docker
+	pip-compile --output-file=requirements.lock --strip-extras requirements.txt
+
+docker_lock: build-test
+	docker run --mount type=bind,source=`pwd`,dst=/srv/service thumbor-test lock
 
 # Linter
 lint: needs-docker
