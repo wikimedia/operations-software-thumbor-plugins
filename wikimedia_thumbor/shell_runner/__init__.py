@@ -31,10 +31,7 @@ class ShellRunner:
         timeout = context.config.SUBPROCESS_TIMEOUT
         timeout_path = context.config.SUBPROCESS_TIMEOUT_PATH
 
-        timeout_command = [
-                timeout_path,
-                "--foreground"
-        ]
+        timeout_command = [timeout_path, "--foreground"]
         # The timeout command sends a SIGTERM signal by default.
         # --kill-after tells timeout to send a SIGKILL signal if the
         # command is still running after the initial SIGTERM was sent.

@@ -47,7 +47,6 @@ class App(CommunityCoreApp):
 
         for extensions in Extensions.extensions:
             for handler in extensions.handlers:
-
                 # Inject the context if the handler expects it.
                 if issubclass(handler[1], ContextHandler):
                     if len(handler) < 3:

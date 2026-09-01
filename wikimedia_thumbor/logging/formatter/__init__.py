@@ -1,3 +1,3 @@
 from .formatter import ThumborFormatter
 
-__all__ = ['ThumborFormatter']
+__all__ = ["ThumborFormatter"]

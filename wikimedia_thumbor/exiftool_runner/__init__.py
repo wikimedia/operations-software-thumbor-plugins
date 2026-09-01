@@ -28,14 +28,7 @@ from wikimedia_thumbor.shell_runner import ShellRunner
 
 class ExiftoolRunner:
     @classmethod
-    def command(
-        cls,
-        context,
-        pre=None,
-        post=None,
-        buffer='',
-        input_temp_file=None
-    ):
+    def command(cls, context, pre=None, post=None, buffer="", input_temp_file=None):
         pre = pre or []
         post = post or []
 
@@ -47,17 +40,17 @@ class ExiftoolRunner:
         command = [context.config.EXIFTOOL_PATH]
         command += pre
         # Avoids warnings going to stdout or stderr
-        command += ['-m', '-q', '-q']
+        command += ["-m", "-q", "-q"]
         command.append(input_temp_file.name)
         command += post
 
-        logger.debug(f'[ExiftoolRunner] command: {command!r}', extra=log_extra(context))
+        logger.debug(f"[ExiftoolRunner] command: {command!r}", extra=log_extra(context))
 
         code, stderr, stdout = ShellRunner.command(command, context)
 
         input_temp_file.close()
 
         if stderr:
-            logger.error(f'[ExiftoolRunner] error: {stderr!r}', extra=log_extra(context))
+            logger.error(f"[ExiftoolRunner] error: {stderr!r}", extra=log_extra(context))
 
         return stdout

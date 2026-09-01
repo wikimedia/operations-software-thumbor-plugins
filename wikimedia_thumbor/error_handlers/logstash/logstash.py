@@ -18,6 +18,6 @@ class ErrorHandler:
         tb_msg = traceback.format_tb(tb)
 
         extra = log_extra(context)
-        extra['traceback'] = ''.join(tb_msg)
+        extra["traceback"] = "".join(tb_msg)
 
-        logger.error(''.join(ex_msg), extra=extra)
+        logger.error("".join(ex_msg), extra=extra)

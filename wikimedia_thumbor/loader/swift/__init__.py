@@ -30,22 +30,17 @@ def should_run(url):  # pragma: no cover
 
 
 def cleanup_temp_file(context, path):
-    logger.debug(f'[SWIFT_LOADER] cleanup_temp_file: {path}', extra=log_extra(context))
+    logger.debug(f"[SWIFT_LOADER] cleanup_temp_file: {path}", extra=log_extra(context))
     ShellRunner.rm_f(path)
 
 
 def swift(context):
-    authurl = (
-        context.config.SWIFT_HOST +
-        context.config.SWIFT_AUTH_PATH
-    )
+    authurl = context.config.SWIFT_HOST + context.config.SWIFT_AUTH_PATH
 
     # This allows us to set the value via config, instead of depending on the
     # x-storage-url header returned by Swift during auth. This is a requirement
     # for communicating with Swift via HTTPS.
-    os_options = {
-        'object_storage_url': context.config.SWIFT_HOST + context.config.SWIFT_API_PATH
-    }
+    os_options = {"object_storage_url": context.config.SWIFT_HOST + context.config.SWIFT_API_PATH}
 
     conn = client.Connection(
         user=context.config.SWIFT_PRIVATE_USER if context.private else context.config.SWIFT_USER,
@@ -54,14 +49,14 @@ def swift(context):
         timeout=context.config.SWIFT_CONNECTION_TIMEOUT,
         retries=context.config.SWIFT_RETRIES,
         cacert=context.config.HTTP_LOADER_CA_CERTS,
-        os_options=os_options
+        os_options=os_options,
     )
 
     return conn
 
 
 async def load(context, url):
-    logger.debug(f'[SWIFT_LOADER] load: {url}', extra=log_extra(context))
+    logger.debug(f"[SWIFT_LOADER] load: {url}", extra=log_extra(context))
 
     result = LoaderResult()
 
@@ -69,36 +64,25 @@ async def load(context, url):
     path = context.wikimedia_original_filepath
 
     try:
-        logger.debug(
-            f'[SWIFT_LOADER] fetching {path} from container {container}',
-            extra=log_extra(context)
-        )
+        logger.debug(f"[SWIFT_LOADER] fetching {path} from container {container}", extra=log_extra(context))
 
         start = datetime.datetime.now()
 
         # logging.disable(logging.ERROR)
-        headers, response = await tornado.ioloop.IOLoop.instance().run_in_executor(
-            None,
-            swift(context).get_object,
-            container,
-            path
-        )
+        headers, response = await tornado.ioloop.IOLoop.instance().run_in_executor(None, swift(context).get_object, container, path)
         # logging.disable(logging.NOTSET)
 
-        record_timing(context, datetime.datetime.now() - start, 'swift.original.read.success', 'Thumbor-Swift-Original-Success-Time')
+        record_timing(context, datetime.datetime.now() - start, "swift.original.read.success", "Thumbor-Swift-Original-Success-Time")
 
-        context.metrics.incr('swift_loader.status.success')
+        context.metrics.incr("swift_loader.status.success")
 
         # XXX hack: If the file is an STL, we overwrite the first five bytes
         # with the word "solid", to trick the MIME detection pipeline.
         extension = path[-4:].lower()
-        isSTL = extension == '.stl'
+        isSTL = extension == ".stl"
 
         f = NamedTemporaryFile(delete=False)
-        logger.debug(
-            '[SWIFT_LOADER] writing %d bytes to temp file' % len(response),
-            extra=log_extra(context)
-        )
+        logger.debug("[SWIFT_LOADER] writing %d bytes to temp file" % len(response), extra=log_extra(context))
         f.write(response)
         f.close()
 
@@ -111,38 +95,31 @@ async def load(context, url):
         # binary STLs ignore the first 80 bytes, so this string will
         # be ignored.
         if isSTL:
-            body = b'solid' + body[5:]
+            body = b"solid" + body[5:]
 
         if len(body) == excerpt_length:
-            logger.debug(f'[SWIFT_LOADER] return_contents: {f.name}', extra=log_extra(context))
+            logger.debug(f"[SWIFT_LOADER] return_contents: {f.name}", extra=log_extra(context))
             context.wikimedia_original_file = f
 
-            tornado.ioloop.IOLoop.instance().call_later(
-                context.config.HTTP_LOADER_TEMP_FILE_TIMEOUT,
-                partial(
-                    cleanup_temp_file,
-                    context,
-                    context.wikimedia_original_file.name
-                )
-            )
+            tornado.ioloop.IOLoop.instance().call_later(context.config.HTTP_LOADER_TEMP_FILE_TIMEOUT, partial(cleanup_temp_file, context, context.wikimedia_original_file.name))
         else:
-            logger.debug('[SWIFT_LOADER] return_contents: small body')
+            logger.debug("[SWIFT_LOADER] return_contents: small body")
             cleanup_temp_file(context, f.name)
 
         result.buffer = body
     except ClientException as e:
-        record_timing(context, datetime.datetime.now() - start, 'swift.original.read.miss', 'Thumbor-Swift-Original-Miss-Time')
+        record_timing(context, datetime.datetime.now() - start, "swift.original.read.miss", "Thumbor-Swift-Original-Miss-Time")
         # logging.disable(logging.NOTSET)
         result.successful = False
         result.error = LoaderResult.ERROR_NOT_FOUND
-        logger.error(f'[SWIFT_LOADER] get_object failed: {url} {e!r}', extra=log_extra(context))
-        context.metrics.incr('swift_loader.status.client_exception')
+        logger.error(f"[SWIFT_LOADER] get_object failed: {url} {e!r}", extra=log_extra(context))
+        context.metrics.incr("swift_loader.status.client_exception")
     except requests.ConnectionError as e:
-        record_timing(context, datetime.datetime.now() - start, 'swift.original.read.exception', 'Thumbor-Swift-Original-Exception-Time')
+        record_timing(context, datetime.datetime.now() - start, "swift.original.read.exception", "Thumbor-Swift-Original-Exception-Time")
         # logging.disable(logging.NOTSET)
         result.successful = False
         result.error = LoaderResult.ERROR_UPSTREAM
-        logger.error(f'[SWIFT_LOADER] get_object failed: {url} {e!r}', extra=log_extra(context))
-        context.metrics.incr('swift_loader.status.connection_error')
+        logger.error(f"[SWIFT_LOADER] get_object failed: {url} {e!r}", extra=log_extra(context))
+        context.metrics.incr("swift_loader.status.connection_error")
 
     return result

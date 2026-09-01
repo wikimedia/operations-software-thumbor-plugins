@@ -27,7 +27,7 @@ def should_run(url):  # pragma: no cover
 
 
 def cleanup_temp_file(path):
-    logger.debug(f'[HTTPS] cleanup_temp_file: {path}')
+    logger.debug(f"[HTTPS] cleanup_temp_file: {path}")
     ShellRunner.rm_f(path)
 
 
@@ -42,16 +42,13 @@ def return_contents(response, url, context, f):  # pragma: no cover
     response._body = body
 
     if len(body) == excerpt_length:
-        logger.debug(f'[HTTPS] return_contents: {f.name}')
+        logger.debug(f"[HTTPS] return_contents: {f.name}")
         context.wikimedia_original_file = f
 
-        tornado.ioloop.IOLoop.instance().call_later(
-            context.config.HTTP_LOADER_TEMP_FILE_TIMEOUT,
-            partial(cleanup_temp_file, context.wikimedia_original_file.name)
-        )
+        tornado.ioloop.IOLoop.instance().call_later(context.config.HTTP_LOADER_TEMP_FILE_TIMEOUT, partial(cleanup_temp_file, context.wikimedia_original_file.name))
     else:
         # If the body is small we can delete the temp file immediately
-        logger.debug('[HTTPS] return_contents: small body')
+        logger.debug("[HTTPS] return_contents: small body")
         cleanup_temp_file(f.name)
 
     return http_loader.return_contents(response, url, context)
@@ -63,27 +60,24 @@ def stream_contents(response, f):
 
 def _normalize_url(url):
     rewritten_parts = []
-    parts = url.split('/')
+    parts = url.split("/")
 
     for part in parts[:-1]:
-        rewritten_parts.append(re.sub(r'%3A', r':', part))
+        rewritten_parts.append(re.sub(r"%3A", r":", part))
 
     rewritten_parts.append(parts[-1])
 
-    return '/'.join(rewritten_parts)
+    return "/".join(rewritten_parts)
 
 
 async def load(context, url):
-    logger.debug(f'[HTTPS] load_sync: {url}')
-    client = tornado.simple_httpclient.SimpleAsyncHTTPClient(
-        max_clients=context.config.HTTP_LOADER_MAX_CLIENTS,
-        max_body_size=context.config.HTTP_LOADER_MAX_BODY_SIZE
-    )
+    logger.debug(f"[HTTPS] load_sync: {url}")
+    client = tornado.simple_httpclient.SimpleAsyncHTTPClient(max_clients=context.config.HTTP_LOADER_MAX_CLIENTS, max_body_size=context.config.HTTP_LOADER_MAX_BODY_SIZE)
 
     user_agent = None
     if context.config.HTTP_LOADER_FORWARD_USER_AGENT:
-        if 'User-Agent' in context.request_handler.request.headers:
-            user_agent = context.request_handler.request.headers['User-Agent']
+        if "User-Agent" in context.request_handler.request.headers:
+            user_agent = context.request_handler.request.headers["User-Agent"]
     if user_agent is None:
         user_agent = context.config.HTTP_LOADER_DEFAULT_USER_AGENT
 
@@ -91,7 +85,7 @@ async def load(context, url):
 
     url = _normalize_url(url)
 
-    logger.debug(f'[HTTPS] Loading normalized URL: {url}')
+    logger.debug(f"[HTTPS] Loading normalized URL: {url}")
 
     req = tornado.httpclient.HTTPRequest(
         url=url,
@@ -107,7 +101,7 @@ async def load(context, url):
         ca_certs=encode(context.config.HTTP_LOADER_CA_CERTS),
         client_key=encode(context.config.HTTP_LOADER_CLIENT_KEY),
         client_cert=encode(context.config.HTTP_LOADER_CLIENT_CERT),
-        streaming_callback=partial(stream_contents, f=f)
+        streaming_callback=partial(stream_contents, f=f),
     )
 
     response = await client.fetch(req)
@@ -116,4 +110,4 @@ async def load(context, url):
 
 
 def encode(string):
-    return None if string is None else string.encode('ascii')
+    return None if string is None else string.encode("ascii")

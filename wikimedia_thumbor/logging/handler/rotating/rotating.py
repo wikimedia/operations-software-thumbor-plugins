@@ -4,18 +4,18 @@ import os
 
 
 class RotatingHandler(logging.handlers.RotatingFileHandler):
-    '''This class rotates log files based on size, while supporting
+    """This class rotates log files based on size, while supporting
     distinct python processes writing to the same file.
 
     Despite claims that lockf works on NFS shares, it didn't seem
     to be the case when testing on Vagrant. Therefore, don't store
     logs created with this class on a folder shared on NFS, otherwise
     the rollover won't be multiprocess-safe.
-    '''
+    """
 
     def doRollover(self):
         lockName = f"{self.baseFilename}.lock"
-        f = open(lockName, 'a+')
+        f = open(lockName, "a+")
 
         try:
             fcntl.lockf(f.fileno(), fcntl.LOCK_EX)

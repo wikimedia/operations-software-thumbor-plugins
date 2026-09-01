@@ -16,47 +16,31 @@ from thumbor.utils import logger
 
 
 class Filter(BaseFilter):
-
-    @filter_method(
-        BaseFilter.DecimalNumber,
-        BaseFilter.DecimalNumber,
-        BaseFilter.DecimalNumber,
-        BaseFilter.DecimalNumber,
-        BaseFilter.DecimalNumber
-    )
-    async def conditional_sharpen(
-            self,
-            radius,
-            sigma,
-            amount,
-            threshold,
-            resize_ratio_threshold):
+    @filter_method(BaseFilter.DecimalNumber, BaseFilter.DecimalNumber, BaseFilter.DecimalNumber, BaseFilter.DecimalNumber, BaseFilter.DecimalNumber)
+    async def conditional_sharpen(self, radius, sigma, amount, threshold, resize_ratio_threshold):
 
         width, height = self.engine.size
         try:
             original_width = self.context.request.source_width
         except AttributeError:
-            logger.debug('[conditional_sharpen] width fallback')
+            logger.debug("[conditional_sharpen] width fallback")
             original_width = self.engine.source_width
 
         try:
             original_height = self.context.request.source_height
         except AttributeError:
             original_height = self.engine.source_height
-            logger.debug('[conditional_sharpen] height fallback')
+            logger.debug("[conditional_sharpen] height fallback")
 
         source_sum = original_width + original_height
         destination_sum = width + height
         resize_ratio = destination_sum / source_sum
 
-        logger.debug('[conditional_sharpen] Original size: %dx%d Target size: %dx%d' % (original_width, original_height, width, height))
+        logger.debug("[conditional_sharpen] Original size: %dx%d Target size: %dx%d" % (original_width, original_height, width, height))
 
         if resize_ratio < resize_ratio_threshold:
-            logger.debug('[conditional_sharpen] apply unsharp mask')
-            operators = [
-                '-unsharp',
-                f'{radius:f}x{sigma:f}+{amount:f}+{threshold:f}'
-            ]
+            logger.debug("[conditional_sharpen] apply unsharp mask")
+            operators = ["-unsharp", f"{radius:f}x{sigma:f}+{amount:f}+{threshold:f}"]
             self.engine.queue_operators(operators)
         else:
-            logger.debug('[conditional_sharpen] skip, ratio below limit')
+            logger.debug("[conditional_sharpen] skip, ratio below limit")

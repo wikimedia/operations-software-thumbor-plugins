@@ -7,9 +7,9 @@ class OrientationTest(WikimediaTestCase):
             # All orientations should result in the same 150x200 image as orient_1.jpg
             # (within some reasonable tolerance for JPEG encoding differences after reorientation)
             self.run_and_check_ssim_and_size(
-                '/thumbor/unsafe/150x/orient_%d.jpg' % i,
-                '150px-orient_1.jpg',
-                '150px-orient_1.png',
+                "/thumbor/unsafe/150x/orient_%d.jpg" % i,
+                "150px-orient_1.jpg",
+                "150px-orient_1.png",
                 150,
                 200,
                 0.99,  # Very high SSIM expected since they should be identical

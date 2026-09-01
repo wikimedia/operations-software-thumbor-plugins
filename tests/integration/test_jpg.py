@@ -4,20 +4,18 @@ from . import WikimediaTestCase
 class WikimediaJpgTest(WikimediaTestCase):
     def test_jpg(self):
         self.run_and_check_ssim_and_size(
-            ('/thumbor/unsafe/400x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85)/'
-                'Christophe_Henner_-_June_2016.JPG'),
-            mediawiki_reference_thumbnail='400px-Christophe_Henner_-_June_2016.jpg',
-            perfect_reference_thumbnail='400px-Christophe_Henner_-_June_2016.png',
+            ("/thumbor/unsafe/400x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85)/Christophe_Henner_-_June_2016.JPG"),
+            mediawiki_reference_thumbnail="400px-Christophe_Henner_-_June_2016.jpg",
+            perfect_reference_thumbnail="400px-Christophe_Henner_-_June_2016.png",
             expected_width=400,
             expected_height=267,
             expected_ssim=0.92,
             size_tolerance=1.02,
         )
         self.run_and_check_ssim_and_size(
-            ('/thumbor/unsafe/400x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85):format(webp)/'
-                'Christophe_Henner_-_June_2016.JPG'),
-            mediawiki_reference_thumbnail='400px-Christophe_Henner_-_June_2016.jpg',
-            perfect_reference_thumbnail='400px-Christophe_Henner_-_June_2016.png',
+            ("/thumbor/unsafe/400x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85):format(webp)/Christophe_Henner_-_June_2016.JPG"),
+            mediawiki_reference_thumbnail="400px-Christophe_Henner_-_June_2016.jpg",
+            perfect_reference_thumbnail="400px-Christophe_Henner_-_June_2016.png",
             expected_width=400,
             expected_height=267,
             expected_ssim=0.94,
@@ -26,10 +24,9 @@ class WikimediaJpgTest(WikimediaTestCase):
 
     def test_request_by_height(self):
         self.run_and_check_ssim_and_size(
-            ('/thumbor/unsafe/x267/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85)/'
-                'Christophe_Henner_-_June_2016.JPG'),
-            mediawiki_reference_thumbnail='400px-Christophe_Henner_-_June_2016.jpg',
-            perfect_reference_thumbnail='400px-Christophe_Henner_-_June_2016.png',
+            ("/thumbor/unsafe/x267/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85)/Christophe_Henner_-_June_2016.JPG"),
+            mediawiki_reference_thumbnail="400px-Christophe_Henner_-_June_2016.jpg",
+            perfect_reference_thumbnail="400px-Christophe_Henner_-_June_2016.png",
             expected_width=400,
             expected_height=267,
             expected_ssim=0.92,
@@ -39,10 +36,9 @@ class WikimediaJpgTest(WikimediaTestCase):
     def test_request_specific_size(self):
         # Not currently used in WMF production
         self.run_and_check_ssim_and_size(
-            ('/thumbor/unsafe/400x267/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85)/'
-                'Christophe_Henner_-_June_2016.JPG'),
-            mediawiki_reference_thumbnail='400px-Christophe_Henner_-_June_2016.jpg',
-            perfect_reference_thumbnail='400px-Christophe_Henner_-_June_2016.png',
+            ("/thumbor/unsafe/400x267/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85)/Christophe_Henner_-_June_2016.JPG"),
+            mediawiki_reference_thumbnail="400px-Christophe_Henner_-_June_2016.jpg",
+            perfect_reference_thumbnail="400px-Christophe_Henner_-_June_2016.png",
             expected_width=400,
             expected_height=267,
             expected_ssim=0.92,
@@ -51,18 +47,18 @@ class WikimediaJpgTest(WikimediaTestCase):
 
     def test_width_rounding(self):
         self.run_and_check_ssim_and_size(
-            ('/thumbor/unsafe/800x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85)/Munich_subway_station_Westfriedhof.jpg'),
-            mediawiki_reference_thumbnail='800px-Munich_subway_station_Westfriedhof.jpg',
-            perfect_reference_thumbnail='800px-Munich_subway_station_Westfriedhof.png',
+            ("/thumbor/unsafe/800x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85)/Munich_subway_station_Westfriedhof.jpg"),
+            mediawiki_reference_thumbnail="800px-Munich_subway_station_Westfriedhof.jpg",
+            perfect_reference_thumbnail="800px-Munich_subway_station_Westfriedhof.png",
             expected_width=800,
             expected_height=353,
             expected_ssim=0.91,
             size_tolerance=1.03,
         )
         self.run_and_check_ssim_and_size(
-            ('/thumbor/unsafe/800x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85):format(webp)/Munich_subway_station_Westfriedhof.jpg'),
-            mediawiki_reference_thumbnail='800px-Munich_subway_station_Westfriedhof.jpg',
-            perfect_reference_thumbnail='800px-Munich_subway_station_Westfriedhof.png',
+            ("/thumbor/unsafe/800x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85):format(webp)/Munich_subway_station_Westfriedhof.jpg"),
+            mediawiki_reference_thumbnail="800px-Munich_subway_station_Westfriedhof.jpg",
+            perfect_reference_thumbnail="800px-Munich_subway_station_Westfriedhof.png",
             expected_width=800,
             expected_height=353,
             expected_ssim=0.91,
@@ -71,138 +67,126 @@ class WikimediaJpgTest(WikimediaTestCase):
 
     def test_exif_orientation(self):
         self.run_and_check_ssim_and_size(
-            '/thumbor/unsafe/40x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85)/EXIF_rotation_180.jpg',
-            mediawiki_reference_thumbnail='40px-EXIF_rotation_180.jpg',
-            perfect_reference_thumbnail='40px-EXIF_rotation_180.png',
+            "/thumbor/unsafe/40x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85)/EXIF_rotation_180.jpg",
+            mediawiki_reference_thumbnail="40px-EXIF_rotation_180.jpg",
+            perfect_reference_thumbnail="40px-EXIF_rotation_180.png",
             expected_width=40,
             expected_height=60,
             expected_ssim=0.99,
             size_tolerance=1.03,
         )
         self.run_and_check_ssim_and_size(
-            '/thumbor/unsafe/40x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85):format(webp)/EXIF_rotation_180.jpg',
-            mediawiki_reference_thumbnail='40px-EXIF_rotation_180.jpg',
-            perfect_reference_thumbnail='40px-EXIF_rotation_180.png',
+            "/thumbor/unsafe/40x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85):format(webp)/EXIF_rotation_180.jpg",
+            mediawiki_reference_thumbnail="40px-EXIF_rotation_180.jpg",
+            perfect_reference_thumbnail="40px-EXIF_rotation_180.png",
             expected_width=40,
             expected_height=60,
             expected_ssim=0.99,
             size_tolerance=0.28,
         )
         self.run_and_check_ssim_and_size(
-            ('/thumbor/unsafe/337x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85)/'
-                'Green_and_golden_Butterfly_copy.jpg'),
-            mediawiki_reference_thumbnail='337px-Green_and_golden_Butterfly_copy.jpg',
-            perfect_reference_thumbnail='337px-Green_and_golden_Butterfly_copy.png',
+            ("/thumbor/unsafe/337x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85)/Green_and_golden_Butterfly_copy.jpg"),
+            mediawiki_reference_thumbnail="337px-Green_and_golden_Butterfly_copy.jpg",
+            perfect_reference_thumbnail="337px-Green_and_golden_Butterfly_copy.png",
             expected_width=337,
             expected_height=599,
             expected_ssim=0.94,
             size_tolerance=1.0,
         )
         self.run_and_check_ssim_and_size(
-            ('/thumbor/unsafe/337x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85):format(webp)/'
-                'Green_and_golden_Butterfly_copy.jpg'),
-            mediawiki_reference_thumbnail='337px-Green_and_golden_Butterfly_copy.jpg',
-            perfect_reference_thumbnail='337px-Green_and_golden_Butterfly_copy.png',
+            ("/thumbor/unsafe/337x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85):format(webp)/Green_and_golden_Butterfly_copy.jpg"),
+            mediawiki_reference_thumbnail="337px-Green_and_golden_Butterfly_copy.jpg",
+            perfect_reference_thumbnail="337px-Green_and_golden_Butterfly_copy.png",
             expected_width=337,
             expected_height=599,
             expected_ssim=0.96,
             size_tolerance=0.97,
         )
         self.run_and_check_ssim_and_size(
-            ('/thumbor/unsafe/394x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85)/'
-                'Rostockstein.jpg'),
-            mediawiki_reference_thumbnail='394px-Rostockstein.jpg',
-            perfect_reference_thumbnail='394px-Rostockstein.png',
+            ("/thumbor/unsafe/394x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85)/Rostockstein.jpg"),
+            mediawiki_reference_thumbnail="394px-Rostockstein.jpg",
+            perfect_reference_thumbnail="394px-Rostockstein.png",
             expected_width=394,
             expected_height=599,
             expected_ssim=0.93,
             size_tolerance=0.77,
         )
         self.run_and_check_ssim_and_size(
-            ('/thumbor/unsafe/394x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85):format(webp)/'
-                'Rostockstein.jpg'),
-            mediawiki_reference_thumbnail='394px-Rostockstein.jpg',
-            perfect_reference_thumbnail='394px-Rostockstein.png',
+            ("/thumbor/unsafe/394x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85):format(webp)/Rostockstein.jpg"),
+            mediawiki_reference_thumbnail="394px-Rostockstein.jpg",
+            perfect_reference_thumbnail="394px-Rostockstein.png",
             expected_width=394,
             expected_height=599,
             expected_ssim=0.97,
             size_tolerance=0.81,
         )
         self.run_and_check_ssim_and_size(
-            ('/thumbor/unsafe/450x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85)/'
-                'Carrie.jpg'),
-            mediawiki_reference_thumbnail='450px-Carrie.jpg',
-            perfect_reference_thumbnail='450px-Carrie.jpg',
+            ("/thumbor/unsafe/450x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85)/Carrie.jpg"),
+            mediawiki_reference_thumbnail="450px-Carrie.jpg",
+            perfect_reference_thumbnail="450px-Carrie.jpg",
             expected_width=450,
             expected_height=600,
             expected_ssim=0.96,
             size_tolerance=0.77,
         )
         self.run_and_check_ssim_and_size(
-            ('/thumbor/unsafe/450x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85):format(webp)/'
-                'Carrie.jpg'),
-            mediawiki_reference_thumbnail='450px-Carrie.jpg',
-            perfect_reference_thumbnail='450px-Carrie.png',
+            ("/thumbor/unsafe/450x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85):format(webp)/Carrie.jpg"),
+            mediawiki_reference_thumbnail="450px-Carrie.jpg",
+            perfect_reference_thumbnail="450px-Carrie.png",
             expected_width=450,
             expected_height=600,
             expected_ssim=0.97,
             size_tolerance=0.65,
         )
         self.run_and_check_ssim_and_size(
-            ('/thumbor/unsafe/447x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85)/'
-                'Cerkiew.jpg'),
-            mediawiki_reference_thumbnail='447px-Cerkiew.jpg',
-            perfect_reference_thumbnail='447px-Cerkiew.png',
+            ("/thumbor/unsafe/447x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85)/Cerkiew.jpg"),
+            mediawiki_reference_thumbnail="447px-Cerkiew.jpg",
+            perfect_reference_thumbnail="447px-Cerkiew.png",
             expected_width=447,
             expected_height=599,
             expected_ssim=0.96,
             size_tolerance=0.75,
         )
         self.run_and_check_ssim_and_size(
-            ('/thumbor/unsafe/447x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85):format(webp)/'
-                'Cerkiew.jpg'),
-            mediawiki_reference_thumbnail='447px-Cerkiew.jpg',
-            perfect_reference_thumbnail='447px-Cerkiew.png',
+            ("/thumbor/unsafe/447x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85):format(webp)/Cerkiew.jpg"),
+            mediawiki_reference_thumbnail="447px-Cerkiew.jpg",
+            perfect_reference_thumbnail="447px-Cerkiew.png",
             expected_width=447,
             expected_height=599,
             expected_ssim=0.96,
             size_tolerance=0.57,
         )
         self.run_and_check_ssim_and_size(
-            ('/thumbor/unsafe/337x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85)/'
-                'Tower.jpg'),
-            mediawiki_reference_thumbnail='337px-Tower.jpg',
-            perfect_reference_thumbnail='337px-Tower.png',
+            ("/thumbor/unsafe/337x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85)/Tower.jpg"),
+            mediawiki_reference_thumbnail="337px-Tower.jpg",
+            perfect_reference_thumbnail="337px-Tower.png",
             expected_width=337,
             expected_height=600,
             expected_ssim=0.96,
             size_tolerance=0.81,
         )
         self.run_and_check_ssim_and_size(
-            ('/thumbor/unsafe/337x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85):format(webp)/'
-                'Tower.jpg'),
-            mediawiki_reference_thumbnail='337px-Tower.jpg',
-            perfect_reference_thumbnail='337px-Tower.png',
+            ("/thumbor/unsafe/337x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85):format(webp)/Tower.jpg"),
+            mediawiki_reference_thumbnail="337px-Tower.jpg",
+            perfect_reference_thumbnail="337px-Tower.png",
             expected_width=337,
             expected_height=600,
             expected_ssim=0.98,
             size_tolerance=0.83,
         )
         self.run_and_check_ssim_and_size(
-            ('/thumbor/unsafe/400x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85)/'
-                'Magnus.jpg'),
-            mediawiki_reference_thumbnail='400px-Magnus.jpg',
-            perfect_reference_thumbnail='400px-Magnus.png',
+            ("/thumbor/unsafe/400x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85)/Magnus.jpg"),
+            mediawiki_reference_thumbnail="400px-Magnus.jpg",
+            perfect_reference_thumbnail="400px-Magnus.png",
             expected_width=400,
             expected_height=300,
             expected_ssim=0.94,
             size_tolerance=0.98,
         )
         self.run_and_check_ssim_and_size(
-            ('/thumbor/unsafe/400x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85):format(webp)/'
-                'Magnus.jpg'),
-            mediawiki_reference_thumbnail='400px-Magnus.jpg',
-            perfect_reference_thumbnail='400px-Magnus.png',
+            ("/thumbor/unsafe/400x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85):format(webp)/Magnus.jpg"),
+            mediawiki_reference_thumbnail="400px-Magnus.jpg",
+            perfect_reference_thumbnail="400px-Magnus.png",
             expected_width=400,
             expected_height=300,
             expected_ssim=0.96,
@@ -212,16 +196,9 @@ class WikimediaJpgTest(WikimediaTestCase):
     def test_bad_orientation(self):
         """Regression test for https://phabricator.wikimedia.org/T193326"""
         self.run_and_check_ssim_and_size(
-            url=(
-                '/thumbor/unsafe/450x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85)/'
-                'Smedavska_hornatina_Sloupsky_potok_vodopad_01.jpg'
-            ),
-            mediawiki_reference_thumbnail=(
-                '450px-Smedavska_hornatina_Sloupsky_potok_vodopad_01.jpg'
-            ),
-            perfect_reference_thumbnail=(
-                '450px-Smedavska_hornatina_Sloupsky_potok_vodopad_01.jpg.png'
-            ),
+            url=("/thumbor/unsafe/450x/filters:conditional_sharpen(0.0,0.8,1.0,0.0,0.85)/Smedavska_hornatina_Sloupsky_potok_vodopad_01.jpg"),
+            mediawiki_reference_thumbnail=("450px-Smedavska_hornatina_Sloupsky_potok_vodopad_01.jpg"),
+            perfect_reference_thumbnail=("450px-Smedavska_hornatina_Sloupsky_potok_vodopad_01.jpg.png"),
             expected_width=450,
             expected_height=600,
             expected_ssim=0.88,

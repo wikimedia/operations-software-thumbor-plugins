@@ -33,11 +33,7 @@ swiftconn_private = None
 def should_run(url):  # pragma: no cover
     normalized_url = _normalize_url(url).lower()
 
-    if (normalized_url.endswith('.ogv') or
-            normalized_url.endswith('.ogg') or
-            normalized_url.endswith('.webm') or
-            normalized_url.endswith('.mpg') or
-            normalized_url.endswith('.mpeg')):
+    if normalized_url.endswith(".ogv") or normalized_url.endswith(".ogg") or normalized_url.endswith(".webm") or normalized_url.endswith(".mpg") or normalized_url.endswith(".mpeg"):
         return True
 
     return False
@@ -53,33 +49,21 @@ async def load(context, url):
 
     normalized_url = _normalize_url(url)
 
-    command = [
-        context.config.FFPROBE_PATH,
-        '-v',
-        'error',
-        '-show_entries',
-        'format=duration',
-        '-of',
-        'default=noprint_wrappers=1:nokey=1'
-    ]
+    command = [context.config.FFPROBE_PATH, "-v", "error", "-show_entries", "format=duration", "-of", "default=noprint_wrappers=1:nokey=1"]
 
-    if hasattr(context.config, 'SWIFT_HOST'):
+    if hasattr(context.config, "SWIFT_HOST"):
         command += [
-            '-headers',
-            f'X-Auth-Token: {get_swift_token(context)}',
+            "-headers",
+            f"X-Auth-Token: {get_swift_token(context)}",
         ]
 
-    command += [f'{normalized_url}']
+    command += [f"{normalized_url}"]
 
     command = ShellRunner.wrap_command(command, context)
 
-    logger.debug(f'[Video] load: {command!r}')
+    logger.debug(f"[Video] load: {command!r}")
 
-    process = Subprocess(
-        command,
-        stdout=Subprocess.STREAM,
-        stderr=Subprocess.STREAM
-    )
+    process = Subprocess(command, stdout=Subprocess.STREAM, stderr=Subprocess.STREAM)
 
     status = await process.wait_for_exit(False)
 
@@ -102,13 +86,13 @@ def _http_code_from_stderr(context, process, result, normalized_url):
     stderr = stderr[:nread] if nread else bytearray()
 
     extra = log_extra(context)
-    extra['stderr'] = stderr
-    extra['normalized_url'] = normalized_url
+    extra["stderr"] = stderr
+    extra["normalized_url"] = normalized_url
 
-    logger.error(f'[Video] Fprobe/ffmpeg errored: {stderr}', extra=extra)
-    http_error_re = re.compile(r'.*Server returned (\d\d\d).*', re.MULTILINE)
+    logger.error(f"[Video] Fprobe/ffmpeg errored: {stderr}", extra=extra)
+    http_error_re = re.compile(r".*Server returned (\d\d\d).*", re.MULTILINE)
     code = None
-    for stderr_line in stderr.decode('utf-8').split("\n"):
+    for stderr_line in stderr.decode("utf-8").split("\n"):
         code_match = http_error_re.match(stderr_line)
         if code_match:
             code = code_match
@@ -165,56 +149,42 @@ async def seek_and_screenshot(context, normalized_url, seek):
         context.config.FFMPEG_PATH,
         # Order is important, for fast seeking -ss and -headers have to be before -i
         # As explained on https://trac.ffmpeg.org/wiki/Seeking
-        '-ss',
-        '%d' % seek
+        "-ss",
+        "%d" % seek,
     ]
 
-    if hasattr(context.config, 'SWIFT_HOST'):
-        command += [
-            '-headers',
-            f'X-Auth-Token: {get_swift_token(context)}'
-        ]
+    if hasattr(context.config, "SWIFT_HOST"):
+        command += ["-headers", f"X-Auth-Token: {get_swift_token(context)}"]
 
     command += [
-        '-i',
-        f'{normalized_url}',
-        '-y',
-        '-vframes',
-        '1',
-        '-an',
-        '-f',
-        'image2',
-        '-vf',
-        'scale=iw*sar:ih',  # T198043 apply any codec-specific aspect ratio
-        '-nostats',
-        '-loglevel',
-        'fatal',
-        output_file.name
+        "-i",
+        f"{normalized_url}",
+        "-y",
+        "-vframes",
+        "1",
+        "-an",
+        "-f",
+        "image2",
+        "-vf",
+        "scale=iw*sar:ih",  # T198043 apply any codec-specific aspect ratio
+        "-nostats",
+        "-loglevel",
+        "fatal",
+        output_file.name,
     ]
 
     command = ShellRunner.wrap_command(command, context)
 
-    logger.debug(f'[Video] _parse_time: {command!r}')
+    logger.debug(f"[Video] _parse_time: {command!r}")
 
-    process = Subprocess(
-        command,
-        stdout=Subprocess.STREAM,
-        stderr=Subprocess.STREAM
-    )
+    process = Subprocess(command, stdout=Subprocess.STREAM, stderr=Subprocess.STREAM)
 
     status = await process.wait_for_exit(False)
 
     return await _process_done(process, context, normalized_url, seek, output_file, status)
 
 
-async def _process_done(
-        process,
-        context,
-        normalized_url,
-        seek,
-        output_file,
-        status
-        ):
+async def _process_done(process, context, normalized_url, seek, output_file, status):
     # T183907 Sometimes ffmpeg returns status 0 and actually fails to
     # generate a thumbnail. We double-check the existence of the thumbnail
     # in case of apparent success
@@ -244,7 +214,7 @@ async def _process_done(
         os.unlink(output_file.name)
     except OSError as e:  # pragma: no cover
         if e.errno != errno.ENOENT:
-            logger.error('[Video] Unable to unlink output file', extra=log_extra(context))
+            logger.error("[Video] Unable to unlink output file", extra=log_extra(context))
             raise
 
     return result
@@ -254,11 +224,11 @@ def _normalize_url(url):
     # URLs provided by Thumbor to load() are fully URL-escaped, including the protocol.
     # We unescape just the colon of the protocol to get a valid and properly escaped URL.
     rewritten_parts = []
-    parts = url.split('/')
+    parts = url.split("/")
 
     for part in parts[:-1]:
-        rewritten_parts.append(re.sub(r'%3A', r':', part))
+        rewritten_parts.append(re.sub(r"%3A", r":", part))
 
     rewritten_parts.append(parts[-1])
 
-    return '/'.join(rewritten_parts)
+    return "/".join(rewritten_parts)

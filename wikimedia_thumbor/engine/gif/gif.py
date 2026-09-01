@@ -18,11 +18,7 @@ from thumbor.utils import logger
 from wikimedia_thumbor.engine import BaseWikimediaEngine
 from wikimedia_thumbor.shell_runner import ShellRunner
 
-BaseWikimediaEngine.add_format(
-    'image/gif',
-    '.gif',
-    lambda buffer: buffer[:4] == b'GIF8'
-)
+BaseWikimediaEngine.add_format("image/gif", ".gif", lambda buffer: buffer[:4] == b"GIF8")
 
 
 class Engine(BaseEngine):
@@ -37,19 +33,19 @@ class Engine(BaseEngine):
         self.operations.append("--resize-colors 64")
 
     def load(self, buffer, extension):
-        if hasattr(self.context, 'wikimedia_original_file'):
+        if hasattr(self.context, "wikimedia_original_file"):
             fname = self.context.wikimedia_original_file.name
-            with open(fname, 'rb') as content_file:
+            with open(fname, "rb") as content_file:
                 buffer = content_file.read()
             ShellRunner.rm_f(fname)
 
         super().load(buffer, extension)
 
-        logger.debug('[GIF] Frame count: %d Width: %d Height: %d' % (self.frame_count, self.image_size[0], self.image_size[1]))
+        logger.debug("[GIF] Frame count: %d Width: %d Height: %d" % (self.frame_count, self.image_size[0], self.image_size[1]))
 
         config = self.context.config
 
-        if hasattr(config, 'MAX_ANIMATED_GIF_AREA') and config.MAX_ANIMATED_GIF_AREA:
+        if hasattr(config, "MAX_ANIMATED_GIF_AREA") and config.MAX_ANIMATED_GIF_AREA:
             if self.frame_count > 1 and self.image_size[0] * self.image_size[1] * self.frame_count > config.MAX_ANIMATED_GIF_AREA:
-                logger.debug('[GIF] GIF is animated and greater than max animated area, keeping first frame')
+                logger.debug("[GIF] GIF is animated and greater than max animated area, keeping first frame")
                 self.operations.append("#0")

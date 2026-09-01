@@ -4,54 +4,54 @@ from . import WikimediaTestCase
 class WikimediaTiffTest(WikimediaTestCase):
     def test_tiff(self):
         self.run_and_check_ssim_and_size(
-            '/thumbor/unsafe/400x/0729.tiff',
-            mediawiki_reference_thumbnail='lossy-page1-400px-0729.tiff.jpg',
-            perfect_reference_thumbnail='lossy-page1-400px-0729.tiff.png',
+            "/thumbor/unsafe/400x/0729.tiff",
+            mediawiki_reference_thumbnail="lossy-page1-400px-0729.tiff.jpg",
+            perfect_reference_thumbnail="lossy-page1-400px-0729.tiff.png",
             expected_width=400,
             expected_height=254,
             expected_ssim=0.97,
             size_tolerance=0.68,
         )
         self.run_and_check_ssim_and_size(
-            '/thumbor/unsafe/400x/filters:format(webp)/0729.tiff',
-            mediawiki_reference_thumbnail='lossy-page1-400px-0729.tiff.jpg',
-            perfect_reference_thumbnail='lossy-page1-400px-0729.tiff.png',
+            "/thumbor/unsafe/400x/filters:format(webp)/0729.tiff",
+            mediawiki_reference_thumbnail="lossy-page1-400px-0729.tiff.jpg",
+            perfect_reference_thumbnail="lossy-page1-400px-0729.tiff.png",
             expected_width=400,
             expected_height=254,
             expected_ssim=0.97,
             size_tolerance=0.5,
         )
         self.run_and_check_ssim_and_size(
-            '/thumbor/unsafe/300x/Lejeune.TIF',
-            mediawiki_reference_thumbnail='lossy-page1-300px-Lejeune.TIF.jpg',
-            perfect_reference_thumbnail='lossy-page1-300px-Lejeune.TIF.png',
+            "/thumbor/unsafe/300x/Lejeune.TIF",
+            mediawiki_reference_thumbnail="lossy-page1-300px-Lejeune.TIF.jpg",
+            perfect_reference_thumbnail="lossy-page1-300px-Lejeune.TIF.png",
             expected_width=300,
             expected_height=202,
             expected_ssim=0.98,
             size_tolerance=0.23,
         )
         self.run_and_check_ssim_and_size(
-            '/thumbor/unsafe/300x/filters:format(webp)/Lejeune.TIF',
-            mediawiki_reference_thumbnail='lossy-page1-300px-Lejeune.TIF.jpg',
-            perfect_reference_thumbnail='lossy-page1-300px-Lejeune.TIF.png',
+            "/thumbor/unsafe/300x/filters:format(webp)/Lejeune.TIF",
+            mediawiki_reference_thumbnail="lossy-page1-300px-Lejeune.TIF.jpg",
+            perfect_reference_thumbnail="lossy-page1-300px-Lejeune.TIF.png",
             expected_width=300,
             expected_height=202,
             expected_ssim=0.97,
             size_tolerance=0.64,
         )
         self.run_and_check_ssim_and_size(
-            '/thumbor/unsafe/300x/Hafnia_alvei.tif',
-            mediawiki_reference_thumbnail='lossy-page1-300px-Hafnia_alvei.tif.jpg',
-            perfect_reference_thumbnail='lossy-page1-300px-Hafnia_alvei.tif.png',
+            "/thumbor/unsafe/300x/Hafnia_alvei.tif",
+            mediawiki_reference_thumbnail="lossy-page1-300px-Hafnia_alvei.tif.jpg",
+            perfect_reference_thumbnail="lossy-page1-300px-Hafnia_alvei.tif.png",
             expected_width=300,
             expected_height=300,
             expected_ssim=0.95,
             size_tolerance=0.48,
         )
         self.run_and_check_ssim_and_size(
-            '/thumbor/unsafe/300x/filters:format(webp)/Hafnia_alvei.tif',
-            mediawiki_reference_thumbnail='lossy-page1-300px-Hafnia_alvei.tif.jpg',
-            perfect_reference_thumbnail='lossy-page1-300px-Hafnia_alvei.tif.png',
+            "/thumbor/unsafe/300x/filters:format(webp)/Hafnia_alvei.tif",
+            mediawiki_reference_thumbnail="lossy-page1-300px-Hafnia_alvei.tif.jpg",
+            perfect_reference_thumbnail="lossy-page1-300px-Hafnia_alvei.tif.png",
             expected_width=300,
             expected_height=300,
             expected_ssim=0.94,
@@ -60,18 +60,18 @@ class WikimediaTiffTest(WikimediaTestCase):
 
     def test_multipage_tiff(self):
         self.run_and_check_ssim_and_size(
-            '/thumbor/unsafe/400x/filters:page(3)/International_Convention_for_Regulation_of_Whaling.tiff',
-            mediawiki_reference_thumbnail='lossy-page3-400px-International_Convention_for_Regulation_of_Whaling.tiff.jpg',
-            perfect_reference_thumbnail='lossy-page3-400px-International_Convention_for_Regulation_of_Whaling.tiff.png',
+            "/thumbor/unsafe/400x/filters:page(3)/International_Convention_for_Regulation_of_Whaling.tiff",
+            mediawiki_reference_thumbnail="lossy-page3-400px-International_Convention_for_Regulation_of_Whaling.tiff.jpg",
+            perfect_reference_thumbnail="lossy-page3-400px-International_Convention_for_Regulation_of_Whaling.tiff.png",
             expected_width=400,
             expected_height=566,
             expected_ssim=0.99,
             size_tolerance=0.8,
         )
         self.run_and_check_ssim_and_size(
-            '/thumbor/unsafe/400x/filters:page(3):format(webp)/International_Convention_for_Regulation_of_Whaling.tiff',
-            mediawiki_reference_thumbnail='lossy-page3-400px-International_Convention_for_Regulation_of_Whaling.tiff.jpg',
-            perfect_reference_thumbnail='lossy-page3-400px-International_Convention_for_Regulation_of_Whaling.tiff.png',
+            "/thumbor/unsafe/400x/filters:page(3):format(webp)/International_Convention_for_Regulation_of_Whaling.tiff",
+            mediawiki_reference_thumbnail="lossy-page3-400px-International_Convention_for_Regulation_of_Whaling.tiff.jpg",
+            perfect_reference_thumbnail="lossy-page3-400px-International_Convention_for_Regulation_of_Whaling.tiff.png",
             expected_width=400,
             expected_height=566,
             expected_ssim=0.98,
@@ -80,18 +80,18 @@ class WikimediaTiffTest(WikimediaTestCase):
 
     def test_multipage_tiff_without_page_filter(self):
         self.run_and_check_ssim_and_size(
-            '/thumbor/unsafe/400x/International_Convention_for_Regulation_of_Whaling.tiff',
-            mediawiki_reference_thumbnail='lossy-page1-400px-International_Convention_for_Regulation_of_Whaling.tiff.jpg',
-            perfect_reference_thumbnail='lossy-page1-400px-International_Convention_for_Regulation_of_Whaling.tiff.png',
+            "/thumbor/unsafe/400x/International_Convention_for_Regulation_of_Whaling.tiff",
+            mediawiki_reference_thumbnail="lossy-page1-400px-International_Convention_for_Regulation_of_Whaling.tiff.jpg",
+            perfect_reference_thumbnail="lossy-page1-400px-International_Convention_for_Regulation_of_Whaling.tiff.png",
             expected_width=400,
             expected_height=566,
             expected_ssim=0.99,
             size_tolerance=0.77,
         )
         self.run_and_check_ssim_and_size(
-            '/thumbor/unsafe/400x/filters:format(webp)/International_Convention_for_Regulation_of_Whaling.tiff',
-            mediawiki_reference_thumbnail='lossy-page1-400px-International_Convention_for_Regulation_of_Whaling.tiff.jpg',
-            perfect_reference_thumbnail='lossy-page1-400px-International_Convention_for_Regulation_of_Whaling.tiff.png',
+            "/thumbor/unsafe/400x/filters:format(webp)/International_Convention_for_Regulation_of_Whaling.tiff",
+            mediawiki_reference_thumbnail="lossy-page1-400px-International_Convention_for_Regulation_of_Whaling.tiff.jpg",
+            perfect_reference_thumbnail="lossy-page1-400px-International_Convention_for_Regulation_of_Whaling.tiff.png",
             expected_width=400,
             expected_height=566,
             expected_ssim=0.98,
@@ -100,18 +100,18 @@ class WikimediaTiffTest(WikimediaTestCase):
 
     def test_multipage_tiff_with_out_of_bounds_page(self):
         self.run_and_check_ssim_and_size(
-            '/thumbor/unsafe/400x/filters:page(500)/International_Convention_for_Regulation_of_Whaling.tiff',
-            mediawiki_reference_thumbnail='lossy-page1-400px-International_Convention_for_Regulation_of_Whaling.tiff.jpg',
-            perfect_reference_thumbnail='lossy-page1-400px-International_Convention_for_Regulation_of_Whaling.tiff.png',
+            "/thumbor/unsafe/400x/filters:page(500)/International_Convention_for_Regulation_of_Whaling.tiff",
+            mediawiki_reference_thumbnail="lossy-page1-400px-International_Convention_for_Regulation_of_Whaling.tiff.jpg",
+            perfect_reference_thumbnail="lossy-page1-400px-International_Convention_for_Regulation_of_Whaling.tiff.png",
             expected_width=400,
             expected_height=566,
             expected_ssim=0.99,
             size_tolerance=0.77,
         )
         self.run_and_check_ssim_and_size(
-            '/thumbor/unsafe/400x/filters:page(500):format(webp)/International_Convention_for_Regulation_of_Whaling.tiff',
-            mediawiki_reference_thumbnail='lossy-page1-400px-International_Convention_for_Regulation_of_Whaling.tiff.jpg',
-            perfect_reference_thumbnail='lossy-page1-400px-International_Convention_for_Regulation_of_Whaling.tiff.png',
+            "/thumbor/unsafe/400x/filters:page(500):format(webp)/International_Convention_for_Regulation_of_Whaling.tiff",
+            mediawiki_reference_thumbnail="lossy-page1-400px-International_Convention_for_Regulation_of_Whaling.tiff.jpg",
+            perfect_reference_thumbnail="lossy-page1-400px-International_Convention_for_Regulation_of_Whaling.tiff.png",
             expected_width=400,
             expected_height=566,
             expected_ssim=0.98,

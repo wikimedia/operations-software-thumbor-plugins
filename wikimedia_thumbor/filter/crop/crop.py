@@ -14,11 +14,6 @@ from thumbor.filters import BaseFilter, filter_method
 
 
 class Filter(BaseFilter):
-
-    @filter_method(
-        BaseFilter.Number,
-        BaseFilter.Number,
-        BaseFilter.Number,
-        BaseFilter.Number)
+    @filter_method(BaseFilter.Number, BaseFilter.Number, BaseFilter.Number, BaseFilter.Number)
     async def crop(self, left, top, right, bottom):
         self.engine.realcrop(left, top, right, bottom)

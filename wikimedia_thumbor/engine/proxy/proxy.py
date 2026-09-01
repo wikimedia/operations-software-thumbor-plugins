@@ -24,8 +24,7 @@ from wikimedia_thumbor.logging import log_extra
 
 
 def utime():
-    return resource.getrusage(resource.RUSAGE_SELF).ru_utime \
-        + resource.getrusage(resource.RUSAGE_CHILDREN).ru_utime
+    return resource.getrusage(resource.RUSAGE_SELF).ru_utime + resource.getrusage(resource.RUSAGE_CHILDREN).ru_utime
 
 
 class Engine(BaseEngine):
@@ -35,11 +34,11 @@ class Engine(BaseEngine):
         # Create an object that will store local values
         # Setting it this way avoids hitting the __setattr__
         # proxying
-        super().__setattr__('lcl', {})
-        super().__setattr__('multiple_engine', None)
+        super().__setattr__("lcl", {})
+        super().__setattr__("multiple_engine", None)
 
-        self.lcl['context'] = context
-        self.lcl['engines'] = engines
+        self.lcl["context"] = context
+        self.lcl["engines"] = engines
 
         for engine in engines:
             self.init_engine(context, engine)
@@ -51,31 +50,29 @@ class Engine(BaseEngine):
         self.lcl[module] = klass(context)
 
     def select_engine(self):
-        if self.lcl['selected_engine'] is not None:
-            return self.lcl['selected_engine']
+        if self.lcl["selected_engine"] is not None:
+            return self.lcl["selected_engine"]
 
-        if self.lcl['extension'] is None:
+        if self.lcl["extension"] is None:
             ext = None
         else:
-            ext = self.lcl['extension'].lstrip('.')
+            ext = self.lcl["extension"].lstrip(".")
 
-        logger.debug(f'[Proxy] Looking for a {ext} engine')
+        logger.debug(f"[Proxy] Looking for a {ext} engine")
 
-        for enginename, extensions in self.lcl['engines'].items():
+        for enginename, extensions in self.lcl["engines"].items():
             engine = self.lcl[enginename]
 
             if ext in extensions:
-                if hasattr(engine, 'should_run'):
-                    if engine.should_run(self.lcl['buffer']):
-                        self.lcl['selected_engine'] = enginename
+                if hasattr(engine, "should_run"):
+                    if engine.should_run(self.lcl["buffer"]):
+                        self.lcl["selected_engine"] = enginename
                         return enginename
                 else:
-                    self.lcl['selected_engine'] = enginename
+                    self.lcl["selected_engine"] = enginename
                     return enginename
 
-        raise Exception(
-            'Unable to find a suitable engine, tried {!r}'.format(self.lcl['engines'])
-        )  # pragma: no cover
+        raise Exception("Unable to find a suitable engine, tried {!r}".format(self.lcl["engines"]))  # pragma: no cover
 
     def record_timing(self, timing, header, end):
         duration = end - self.lcl[timing]
@@ -88,40 +85,30 @@ class Engine(BaseEngine):
         # the value which will be rounded are used.
         duration = math.floor((duration * 1000) + 0.5)
 
-        self.lcl['context'].metrics.timing(
-            'engine.' + timing + '.' + self.select_engine(),
-            duration
-        )
+        self.lcl["context"].metrics.timing("engine." + timing + "." + self.select_engine(), duration)
 
-        if (hasattr(self.lcl['context'].config, 'SLOW_PROCESSING_LIMIT') and
-                duration > self.lcl['context'].config.SLOW_PROCESSING_LIMIT):
-            logger.error(f'[Proxy] Request took a long time: {duration!r}', extra=log_extra(self.lcl['context']))
+        if hasattr(self.lcl["context"].config, "SLOW_PROCESSING_LIMIT") and duration > self.lcl["context"].config.SLOW_PROCESSING_LIMIT:
+            logger.error(f"[Proxy] Request took a long time: {duration!r}", extra=log_extra(self.lcl["context"]))
 
-        self.lcl['context'].request_handler.set_header(
-            header,
-            duration
-        )
+        self.lcl["context"].request_handler.set_header(header, duration)
 
     # This is our entry point for the proxy, it's the first call to the engine
     def load(self, buffer, extension):
-        logger.debug(f'[Proxy] load: {extension!r}')
-        self.lcl['processing_time'] = datetime.datetime.now()
-        self.lcl['processing_utime'] = utime()
+        logger.debug(f"[Proxy] load: {extension!r}")
+        self.lcl["processing_time"] = datetime.datetime.now()
+        self.lcl["processing_utime"] = utime()
 
         # buffer and extension are needed by select_engine
-        self.lcl['extension'] = extension
-        self.lcl['buffer'] = buffer
-        self.lcl['selected_engine'] = None
+        self.lcl["extension"] = extension
+        self.lcl["buffer"] = buffer
+        self.lcl["selected_engine"] = None
 
         enginename = self.select_engine()
 
         # Now that we'll select the right engine, let's initialize it
-        self.lcl['context'].request_handler.set_header(
-            'Thumbor-Engine',
-            enginename
-        )
+        self.lcl["context"].request_handler.set_header("Thumbor-Engine", enginename)
 
-        self.lcl[enginename].__init__(self.lcl['context'])
+        self.lcl[enginename].__init__(self.lcl["context"])
         self.lcl[enginename].load(buffer, extension)
 
     def __getattr__(self, name):
@@ -136,23 +123,15 @@ class Engine(BaseEngine):
     # This is the exit point for requests, where the generated image is
     # converted to the target format
     def read(self, extension=None, quality=None):
-        ret = self.__getattr__('read')(extension, quality)
+        ret = self.__getattr__("read")(extension, quality)
 
         # The original can be re-read during the request
         if quality is None:
             return ret
 
-        self.record_timing(
-            'processing_time',
-            'Thumbor-Processing-Time',
-            datetime.datetime.now()
-        )
+        self.record_timing("processing_time", "Thumbor-Processing-Time", datetime.datetime.now())
 
-        self.record_timing(
-            'processing_utime',
-            'Thumbor-Processing-Utime',
-            utime()
-        )
+        self.record_timing("processing_utime", "Thumbor-Processing-Utime", utime())
 
         return ret
 
@@ -161,38 +140,38 @@ class Engine(BaseEngine):
     # They call __getattr__ because the calls still need to be proxied
     # (otherwise they would just loop back to their own definition right here)
     def create_image(self, buffer):  # pragma: no cover
-        return self.__getattr__('create_image')(buffer)
+        return self.__getattr__("create_image")(buffer)
 
     def crop(self, left, top, right, bottom):
-        return self.__getattr__('crop')(left, top, right, bottom)
+        return self.__getattr__("crop")(left, top, right, bottom)
 
     def flip_horizontally(self):
-        return self.__getattr__('flip_horizontally')()
+        return self.__getattr__("flip_horizontally")()
 
     def flip_vertically(self):
-        return self.__getattr__('flip_vertically')()
+        return self.__getattr__("flip_vertically")()
 
     def image_data_as_rgb(self, update_image=True):
-        return self.__getattr__('image_data_as_rgb')(update_image)
+        return self.__getattr__("image_data_as_rgb")(update_image)
 
     def resize(self, width, height):
-        return self.__getattr__('resize')(width, height)
+        return self.__getattr__("resize")(width, height)
 
     def rotate(self, degrees):  # pragma: no cover
-        return self.__getattr__('rotate')(degrees)
+        return self.__getattr__("rotate")(degrees)
 
     def reorientate(self):
-        return self.__getattr__('reorientate')()
+        return self.__getattr__("reorientate")()
 
     def set_image_data(self, data):
-        return self.__getattr__('set_image_data')(data)
+        return self.__getattr__("set_image_data")(data)
 
     @property
     def size(self):
-        return self.__getattr__('size')
+        return self.__getattr__("size")
 
     def cleanup(self):  # pragma: no cover
         # Call cleanup on all the engines
-        for enginename in self.lcl['engines']:
+        for enginename in self.lcl["engines"]:
             engine = self.lcl[enginename]
             engine.cleanup()

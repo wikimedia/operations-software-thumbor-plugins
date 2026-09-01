@@ -21,9 +21,7 @@ from wikimedia_thumbor.engine import BaseWikimediaEngine, CommandError
 from wikimedia_thumbor.logging import log_extra
 from wikimedia_thumbor.shell_runner import ShellRunner
 
-BaseWikimediaEngine.add_format(
-    "image/svg+xml", ".svg", lambda buffer: Engine.is_svg(buffer)
-)
+BaseWikimediaEngine.add_format("image/svg+xml", ".svg", lambda buffer: Engine.is_svg(buffer))
 
 
 class Engine(BaseWikimediaEngine):
@@ -38,9 +36,7 @@ class Engine(BaseWikimediaEngine):
         except UnicodeDecodeError:
             return False
 
-        return re.match(
-            r"^(" + codecs.BOM_UTF8.decode("utf-8") + r")?<(\?xml|svg)", decoded_text
-        )
+        return re.match(r"^(" + codecs.BOM_UTF8.decode("utf-8") + r")?<(\?xml|svg)", decoded_text)
 
     def create_image(self, buffer):
         self.prepare_source(buffer)

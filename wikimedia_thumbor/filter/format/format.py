@@ -18,22 +18,22 @@ from thumbor.filters import PHASE_PRE_LOAD, BaseFilter, filter_method
 from thumbor.utils import logger
 from tornado.web import HTTPError
 
-ALLOWED_FORMATS = ['jpg', 'jpeg', 'jpe', 'gif', 'png', 'webp']
+ALLOWED_FORMATS = ["jpg", "jpeg", "jpe", "gif", "png", "webp"]
 
 ALLOWED_CONVERSIONS = {
-    'jpg': {'jpg', 'webp'},
-    'pdf': {'png', 'jpg', 'webp'},
-    'svg': {'png', 'jpg', 'webp'},
-    'png': {'png', 'webp'},
-    'gif': {'gif', 'png', 'webp'},
-    'webp': {'webp', 'png'},
-    'ogg': {'png', 'jpg', 'webp'},
+    "jpg": {"jpg", "webp"},
+    "pdf": {"png", "jpg", "webp"},
+    "svg": {"png", "jpg", "webp"},
+    "png": {"png", "webp"},
+    "gif": {"gif", "png", "webp"},
+    "webp": {"webp", "png"},
+    "ogg": {"png", "jpg", "webp"},
     # Disallow all other audio formats.
-    'oga': {},
-    'wav': {},
-    'flac': {},
-    'mp3': {},
-    'midi': {},
+    "oga": {},
+    "wav": {},
+    "flac": {},
+    "mp3": {},
+    "midi": {},
 }
 
 
@@ -45,24 +45,24 @@ class Filter(BaseFilter):
         # Find and normalize the original file's extension.
         urlpath = urlparse(self.context.request.image_url).path
         format_in = PurePosixPath(urlpath).suffix.lower().lstrip(".")
-        if format_in == 'jpeg':
-            format_in = 'jpg'
-        if format_in == 'mid':
-            format_in = 'midi'
+        if format_in == "jpeg":
+            format_in = "jpg"
+        if format_in == "mid":
+            format_in = "midi"
         # Normalise the requested format.
         format_out = format.lower()
-        if format_out in ('jpe', 'jpeg'):
-            format_out = 'jpg'
+        if format_out in ("jpe", "jpeg"):
+            format_out = "jpg"
 
         # Deny access to any non-allowed conversions (but allow any for formats missing from the above matrix).
-        allowed_conversions = self.context.config.get('ALLOWED_CONVERSIONS', ALLOWED_CONVERSIONS)
+        allowed_conversions = self.context.config.get("ALLOWED_CONVERSIONS", ALLOWED_CONVERSIONS)
         allowed = allowed_conversions.get(format_in)
         if allowed is not None and format_out not in allowed:
             raise HTTPError(400, f"Conversion from {format_in} to {format_out} is not allowed (permitted: " + ", ".join(allowed) + ")")
 
         if format.lower() not in ALLOWED_FORMATS:
-            logger.debug(f'Format not allowed: {format.lower()}')
+            logger.debug(f"Format not allowed: {format.lower()}")
             self.context.request.format = None
         else:
-            logger.debug(f'Format specified: {format.lower()}')
+            logger.debug(f"Format specified: {format.lower()}")
             self.context.request.format = format.lower()

@@ -21,12 +21,12 @@ from wikimedia_thumbor.logging import log_extra
 class PoolCounter:
     def __init__(self, context):
         self.server = context.config.POOLCOUNTER_SERVER
-        self.port = context.config.get('POOLCOUNTER_PORT', 7531)
+        self.port = context.config.get("POOLCOUNTER_PORT", 7531)
         self.context = context
         self.stream = None
 
     async def connect(self):
-        self.debug('[PoolCounter] Connecting to: %s %d' % (self.server, self.port))
+        self.debug("[PoolCounter] Connecting to: %s %d" % (self.server, self.port))
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
         self.stream = tornado.iostream.IOStream(s)
         await self.stream.connect((self.server, self.port))
@@ -36,39 +36,39 @@ class PoolCounter:
             await self.connect()
 
         try:
-            acq4me_msg = 'ACQ4ME %s %d %d %d\n' % (key, workers, maxqueue, timeout)
+            acq4me_msg = "ACQ4ME %s %d %d %d\n" % (key, workers, maxqueue, timeout)
             self.debug(acq4me_msg)
             await self.stream.write(acq4me_msg.encode())
-            data = await self.stream.read_until(b'\n')
+            data = await self.stream.read_until(b"\n")
         except OSError as e:
             self.stream = None
             raise e
 
         self.debug(f"[PoolCounter] Got data of '{data}' from poolcounter during ACQ4ME")
-        return data.decode() == 'LOCKED\n'
+        return data.decode() == "LOCKED\n"
 
     async def release(self):
         if self.stream is None:
             return True
         try:
-            self.debug('[PoolCounter] RELEASE')
-            await self.stream.write(b'RELEASE\n')
-            data = await self.stream.read_until(b'\n')
+            self.debug("[PoolCounter] RELEASE")
+            await self.stream.write(b"RELEASE\n")
+            data = await self.stream.read_until(b"\n")
         except OSError as e:
             self.stream = None
             raise e
 
         self.debug(f"[PoolCounter] Got data of '{data}' from poolcounter during RELEASE")
-        return data.decode() == 'RELEASED\n'
+        return data.decode() == "RELEASED\n"
 
     def close(self):
         if self.stream:
-            self.debug('[PoolCounter] Disconnecting')
+            self.debug("[PoolCounter] Disconnecting")
             self.stream.close()
             self.stream = None
             return True
         else:
-            self.debug('[PoolCounter] Already disconnected')
+            self.debug("[PoolCounter] Already disconnected")
             return False
 
     def debug(self, message):

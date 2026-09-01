@@ -18,11 +18,7 @@ import tempfile
 from wikimedia_thumbor.engine import BaseWikimediaEngine, CommandError
 from wikimedia_thumbor.shell_runner import ShellRunner
 
-BaseWikimediaEngine.add_format(
-    'application/sla',
-    '.stl',
-    lambda buffer: Engine.is_stl(buffer)
-)
+BaseWikimediaEngine.add_format("application/sla", ".stl", lambda buffer: Engine.is_stl(buffer))
 
 
 class Engine(BaseWikimediaEngine):
@@ -36,7 +32,7 @@ class Engine(BaseWikimediaEngine):
             # a valid ASCII STL.
             # Also, any files served from Wikimedia's Swift loader will have
             # this string at the beginning for sure. Hacky, but it works.
-            if buffer[:5] == b'solid':
+            if buffer[:5] == b"solid":
                 return True
 
             if len(buffer) < 84:
@@ -71,22 +67,22 @@ class Engine(BaseWikimediaEngine):
         # the value which will be rounded are used.
         height = math.floor(self.context.request.width / (640 / 480) + 0.5)
 
-        tmpfile, tmppng = tempfile.mkstemp(suffix='.stl.png', prefix='tmpthumb')
+        tmpfile, tmppng = tempfile.mkstemp(suffix=".stl.png", prefix="tmpthumb")
 
         # We don't need the file actually, just the filename
         os.close(tmpfile)
 
         command = [
             self.context.config.XVFB_RUN_PATH,
-            '-a',
-            '-n',
+            "-a",
+            "-n",
             str(os.getpid()),
-            '-s',
-            '-ac -screen 0 1280x1024x24',
+            "-s",
+            "-ac -screen 0 1280x1024x24",
             self.context.config.THREED2PNG_PATH,
             self.source,
-            '%dx%d' % (self.context.request.width, height),
-            tmppng
+            "%dx%d" % (self.context.request.width, height),
+            tmppng,
         ]
 
         try:
@@ -95,7 +91,7 @@ class Engine(BaseWikimediaEngine):
             ShellRunner.rm_f(tmppng)
             raise e
 
-        with open(tmppng, 'rb') as tmpfile:
+        with open(tmppng, "rb") as tmpfile:
             png = tmpfile.read()
 
         ShellRunner.rm_f(tmppng)

@@ -14,10 +14,9 @@ from thumbor.filters import BaseFilter, filter_method
 
 
 class Filter(BaseFilter):
-
     @filter_method(BaseFilter.String)
     async def flip(self, value):
-        if value == 'x':
+        if value == "x":
             self.engine.flip_vertically()
-        elif value == 'y':
+        elif value == "y":
             self.engine.flip_horizontally()

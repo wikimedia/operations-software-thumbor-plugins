@@ -12,11 +12,7 @@
 
 from wikimedia_thumbor.engine import BaseWikimediaEngine
 
-BaseWikimediaEngine.add_format(
-    'image/tiff',
-    '.tiff',
-    lambda buffer: buffer[:7] in (b'II*\x00', 'MM\x00*')
-)
+BaseWikimediaEngine.add_format("image/tiff", ".tiff", lambda buffer: buffer[:7] in (b"II*\x00", "MM\x00*"))
 
 
 class Engine(BaseWikimediaEngine):

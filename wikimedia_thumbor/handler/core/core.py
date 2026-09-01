@@ -1,4 +1,3 @@
-
 # Copyright (c) 2016, thumbor-community, Wikimedia Foundation
 # Use of this source code is governed by the MIT license that can be
 # found in the LICENSE file.
@@ -15,11 +14,11 @@ from thumbor.handlers.imaging import ImagingHandler
 class CoreHandler(ImagingHandler):
     @classmethod
     def regex(cls):
-        return r'/thumbor/(?P<request>.*)'
+        return r"/thumbor/(?P<request>.*)"
 
     async def check_image(self, kw):
-        result = re.match(Url.regex(), kw['request'])
+        result = re.match(Url.regex(), kw["request"])
         if result is None:
-            self._error(404, 'Not Found')
+            self._error(404, "Not Found")
             return
         return await super().check_image(result.groupdict())

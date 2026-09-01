@@ -35,8 +35,10 @@ class Engine(BaseEngine):
         # Unfortunately there is no elegant way to extend Thumbor to support
         # a new MIME type, which is why this monkey-patching is done here
         from thumbor.utils import EXTENSION
+
         EXTENSION[mime] = ext
         from thumbor.engines import BaseEngine
+
         old_get_mimetype = BaseEngine.get_mimetype
 
         @classmethod
@@ -51,11 +53,11 @@ class Engine(BaseEngine):
     def create_image(self, buffer):
         # This should be enough for now, if memory blows up on huge files we
         # can could use an mmap here
-        if hasattr(self.context, 'wikimedia_original_file'):
-            self.debug('[IM] Grabbing filename from context')
+        if hasattr(self.context, "wikimedia_original_file"):
+            self.debug("[IM] Grabbing filename from context")
             temp_file = self.context.wikimedia_original_file
         else:
-            self.debug('[IM] Dumping buffer into temp file')
+            self.debug("[IM] Dumping buffer into temp file")
             temp_file = NamedTemporaryFile(delete=False)
             temp_file.write(buffer)
             temp_file.close()
@@ -77,13 +79,13 @@ class Engine(BaseEngine):
         return temp_file
 
     def jpeg_size(self):
-        exif_image_size = self.exif_dict['ImageSize']
-        buffer_size = exif_image_size.split('x')
+        exif_image_size = self.exif_dict["ImageSize"]
+        buffer_size = exif_image_size.split("x")
         buffer_size = [float(x) for x in buffer_size]
         buffer_ratio = buffer_size[0] / buffer_size[1]
 
-        if 'Pyexiv2Orientation' in self.exif_dict:
-            if self.exif_dict['Pyexiv2Orientation'] in (5, 6, 7, 8):
+        if "Pyexiv2Orientation" in self.exif_dict:
+            if self.exif_dict["Pyexiv2Orientation"] in (5, 6, 7, 8):
                 buffer_ratio = buffer_size[1] / buffer_size[0]
 
         # If the JPEG size hint is too close to the target size,
@@ -100,27 +102,18 @@ class Engine(BaseEngine):
         if height == 0:
             height = Decimal(width / buffer_ratio).quantize(0, ROUND_HALF_DOWN)
 
-        jpeg_size = '%dx%d' % (width, height)
-        self.debug(f'[IM] jpeg:size hint: {jpeg_size!r}')
+        jpeg_size = "%dx%d" % (width, height)
+        self.debug(f"[IM] jpeg:size hint: {jpeg_size!r}")
         return jpeg_size
 
     def read_exif(self, input_temp_file):
-        fields = [
-            'ImageSize',
-            'ProfileDescription',
-            'ColorType',
-            'WebP_Flags',
-            'FileType',
-            'Transparency'
-        ]
+        fields = ["ImageSize", "ProfileDescription", "ColorType", "WebP_Flags", "FileType", "Transparency"]
 
         fields += self.context.config.EXIF_FIELDS_TO_KEEP
 
-        command = [
-            '-j'
-        ]
+        command = ["-j"]
 
-        command += [f'-{i}' for i in fields]
+        command += [f"-{i}" for i in fields]
 
         # T172556 We read EXIF Orientation with pyexiv2 because exiftool is
         # unreliable for that field (overzealous in the way it interprets the field).
@@ -134,28 +127,24 @@ class Engine(BaseEngine):
         try:
             metadata.read()
 
-            if 'Exif.Image.Orientation' in metadata.exif_keys:
+            if "Exif.Image.Orientation" in metadata.exif_keys:
                 # Distinctive key name to avoid colliding with EXIF_FIELDS_TO_KEEP
-                self.exif_dict['Pyexiv2Orientation'] = metadata.get('Exif.Image.Orientation').value
+                self.exif_dict["Pyexiv2Orientation"] = metadata.get("Exif.Image.Orientation").value
         except (OSError, ExifValueError, TypeError, ValueError):
             # T381594: py3exiv2 can be more picky about some things than the other tools,
             # but we can safely ignore all exceptions from it because we only use it
             # for Orientation.
-            self.debug('[IM] Could not read EXIF with py3exiv2')
+            self.debug("[IM] Could not read EXIF with py3exiv2")
 
-        stdout = Engine.exiftool.command(
-            context=self.context,
-            pre=command,
-            input_temp_file=input_temp_file
-        )
+        stdout = Engine.exiftool.command(context=self.context, pre=command, input_temp_file=input_temp_file)
 
         # index at 0 because we're processing a single file
-        self.exif_dict.update(json.loads(stdout.decode('utf-8'))[0])
+        self.exif_dict.update(json.loads(stdout.decode("utf-8"))[0])
 
-        self.debug(f'[IM] EXIF: {self.exif_dict!r}')
+        self.debug(f"[IM] EXIF: {self.exif_dict!r}")
 
-        if 'ImageSize' in self.exif_dict:
-            self.internal_size = [int(x) for x in self.exif_dict['ImageSize'].split('x')]
+        if "ImageSize" in self.exif_dict:
+            self.internal_size = [int(x) for x in self.exif_dict["ImageSize"].split("x")]
         else:
             # Have not been able to find a test file where that EXIF field comes up unpopulated
             self.internal_size = (1, 1)  # pragma: no cover
@@ -163,41 +152,37 @@ class Engine(BaseEngine):
         # If we encounter any non-sRGB ICC profile, we save it to re-apply
         # it to the result
 
-        if 'ProfileDescription' not in self.exif_dict:
-            self.debug('[IM] File has no ICC profile')
+        if "ProfileDescription" not in self.exif_dict:
+            self.debug("[IM] File has no ICC profile")
             return
 
         expected_profile = self.context.config.EXIF_TINYRGB_ICC_REPLACE.lower()
-        profile = self.exif_dict['ProfileDescription'].lower()
+        profile = self.exif_dict["ProfileDescription"].lower()
 
         if profile == expected_profile:
             self.icc_profile_path = self.context.config.EXIF_TINYRGB_PATH
-            self.debug('[IM] File has sRGB profile')
+            self.debug("[IM] File has sRGB profile")
             return
 
-        self.debug('[IM] File has non-sRGB profile')
+        self.debug("[IM] File has non-sRGB profile")
 
         command = [
-            '-icc_profile',
-            '-b',
+            "-icc_profile",
+            "-b",
         ]
 
-        self.icc_profile_saved = Engine.exiftool.command(
-            context=self.context,
-            pre=command,
-            input_temp_file=input_temp_file
-        )
+        self.icc_profile_saved = Engine.exiftool.command(context=self.context, pre=command, input_temp_file=input_temp_file)
 
     def process_exif(self, buffer):
-        self.debug('[IM] Processing EXIF')
+        self.debug("[IM] Processing EXIF")
 
         command = [
-            '-all=',  # Strip all existing metadata
+            "-all=",  # Strip all existing metadata
         ]
 
         # Create the temp file when we need it
-        if hasattr(self, 'icc_profile_saved'):
-            self.debug('[IM] Putting saved ICC profile into temp file')
+        if hasattr(self, "icc_profile_saved"):
+            self.debug("[IM] Putting saved ICC profile into temp file")
             profile_file = NamedTemporaryFile(delete=False)
             profile_file.write(self.icc_profile_saved)
             profile_file.close()
@@ -205,118 +190,96 @@ class Engine(BaseEngine):
             del self.icc_profile_saved
 
         # Copy the ICC profile
-        if hasattr(self, 'icc_profile_path'):
-            command += [f'-icc_profile<={self.icc_profile_path}']
+        if hasattr(self, "icc_profile_path"):
+            command += [f"-icc_profile<={self.icc_profile_path}"]
 
         for field in self.context.config.EXIF_FIELDS_TO_KEEP:
             if field in self.exif_dict:
                 value = self.exif_dict[field]
-                command += [f'-{field}={value}']
+                command += [f"-{field}={value}"]
 
         postCommand = [
-            '-o',
-            '-'  # Write to stdout
+            "-o",
+            "-",  # Write to stdout
         ]
 
-        stdout = Engine.exiftool.command(
-            pre=command,
-            post=postCommand,
-            context=self.context,
-            buffer=buffer
-        )
+        stdout = Engine.exiftool.command(pre=command, post=postCommand, context=self.context, buffer=buffer)
 
         tinyrgb_path = self.context.config.EXIF_TINYRGB_PATH
 
         # Clean up saved non-sRGB profile if needed
-        if (hasattr(self, 'icc_profile_path')
-                and self.icc_profile_path != tinyrgb_path):
+        if hasattr(self, "icc_profile_path") and self.icc_profile_path != tinyrgb_path:
             ShellRunner.rm_f(self.icc_profile_path)
             del self.icc_profile_path
 
         return stdout
 
     def process_read_parameters(self, extension, quality):
-        extension = extension.lstrip('.')
+        extension = extension.lstrip(".")
         original_quality = quality
 
-        is_animated_webp = (
-            'FileType' in self.exif_dict and self.exif_dict['FileType'] in ['WEBP', 'Extended WEBP']
-            and 'WebP_Flags' in self.exif_dict and 'Animation' in self.exif_dict['WebP_Flags']
-        )
+        is_animated_webp = "FileType" in self.exif_dict and self.exif_dict["FileType"] in ["WEBP", "Extended WEBP"] and "WebP_Flags" in self.exif_dict and "Animation" in self.exif_dict["WebP_Flags"]
 
-        if extension == 'webp':
-            lossless = ('FileType' in self.exif_dict and self.exif_dict['FileType'] in ['SVG', 'PNG'])
+        if extension == "webp":
+            lossless = "FileType" in self.exif_dict and self.exif_dict["FileType"] in ["SVG", "PNG"]
 
             if is_animated_webp:
                 # If it's an animated WebP and we want a WebP output, we don't go through
                 # the JPG/PNG intermediary because cwebp doesn't support animated inputs.
                 # We'll handle it directly in read() using convert.
-                extension = 'webp'
-            elif 'FileType' in self.exif_dict and self.exif_dict['FileType'] == 'JPEG':
+                extension = "webp"
+            elif "FileType" in self.exif_dict and self.exif_dict["FileType"] == "JPEG":
                 # We need to use a JPG as an intermediary for WebP conversion in order to
                 # be able to apply the EXIF filtering
-                extension = 'jpg'
+                extension = "jpg"
                 quality = 100
             else:
-                extension = 'png32'
+                extension = "png32"
 
-            self.webp = {
-                'quality': original_quality,
-                'lossless': lossless,
-                'animated': is_animated_webp
-            }
+            self.webp = {"quality": original_quality, "lossless": lossless, "animated": is_animated_webp}
         else:
             self.webp = False
 
         # -quality in ImageMagick has a different meaning for PNG
         # See https://www.imagemagick.org/script/command-line-options.php#quality
-        if extension.startswith('png'):
+        if extension.startswith("png"):
             quality = 95
 
         return extension, quality
 
     def read(self, extension=None, quality=None):
-        self.debug('[IM] read: %s %d' % (extension, quality))
+        self.debug("[IM] read: %s %d" % (extension, quality))
 
         extension, quality = self.process_read_parameters(extension, quality)
 
         config = self.context.config
 
-        operators = [
-            '-quality',
-            '%d' % quality
-        ]
+        operators = ["-quality", "%d" % quality]
 
-        if hasattr(config, 'CHROMA_SUBSAMPLING') and config.CHROMA_SUBSAMPLING:
+        if hasattr(config, "CHROMA_SUBSAMPLING") and config.CHROMA_SUBSAMPLING:
             cs = config.CHROMA_SUBSAMPLING
-            self.debug(f'[IM] Chroma subsampling: {cs!r}')
-            operators += [
-                '-sampling-factor',
-                cs
-            ]
+            self.debug(f"[IM] Chroma subsampling: {cs!r}")
+            operators += ["-sampling-factor", cs]
 
-        self.debug('[IM] Generating image with quality %d' % quality)
+        self.debug("[IM] Generating image with quality %d" % quality)
 
-        if extension == 'jpg' and self.context.config.PROGRESSIVE_JPEG:
-            operators += [
-                '-interlace',
-                'Plane'
-            ]
+        if extension == "jpg" and self.context.config.PROGRESSIVE_JPEG:
+            operators += ["-interlace", "Plane"]
 
         self.queue_operators(operators)
 
-        if hasattr(self, 'webp') and self.webp and self.webp.get('animated'):
+        if hasattr(self, "webp") and self.webp and self.webp.get("animated"):
             # For animated WebP, we want all frames and we want to coalesce them
             # to avoid artifacts when resizing
             last_operators = [
                 self.image.name,
-                '-coalesce',
-                'webp:-',
+                "-coalesce",
+                "webp:-",
             ]
         else:
             last_operators = [
-                '%s[%d]' % (self.image.name, self.page),
-                f'{extension}:-',
+                "%s[%d]" % (self.image.name, self.page),
+                f"{extension}:-",
             ]
 
         returncode, stderr, result = self.run_operators(last_operators)
@@ -325,14 +288,14 @@ class Engine(BaseEngine):
         if returncode != 0 and self.page > 0:
             self.page = 0
             last_operators = [
-                '%s[%d]' % (self.image.name, self.page),
-                f'{extension}:-',
+                "%s[%d]" % (self.image.name, self.page),
+                f"{extension}:-",
             ]
             returncode, stderr, result = self.run_operators(last_operators)
 
         if returncode != 0:
             ShellRunner.rm_f(self.image.name)  # pragma: no cover
-            raise ImageMagickException(f'Failed to convert image {stderr}')  # pragma: no cover
+            raise ImageMagickException(f"Failed to convert image {stderr}")  # pragma: no cover
 
         self.operators = []
 
@@ -340,11 +303,11 @@ class Engine(BaseEngine):
         if self.page > 0:
             self.page = 0
 
-        if extension == 'jpg':
+        if extension == "jpg":
             result = self.process_exif(result)
 
-        if hasattr(self, 'webp') and self.webp:
-            if self.webp.get('animated'):
+        if hasattr(self, "webp") and self.webp:
+            if self.webp.get("animated"):
                 # Already WebP, no need to convert
                 pass
             else:
@@ -360,116 +323,104 @@ class Engine(BaseEngine):
         pass
 
     def realcrop(self, crop_left, crop_top, crop_right, crop_bottom):
-        self.debug(
-            f'[IM] crop: {crop_left!r} {crop_top!r} {crop_right!r} {crop_bottom!r}'
-        )
+        self.debug(f"[IM] crop: {crop_left!r} {crop_top!r} {crop_right!r} {crop_bottom!r}")
 
         width = int(crop_right) - int(crop_left)
         height = int(crop_bottom) - int(crop_top)
 
-        operators = [
-            '-crop',
-            '%dx%d+%d+%d' % (width, height, crop_left, crop_top)
-        ]
+        operators = ["-crop", "%dx%d+%d+%d" % (width, height, crop_left, crop_top)]
 
         self.queue_operators(operators)
 
     def resize(self, width, height):
-        self.debug(f'[IM] resize: {width!r} {height!r}')
+        self.debug(f"[IM] resize: {width!r} {height!r}")
 
         self.internal_size = (width, height)
 
         operators = []
 
-        if self.extension == '.jpg':
+        if self.extension == ".jpg":
             operators += [
-                '-define',
-                f'jpeg:size={self.jpeg_size()}',
+                "-define",
+                f"jpeg:size={self.jpeg_size()}",
             ]
 
-        exif_image_size = self.exif_dict['ImageSize']
-        buffer_size = exif_image_size.split('x')
+        exif_image_size = self.exif_dict["ImageSize"]
+        buffer_size = exif_image_size.split("x")
         buffer_size = [float(x) for x in buffer_size]
         buffer_ratio = buffer_size[0] / buffer_size[1]
 
-        if 'Pyexiv2Orientation' in self.exif_dict:
-            if self.exif_dict['Pyexiv2Orientation'] in (5, 6, 7, 8):
+        if "Pyexiv2Orientation" in self.exif_dict:
+            if self.exif_dict["Pyexiv2Orientation"] in (5, 6, 7, 8):
                 buffer_ratio = buffer_size[1] / buffer_size[0]
 
         # We have a slightly different calculation/rounding strategy than Thumbor
         # when it comes to calculate target width/height when only one dimension
         # is provided
         if self.context.request.height == 0 and self.context.request.width > 0:
-            target_size = '%dx%d' % (int(width), Decimal(width / buffer_ratio).quantize(0, ROUND_HALF_DOWN))
+            target_size = "%dx%d" % (int(width), Decimal(width / buffer_ratio).quantize(0, ROUND_HALF_DOWN))
         elif self.context.request.height > 0 and self.context.request.width == 0:
-            target_size = '%dx%d' % (Decimal(height * buffer_ratio).quantize(0, ROUND_HALF_DOWN), int(height))
+            target_size = "%dx%d" % (Decimal(height * buffer_ratio).quantize(0, ROUND_HALF_DOWN), int(height))
         else:
-            target_size = '%dx%d' % (int(width), int(height))
+            target_size = "%dx%d" % (int(width), int(height))
 
         # The ^ + gravity + extent trick is necessary to ensure that we get a thumbnail
         # of exactly the width we've requested. In some edge cases a tiny fraction
         # of the image might be cropped out. This is unavoidable with ImageMagick
         # See http://www.imagemagick.org/Usage/resize/ for details
 
-        operators += [
-            '-resize',
-            f'{target_size}^',
-            '-gravity',
-            'center',
-            '-extent',
-            target_size
-        ]
+        operators += ["-resize", f"{target_size}^", "-gravity", "center", "-extent", target_size]
 
         # T198370 T283646 "-background none" is necessary to preserve transparency of PNG and WEBP thumbnails.
         # Only apply to RGBA and Palette (indexed)
         # PNGs, because otherwise it would turn thumbnails of RGB PNGs into RGBA, thumbnails
         # increasing their file size significantly.
         if (
-            ('WebP_Flags' in self.exif_dict and 'Alpha' in self.exif_dict['WebP_Flags'])
-            or ('ColorType' in self.exif_dict and self.exif_dict['ColorType'] in ['RGB with Alpha', 'Grayscale with Alpha', 'Palette'])
-            or 'Transparency' in self.exif_dict
+            ("WebP_Flags" in self.exif_dict and "Alpha" in self.exif_dict["WebP_Flags"])
+            or ("ColorType" in self.exif_dict and self.exif_dict["ColorType"] in ["RGB with Alpha", "Grayscale with Alpha", "Palette"])
+            or "Transparency" in self.exif_dict
         ):
-            operators += ['-background', 'none']
+            operators += ["-background", "none"]
 
         self.queue_operators(operators)
 
     def flip_horizontally(self):
-        self.debug('[IM] flip_horizontally')
+        self.debug("[IM] flip_horizontally")
 
-        self.queue_operators(['-flop'])
+        self.queue_operators(["-flop"])
 
     def flip_vertically(self):
-        self.debug('[IM] flip_vertically')
+        self.debug("[IM] flip_vertically")
 
-        self.queue_operators(['-flip'])
+        self.queue_operators(["-flip"])
 
     def rotate(self, degrees):
-        self.debug(f'[IM] rotate: {degrees!r}')
+        self.debug(f"[IM] rotate: {degrees!r}")
 
-        self.queue_operators(['-rotate', f'{degrees}'])
+        self.queue_operators(["-rotate", f"{degrees}"])
 
     def reorientate(self):
-        self.debug('[IM] reorientate')
+        self.debug("[IM] reorientate")
 
         # T173804 Avoid ImageMagick -auto-orient which is overzealous
         # in interpreting various EXIF fields instead of just Orientation
 
-        if 'Pyexiv2Orientation' in self.exif_dict:
-            orientation = self.exif_dict['Pyexiv2Orientation']
+        if "Pyexiv2Orientation" in self.exif_dict:
+            orientation = self.exif_dict["Pyexiv2Orientation"]
             if orientation == 2:
-                self.queue_operators(['-flop'])
+                self.queue_operators(["-flop"])
             elif orientation == 3:
-                self.queue_operators(['-rotate', '180'])
+                self.queue_operators(["-rotate", "180"])
             elif orientation == 4:
-                self.queue_operators(['-flip'])
+                self.queue_operators(["-flip"])
             elif orientation == 5:
-                self.queue_operators(['-transpose'])
+                self.queue_operators(["-transpose"])
             elif orientation == 6:
-                self.queue_operators(['-rotate', '90'])
+                self.queue_operators(["-rotate", "90"])
             elif orientation == 7:
-                self.queue_operators(['-transverse'])
+                self.queue_operators(["-transverse"])
             elif orientation == 8:
-                self.queue_operators(['-rotate', '270'])
+                self.queue_operators(["-rotate", "270"])
 
     @property
     def size(self):
@@ -478,7 +429,7 @@ class Engine(BaseEngine):
     def queue_operators(self, operators):
         self.operators += operators
 
-        self.debug(f'[IM] Queued operators: {self.operators!r}')
+        self.debug(f"[IM] Queued operators: {self.operators!r}")
 
     @property
     def magick_path(self):
@@ -488,53 +439,41 @@ class Engine(BaseEngine):
         as a deprecated compatibility shim that warns on every invocation and
         is slated for removal.
         """
-        return self.context.config.get('MAGICK_PATH', None) or self.context.config.get('CONVERT_PATH', None)
+        return self.context.config.get("MAGICK_PATH", None) or self.context.config.get("CONVERT_PATH", None)
 
     def run_operators(self, extra_operators):
         command = [
             self.magick_path,
-            '-define',
-            'tiff:exif-properties=no'  # Otherwise IM treats a bunch of warnings as errors
+            "-define",
+            "tiff:exif-properties=no",  # Otherwise IM treats a bunch of warnings as errors
         ]
 
         command += self.operators
 
         command += extra_operators
 
-        returncode, stderr, result = ShellRunner.command(
-            command,
-            self.context
-        )
+        returncode, stderr, result = ShellRunner.command(command, self.context)
 
         return returncode, stderr, result
 
     def maybe_convert_to_webp(self, jpg_result):
         temp_file = NamedTemporaryFile(delete=False)
 
-        with open(temp_file.name, 'wb') as tmp:
+        with open(temp_file.name, "wb") as tmp:
             tmp.write(jpg_result)
 
-        command = [
-            self.context.config.CWEBP_PATH,
-            temp_file.name,
-            '-metadata',
-            'all'
-        ]
+        command = [self.context.config.CWEBP_PATH, temp_file.name, "-metadata", "all"]
 
-        if self.webp['lossless']:
-            command += ['-lossless', '-exact']
+        if self.webp["lossless"]:
+            command += ["-lossless", "-exact"]
         else:
-            command += ['-q', '{}'.format(self.webp['quality'])]
+            command += ["-q", "{}".format(self.webp["quality"])]
 
         self.webp = False
 
-        command += [
-            '-quiet',
-            '-o',
-            '-'
-        ]
+        command += ["-quiet", "-o", "-"]
 
-        returncode, stderr, webp_result = ShellRunner.command(command,  self.context)
+        returncode, stderr, webp_result = ShellRunner.command(command, self.context)
 
         ShellRunner.rm_f(temp_file.name)
 
@@ -548,13 +487,5 @@ class Engine(BaseEngine):
         logger.debug(message, extra=log_extra(self.context))
 
 
-Engine.add_format(
-    'image/webp',
-    '.webp',
-    lambda buffer: buffer[:4] == b'RIFF' and buffer[8:12] == b'WEBP'
-)
-Engine.add_format(
-    'image/xcf',
-    '.xcf',
-    lambda buffer: buffer[:8] == b'gimp xcf'
-)
+Engine.add_format("image/webp", ".webp", lambda buffer: buffer[:4] == b"RIFF" and buffer[8:12] == b"WEBP")
+Engine.add_format("image/xcf", ".xcf", lambda buffer: buffer[:8] == b"gimp xcf")

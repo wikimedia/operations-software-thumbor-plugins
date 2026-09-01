@@ -13,11 +13,7 @@
 from wikimedia_thumbor.engine import BaseWikimediaEngine, CommandError
 from wikimedia_thumbor.shell_runner import ShellRunner
 
-BaseWikimediaEngine.add_format(
-    "application/pdf",
-    ".pdf",
-    lambda buffer: buffer[:4] == b'%PDF'
-)
+BaseWikimediaEngine.add_format("application/pdf", ".pdf", lambda buffer: buffer[:4] == b"%PDF")
 
 
 class Engine(BaseWikimediaEngine):
@@ -27,7 +23,7 @@ class Engine(BaseWikimediaEngine):
         except AttributeError:
             page = 1
 
-        dpi = self.context.config.get('GHOSTSCRIPT_ENGINE_DEFAULT_DPI', 150)
+        dpi = self.context.config.get("GHOSTSCRIPT_ENGINE_DEFAULT_DPI", 150)
 
         self.prepare_source(buffer)
 
@@ -35,7 +31,7 @@ class Engine(BaseWikimediaEngine):
 
         # GS is being unhelpful and outputting that error to stderr
         # with a 0 exit status
-        error = b'No pages will be processed (FirstPage > LastPage)'
+        error = b"No pages will be processed (FirstPage > LastPage)"
         if len(jpg) < 200 and stderr.find(error) != -1:
             jpg, stderr = self.get_jpg_for_page(buffer, 1, dpi)
 

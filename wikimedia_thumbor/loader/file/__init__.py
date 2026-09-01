@@ -33,15 +33,14 @@ def cleanup_temp_file(path):
 
 
 async def load(context, path):
-    file_path = join(context.config.FILE_LOADER_ROOT_PATH.rstrip('/'), path.lstrip('/'))
+    file_path = join(context.config.FILE_LOADER_ROOT_PATH.rstrip("/"), path.lstrip("/"))
     file_path = abspath(file_path)
     inside_root_path = file_path.startswith(context.config.FILE_LOADER_ROOT_PATH)
 
     result = LoaderResult()
 
     if inside_root_path and exists(file_path):
-
-        with open(file_path, 'rb') as f:
+        with open(file_path, "rb") as f:
             stats = fstat(f.fileno())
 
             result.successful = True
@@ -57,18 +56,9 @@ async def load(context, path):
 
                 context.wikimedia_original_file = temp
 
-                tornado.ioloop.IOLoop.instance().call_later(
-                    context.config.HTTP_LOADER_TEMP_FILE_TIMEOUT,
-                    partial(
-                        cleanup_temp_file,
-                        context.wikimedia_original_file.name
-                    )
-                )
+                tornado.ioloop.IOLoop.instance().call_later(context.config.HTTP_LOADER_TEMP_FILE_TIMEOUT, partial(cleanup_temp_file, context.wikimedia_original_file.name))
 
-            result.metadata.update(
-                size=stats.st_size,
-                updated_at=datetime.utcfromtimestamp(stats.st_mtime)
-            )
+            result.metadata.update(size=stats.st_size, updated_at=datetime.utcfromtimestamp(stats.st_mtime))
     else:
         result.error = 404
         result.successful = False

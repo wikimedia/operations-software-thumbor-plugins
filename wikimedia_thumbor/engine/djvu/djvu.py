@@ -12,11 +12,7 @@
 
 from wikimedia_thumbor.engine import BaseWikimediaEngine
 
-BaseWikimediaEngine.add_format(
-    'image/vnd.djvu',
-    '.djvu',
-    lambda buffer: buffer[4:8] == b'FORM' and buffer[12:16] in (b'DJVU', b'DJVM', b'PM44', b'BM44')
-)
+BaseWikimediaEngine.add_format("image/vnd.djvu", ".djvu", lambda buffer: buffer[4:8] == b"FORM" and buffer[12:16] in (b"DJVU", b"DJVM", b"PM44", b"BM44"))
 
 
 class Engine(BaseWikimediaEngine):
@@ -28,13 +24,7 @@ class Engine(BaseWikimediaEngine):
         except AttributeError:
             page = 1
 
-        command = [
-            self.context.config.DDJVU_PATH,
-            '-format=ppm',
-            '-page=%d' % page,
-            self.source,
-            '-'
-        ]
+        command = [self.context.config.DDJVU_PATH, "-format=ppm", "-page=%d" % page, self.source, "-"]
 
         ppm = self.command(command)
 

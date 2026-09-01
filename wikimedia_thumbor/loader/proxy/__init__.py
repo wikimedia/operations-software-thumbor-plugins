@@ -24,11 +24,7 @@ def _normalize_url(url):
 
 
 def validate(context, url):
-    return http_loader.validate(
-        context,
-        url,
-        normalize_url_func=_normalize_url
-    )
+    return http_loader.validate(context, url, normalize_url_func=_normalize_url)
 
 
 def return_contents(response, url, context):  # pragma: no cover
@@ -44,15 +40,11 @@ async def load(context, url):
         if loader in modules:
             mod = modules[loader]
         else:
-            logger.debug(f'Importing: {loader}')
+            logger.debug(f"Importing: {loader}")
             mod = importlib.import_module(loader)
             modules[loader] = mod
 
         if mod.should_run(url):
             return await mod.load(context, url)
 
-    return await http_loader.load(
-        context,
-        url,
-        normalize_url_func=_normalize_url
-    )
+    return await http_loader.load(context, url, normalize_url_func=_normalize_url)
