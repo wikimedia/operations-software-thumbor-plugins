@@ -1,4 +1,4 @@
-.PHONY: lock docker_lock code-coverage docker_code-coverage test offline-test online-test lint up down build bash docker_test docker_offline-test docker_online-test 3d2png needs-docker install
+.PHONY: unit-test lock docker_lock code-coverage docker_code-coverage test offline-test online-test lint up down build bash docker_test docker_offline-test docker_online-test 3d2png needs-docker install
 
 # Settings
 # The default timeout is not enough while testing some asynchronous methods. So
@@ -16,7 +16,10 @@ needs-docker:
 
 # Code coverage
 code-coverage: needs-docker
-	ASYNC_TEST_TIMEOUT=$(ENV_ASYNC_TEST_TIMEOUT) coverage run --source=wikimedia_thumbor/ -m pytest || coverage html -d coverage
+	@ASYNC_TEST_TIMEOUT=$(ENV_ASYNC_TEST_TIMEOUT) coverage run -m pytest; \
+	status=$$?; \
+	coverage html -d coverage; \
+	exit $$status
 
 build-test:
 	docker build -t thumbor-test --target test -f .pipeline/blubber.yaml .
@@ -24,6 +27,11 @@ build-test:
 docker_code-coverage: build-test
 	mkdir -m a+w coverage
 	docker run --env ASYNC_TEST_TIMEOUT=$(ENV_ASYNC_TEST_TIMEOUT) -it --mount type=bind,source=`pwd`/coverage,dst=/srv/service/coverage thumbor-test code-coverage
+
+# Tests
+#
+unit-test:
+	@pytest tests/unit
 
 # Tests
 test: needs-docker lint

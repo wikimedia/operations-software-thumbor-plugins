@@ -105,6 +105,24 @@ $ make bash
 
 ## Running tests
 
+The test suite has two layers. `tests/unit` runs on the host with no container and no
+media binaries; `tests/integration` needs the Docker image, because it shells out to
+ImageMagick, ffmpeg, rsvg-convert and friends.
+
+### Without Docker
+
+```bash
+$ pip install pytest thumbor==7.8.0 tc_core==0.5 pymemcache==4.0.0
+$ make unit-test
+```
+
+That is the whole dependency list for the unit layer -- the rest of `requirements.txt`
+is only reached by the integration tests, including the packages that need system
+headers to build (`py3exiv2`, `pycurl`). There is no need to install this package
+itself; running from the project root is enough.
+
+### With Docker
+
 To run all tests and linting:
 
 ```bash
