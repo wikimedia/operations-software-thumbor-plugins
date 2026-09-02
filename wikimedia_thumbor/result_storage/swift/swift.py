@@ -120,7 +120,7 @@ class Storage(BaseStorage):
             start = datetime.datetime.now()
 
             await tornado.ioloop.IOLoop.current().run_in_executor(
-                None,  # Uses the default ThreadPoolExecutor
+                None,
                 partial(
                     self.swift.put_object,
                     self.context.wikimedia_thumbnail_container,
@@ -153,11 +153,15 @@ class Storage(BaseStorage):
 
             start = datetime.datetime.now()
 
-            # hnowlan: Temporarily disable log disabling here in case we're missing a valid exception
-            # logging.disable(logging.ERROR)
-            headers, data = self.swift.get_object(self.context.wikimedia_thumbnail_container, self.context.wikimedia_thumbnail_save_path)
-            # hnowlan: Temporarily disable log disabling here in case we're missing a valid exception
-            # logging.disable(logging.NOTSET)
+            conn = self.swift
+            headers, data = await tornado.ioloop.IOLoop.current().run_in_executor(
+                None,
+                partial(
+                    conn.get_object,
+                    self.context.wikimedia_thumbnail_container,
+                    self.context.wikimedia_thumbnail_save_path,
+                ),
+            )
 
             record_timing(self.context, datetime.datetime.now() - start, "swift.thumbnail.read.success", "Thumbor-Swift-Thumbnail-Success-Time")
 
