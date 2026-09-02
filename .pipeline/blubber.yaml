@@ -99,6 +99,11 @@ apt:
     - xfonts-mplus
     - xfonts-scalable
     # end mediawiki::packages::fonts
+  sources:
+    - url: http://apt.wikimedia.org/wikimedia
+      distribution: trixie-wikimedia
+      components:
+        - component/thumbor
 
 lives:
   in: /srv/service/
