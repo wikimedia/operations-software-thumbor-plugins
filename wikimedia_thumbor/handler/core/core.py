@@ -20,4 +20,7 @@ class CoreHandler(ImagingHandler):
 
     async def check_image(self, kw):
         result = re.match(Url.regex(), kw['request'])
+        if result is None:
+            self._error(404, 'Not Found')
+            return
         return await super(CoreHandler, self).check_image(result.groupdict())
