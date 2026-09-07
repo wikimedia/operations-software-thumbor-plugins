@@ -54,7 +54,7 @@ class WikimediaSvgTest(WikimediaTestCase):
             expected_width=200,
             expected_height=205,
             expected_ssim=0.94,
-            size_tolerance=0.98,
+            size_tolerance=0.981,
         )
         self.run_and_check_ssim_and_size(
             "/thumbor/unsafe/200x/filters:format(webp)/Lori_in_Armenia.svg",

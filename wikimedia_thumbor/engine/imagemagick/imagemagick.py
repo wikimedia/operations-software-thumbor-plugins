@@ -63,6 +63,7 @@ class Engine(BaseEngine):
             temp_file.close()
 
         self.exif_dict = {}
+        self.settings = []
         self.operators = []
 
         try:
@@ -135,6 +136,12 @@ class Engine(BaseEngine):
             # but we can safely ignore all exceptions from it because we only use it
             # for Orientation.
             self.debug("[IM] Could not read EXIF with py3exiv2")
+        except MemoryError as e:
+            if "corrupted" not in str(e):
+                raise
+            # T245440: py3exiv2 raises a MemoryError with message "corrupted image metadata"
+            # for missing EXIF, not for actual memory exhaustion.
+            self.debug("[IM] Could not read EXIF with py3exiv2 (corrupted metadata)")
 
         stdout = Engine.exiftool.command(context=self.context, pre=command, input_temp_file=input_temp_file)
 
@@ -271,32 +278,29 @@ class Engine(BaseEngine):
         if hasattr(self, "webp") and self.webp and self.webp.get("animated"):
             # For animated WebP, we want all frames and we want to coalesce them
             # to avoid artifacts when resizing
-            last_operators = [
-                self.image.name,
+            input_file = self.image.name
+            output_operators = [
                 "-coalesce",
                 "webp:-",
             ]
         else:
-            last_operators = [
-                "%s[%d]" % (self.image.name, self.page),
-                f"{extension}:-",
-            ]
+            input_file = "%s[%d]" % (self.image.name, self.page)
+            output_operators = [f"{extension}:-"]
 
-        returncode, stderr, result = self.run_operators(last_operators)
+        returncode, stderr, result = self.run_operators(input_file, output_operators)
 
         # If the requested page failed, try the cover
         if returncode != 0 and self.page > 0:
             self.page = 0
-            last_operators = [
-                "%s[%d]" % (self.image.name, self.page),
-                f"{extension}:-",
-            ]
-            returncode, stderr, result = self.run_operators(last_operators)
+            input_file = "%s[%d]" % (self.image.name, self.page)
+            output_operators = [f"{extension}:-"]
+            returncode, stderr, result = self.run_operators(input_file, output_operators)
 
         if returncode != 0:
             ShellRunner.rm_f(self.image.name)  # pragma: no cover
             raise ImageMagickException(f"Failed to convert image {stderr}")  # pragma: no cover
 
+        self.settings = []
         self.operators = []
 
         # Going forward, we're dealing with a single page document
@@ -340,10 +344,7 @@ class Engine(BaseEngine):
         operators = []
 
         if self.extension == ".jpg":
-            operators += [
-                "-define",
-                f"jpeg:size={self.jpeg_size()}",
-            ]
+            self.queue_settings(["-define", f"jpeg:size={self.jpeg_size()}"])
 
         exif_image_size = self.exif_dict["ImageSize"]
         buffer_size = exif_image_size.split("x")
@@ -426,6 +427,11 @@ class Engine(BaseEngine):
     def size(self):
         return self.internal_size
 
+    def queue_settings(self, settings):
+        self.settings += settings
+
+        self.debug(f"[IM] Queued settings: {self.settings!r}")
+
     def queue_operators(self, operators):
         self.operators += operators
 
@@ -441,16 +447,20 @@ class Engine(BaseEngine):
         """
         return self.context.config.get("MAGICK_PATH", None) or self.context.config.get("CONVERT_PATH", None)
 
-    def run_operators(self, extra_operators):
+    def run_operators(self, input_file, output_operators):
         command = [
             self.magick_path,
             "-define",
             "tiff:exif-properties=no",  # Otherwise IM treats a bunch of warnings as errors
         ]
 
+        command += self.settings
+
+        command.append(input_file)
+
         command += self.operators
 
-        command += extra_operators
+        command += output_operators
 
         returncode, stderr, result = ShellRunner.command(command, self.context)
 

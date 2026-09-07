@@ -15,7 +15,6 @@ import errno
 import os
 import re
 import subprocess
-from functools import partial
 
 from thumbor.utils import logger
 

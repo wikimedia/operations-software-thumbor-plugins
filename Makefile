@@ -1,5 +1,7 @@
 .PHONY: unit-test lock docker_lock code-coverage docker_code-coverage test offline-test online-test lint up down build bash docker_test docker_offline-test docker_online-test 3d2png needs-docker install
 
+.DEFAULT_GOAL := test
+
 # Settings
 # The default timeout is not enough while testing some asynchronous methods. So
 # we use this to increase the timeout by setting the ASYNC_TEST_TIMEOUT
