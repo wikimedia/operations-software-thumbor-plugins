@@ -12,7 +12,7 @@
 # in the buffer and passes the file location via context, to mimick
 # what the other custom loaders do.
 
-from datetime import datetime
+from datetime import datetime, timezone
 from functools import partial
 from os import fstat
 from os.path import abspath, exists, join
@@ -58,7 +58,7 @@ async def load(context, path):
 
                 tornado.ioloop.IOLoop.instance().call_later(context.config.HTTP_LOADER_TEMP_FILE_TIMEOUT, partial(cleanup_temp_file, context.wikimedia_original_file.name))
 
-            result.metadata.update(size=stats.st_size, updated_at=datetime.utcfromtimestamp(stats.st_mtime))
+            result.metadata.update(size=stats.st_size, updated_at=datetime.fromtimestamp(stats.st_mtime, timezone.utc))
     else:
         result.error = 404
         result.successful = False
