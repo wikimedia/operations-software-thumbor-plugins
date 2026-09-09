@@ -116,6 +116,8 @@ def _mc(self):
         servers,
         ignore_exc=True,
         dead_timeout=30,
+        connect_timeout=3,
+        timeout=10,
     )
     return self.failure_mc
 
