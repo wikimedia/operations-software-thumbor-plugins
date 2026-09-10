@@ -54,10 +54,11 @@ EXIF_TINYRGB_PATH = '/srv/service/tinyrgb.icc'
 EXIF_TINYRGB_ICC_REPLACE = 'sRGB IEC61966-2.1'
 
 VIPS_ENGINE_MIN_PIXELS = 20000000
+VIPS_ENGINE_JPG_ROLLOUT_HEX = ['a']
 
 PROXY_ENGINE_ENGINES = [
     ('wikimedia_thumbor.engine.djvu', ['djvu']),
-    ('wikimedia_thumbor.engine.vips', ['tiff', 'png']),
+    ('wikimedia_thumbor.engine.vips', ['tiff', 'png', 'jpg']),
     ('wikimedia_thumbor.engine.tiff', ['tiff']),
     ('wikimedia_thumbor.engine.ghostscript', ['pdf']),
     ('wikimedia_thumbor.engine.gif', ['gif']),

@@ -10,15 +10,26 @@
 
 # VIPS engine
 
+import hashlib
 import json
 import os
 import shutil
 from tempfile import mkdtemp
+from urllib.parse import urlparse
+
+from thumbor.config import Config
 
 from wikimedia_thumbor.engine import BaseWikimediaEngine, CommandError
 from wikimedia_thumbor.shell_runner import ShellRunner  # noqa
 
 BaseWikimediaEngine.add_format("image/tiff", ".tiff", lambda buffer: buffer[:7] in (b"II*\x00", "MM\x00*"))
+
+Config.define(
+    "VIPS_ENGINE_JPG_ROLLOUT_HEX",
+    [],
+    "Hex prefixes the md5 of the original filename can start with for a JPG to be thumbnailed by VIPS. An empty list disables VIPS for JPGs, [''] rolls it out to all of them.",
+    "VIPS",
+)
 
 
 class Engine(BaseWikimediaEngine):
@@ -42,12 +53,34 @@ class Engine(BaseWikimediaEngine):
         pixels = self.context.vips["width"] * self.context.vips["height"]
 
         if self.context.config.VIPS_ENGINE_MIN_PIXELS is None:
-            return True  # pragma: no cover
+            large_enough = True  # pragma: no cover
         else:
-            if pixels > self.context.config.VIPS_ENGINE_MIN_PIXELS:
-                return True
+            large_enough = pixels > self.context.config.VIPS_ENGINE_MIN_PIXELS
 
-        return False
+        if not large_enough:
+            return False
+
+        if self.get_mimetype(buffer) == "image/jpeg" and not self.jpg_rollout_match():
+            self.debug("[VIPS] Skipping JPG, filename not in the rollout bucket")
+            return False
+
+        return True
+
+    def jpg_rollout_match(self):
+        prefixes = tuple(self.context.config.VIPS_ENGINE_JPG_ROLLOUT_HEX)
+
+        if not prefixes:
+            return False
+
+        return hashlib.md5(self.original_filename().encode("utf-8")).hexdigest().startswith(prefixes)
+
+    def original_filename(self):
+        if hasattr(self.context, "wikimedia_original_filepath"):
+            path = self.context.wikimedia_original_filepath
+        else:
+            path = urlparse(self.context.request.image_url).path
+
+        return path.rsplit("/", 1)[-1]
 
     def create_image(self, buffer):
         # If there is no extension in the request, it means that we

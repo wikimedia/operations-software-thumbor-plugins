@@ -70,7 +70,7 @@ class WikimediaTestCase(AsyncHTTPTestCase):
 
         cfg.PROXY_ENGINE_ENGINES = [
             ("wikimedia_thumbor.engine.djvu", ["djvu"]),
-            ("wikimedia_thumbor.engine.vips", ["tiff", "png"]),
+            ("wikimedia_thumbor.engine.vips", ["tiff", "png", "jpg"]),
             ("wikimedia_thumbor.engine.tiff", ["tiff"]),
             ("wikimedia_thumbor.engine.ghostscript", ["pdf"]),
             ("wikimedia_thumbor.engine.gif", ["gif"]),
