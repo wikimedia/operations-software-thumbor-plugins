@@ -64,6 +64,7 @@ class Engine(BaseEngine):
 
         self.exif_dict = {}
         self.settings = []
+        self.pre_operators = []
         self.operators = []
 
         try:
@@ -276,13 +277,12 @@ class Engine(BaseEngine):
         self.queue_operators(operators)
 
         if hasattr(self, "webp") and self.webp and self.webp.get("animated"):
-            # For animated WebP, we want all frames and we want to coalesce them
-            # to avoid artifacts when resizing
             input_file = self.image.name
-            output_operators = [
-                "-coalesce",
-                "webp:-",
-            ]
+
+            # Coalesce is needed to scale animated (webp) images properly (T3017, T290345),
+            # It must be applied before resize/crop operators to avoid distortions
+            self.pre_operators = ["-coalesce"]
+            output_operators = ["webp:-"]
         else:
             input_file = "%s[%d]" % (self.image.name, self.page)
             output_operators = [f"{extension}:-"]
@@ -301,6 +301,7 @@ class Engine(BaseEngine):
             raise ImageMagickException(f"Failed to convert image {stderr}")  # pragma: no cover
 
         self.settings = []
+        self.pre_operators = []
         self.operators = []
 
         # Going forward, we're dealing with a single page document
@@ -457,6 +458,9 @@ class Engine(BaseEngine):
         command += self.settings
 
         command.append(input_file)
+
+        # operators that have to be applied before sizing is done
+        command += self.pre_operators
 
         command += self.operators
 
