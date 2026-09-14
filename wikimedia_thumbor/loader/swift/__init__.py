@@ -76,6 +76,11 @@ async def load(context, url):
 
         context.metrics.incr("swift_loader.status.success")
 
+        try:
+            context.wikimedia_original_timestamp = float(headers.get("x-timestamp"))
+        except (AttributeError, TypeError, ValueError):
+            context.wikimedia_original_timestamp = None
+
         # XXX hack: If the file is an STL, we overwrite the first five bytes
         # with the word "solid", to trick the MIME detection pipeline.
         extension = path[-4:].lower()

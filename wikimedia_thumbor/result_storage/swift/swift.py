@@ -8,6 +8,7 @@
 
 import datetime
 import random
+import time
 from functools import partial
 
 import tornado.ioloop
@@ -17,6 +18,43 @@ from thumbor.result_storages import BaseStorage, ResultStorageResult
 from thumbor.utils import logger
 
 from wikimedia_thumbor.logging import log_extra, record_timing
+
+
+def thumbnail_expiry(context):
+    """How long the thumbnail we're about to store should live, in seconds."""
+    config = context.config
+
+    expiry = config.get("SWIFT_THUMBNAIL_EXPIRY_SECONDS", 0)
+
+    if expiry <= 0:
+        return None
+
+    if _original_is_new(context):
+        # add some jitter
+        return int(expiry + random.uniform(0, max(3600, 0)))
+
+    return None
+
+
+def _original_is_new(context):
+    """Was the original this thumbnail comes from uploaded very recently?"""
+    age_threshold = context.config.get("SWIFT_THUMBNAIL_RECENCY_AGE_SECONDS", 0)
+
+    if age_threshold <= 0:
+        return False
+
+    original_timestamp = getattr(context, "wikimedia_original_timestamp", None)
+
+    if original_timestamp is None:
+        return False
+
+    containers = context.config.get("SWIFT_THUMBNAIL_EXPIRY_CONTAINERS", []) or []
+    container = getattr(context, "wikimedia_thumbnail_container", None)
+
+    if not container or container not in containers:
+        return False
+
+    return time.time() - original_timestamp < age_threshold
 
 
 class Storage(BaseStorage):
@@ -72,11 +110,10 @@ class Storage(BaseStorage):
             if len(xkey):
                 headers["Xkey"] = xkey[0]
 
-            expiry = self.context.config.get("SWIFT_THUMBNAIL_EXPIRY_SECONDS", 0)
-            sampling_factor = self.context.config.get("SWIFT_THUMBNAIL_EXPIRY_SAMPLING_FACTOR", 0)
+            expiry = thumbnail_expiry(self.context)
 
-            if expiry > 0 and sampling_factor > 0 and random.randint(1, sampling_factor) == 1:
-                headers["X-Delete-After"] = expiry
+            if expiry is not None:
+                headers["X-Delete-After"] = str(expiry)
 
             content_type = content_type[0] if len(content_type) else None
 

@@ -1,4 +1,5 @@
 import os
+import time
 
 from swiftclient.client import Connection
 from swiftclient.exceptions import ClientException
@@ -10,6 +11,12 @@ from . import WikimediaTestCase
 
 
 class WikimediaSwiftTestCase(WikimediaTestCase):
+    # Expected X-Delete-After, as a (minimum, maximum) pair of whole seconds
+    # since the storage adds jitter, or None when the thumbnail is expected to
+    # be stored without a TTL.
+    expected_delete_after = None
+    original_headers = {}
+
     def setUp(self):
         super().setUp()
 
@@ -67,8 +74,6 @@ class WikimediaSwiftTestCase(WikimediaTestCase):
         cfg.PROXY_LOADER_LOADERS = ["wikimedia_thumbor.loader.swift"]
         cfg.LOADER_EXCERPT_LENGTH = 4096
         cfg.HTTP_LOADER_TEMP_FILE_TIMEOUT = 10
-        cfg.SWIFT_THUMBNAIL_EXPIRY_SECONDS = 60
-        cfg.SWIFT_THUMBNAIL_EXPIRY_SAMPLING_FACTOR = 1
 
         return cfg
 
@@ -77,7 +82,19 @@ class WikimediaSwiftTestCase(WikimediaTestCase):
 
         assert container == "wikipedia-en-local-thumb.d3", f"Unexpected swift container: {container!r}"
         assert obj == "thumbor/d/d3/1Mcolors.png/400px-1Mcolors.png", f"Unexpected swift obj: {obj!r}"
-        assert headers == {"Content-Disposition": "inline;filename*=UTF-8''1Mcolors.png", "Xkey": "File:1Mcolors.png", "X-Delete-After": 60}, f"Unexpected swift headers: {headers!r}"
+        expected = {"Content-Disposition": "inline;filename*=UTF-8''1Mcolors.png", "Xkey": "File:1Mcolors.png"}
+
+        headers = dict(headers or {})
+        delete_after = headers.pop("X-Delete-After", None)
+
+        assert headers == expected, f"Unexpected swift headers: {headers!r}"
+
+        if self.expected_delete_after is None:
+            assert delete_after is None, f"Unexpected swift X-Delete-After: {delete_after!r}"
+        else:
+            minimum, maximum = self.expected_delete_after
+
+            assert minimum <= int(delete_after) <= maximum, f"Unexpected swift X-Delete-After: {delete_after!r}"
 
     def mock_get_object(self, container, obj, resp_chunk_size=None, query_string=None, response_dict=None, headers=None):
         self.get_object_calls += 1
@@ -93,7 +110,7 @@ class WikimediaSwiftTestCase(WikimediaTestCase):
 
             path = os.path.join(os.path.dirname(__file__), "originals", "1Mcolors.png")
             with open(path, "rb") as f:
-                return {}, f.read()
+                return self.original_headers, f.read()
         else:
             assert container == "wikipedia-en-local-thumb.d3", f"Unexpected swift container: {container!r}"
             assert obj == "thumbor/d/d3/1Mcolors.png/400px-1Mcolors.png", f"Unexpected swift obj: {obj!r}"
@@ -107,3 +124,33 @@ class WikimediaSwiftTestCase(WikimediaTestCase):
         self.fetch("/wikipedia/en/thumb/d/d3/1Mcolors.png/400px-1Mcolors.png")
         # Thumbnail exists now
         self.fetch("/wikipedia/en/thumb/d/d3/1Mcolors.png/400px-1Mcolors.png")
+
+
+class WikimediaSwiftSpeculativeExpiryTestCase(WikimediaSwiftTestCase):
+    """The original was uploaded moments ago, so its thumbnail gets a TTL."""
+
+    # The storage jitters the expiry by up to an hour.
+    expected_delete_after = (172800, 172800 + 3600)
+
+    @property
+    def original_headers(self):
+        return {"x-timestamp": str(time.time())}
+
+    def get_config(self):
+        cfg = super().get_config()
+
+        cfg.SWIFT_THUMBNAIL_EXPIRY_SECONDS = 172800
+        cfg.SWIFT_THUMBNAIL_RECENCY_AGE_SECONDS = 86400
+        cfg.SWIFT_THUMBNAIL_EXPIRY_CONTAINERS = ["wikipedia-en-local-thumb.d3"]
+
+        return cfg
+
+
+class WikimediaSwiftOldOriginalTestCase(WikimediaSwiftSpeculativeExpiryTestCase):
+    """The original is old, so its thumbnail is stored without a TTL."""
+
+    expected_delete_after = None
+
+    @property
+    def original_headers(self):
+        return {"x-timestamp": str(time.time() - 30 * 86400)}
