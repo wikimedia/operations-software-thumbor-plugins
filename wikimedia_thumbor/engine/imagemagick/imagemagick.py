@@ -366,13 +366,6 @@ class Engine(BaseEngine):
         else:
             target_size = "%dx%d" % (int(width), int(height))
 
-        # The ^ + gravity + extent trick is necessary to ensure that we get a thumbnail
-        # of exactly the width we've requested. In some edge cases a tiny fraction
-        # of the image might be cropped out. This is unavoidable with ImageMagick
-        # See http://www.imagemagick.org/Usage/resize/ for details
-
-        operators += ["-resize", f"{target_size}^", "-gravity", "center", "-extent", target_size]
-
         # T198370 T283646 "-background none" is necessary to preserve transparency of PNG and WEBP thumbnails.
         # Only apply to RGBA and Palette (indexed)
         # PNGs, because otherwise it would turn thumbnails of RGB PNGs into RGBA, thumbnails
@@ -383,6 +376,13 @@ class Engine(BaseEngine):
             or "Transparency" in self.exif_dict
         ):
             operators += ["-background", "none"]
+
+        # The ^ + gravity + extent trick is necessary to ensure that we get a thumbnail
+        # of exactly the width we've requested. In some edge cases a tiny fraction
+        # of the image might be cropped out. This is unavoidable with ImageMagick
+        # See http://www.imagemagick.org/Usage/resize/ for details
+        # Note also that -extent has to come after -background.
+        operators += ["-resize", f"{target_size}^", "-gravity", "center", "-extent", target_size]
 
         self.queue_operators(operators)
 

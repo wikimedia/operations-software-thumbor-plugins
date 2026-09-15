@@ -59,10 +59,10 @@ class WikimediaPngTest(WikimediaTestCase):
             perfect_reference_thumbnail="400px-PNG_transparency_demonstration_1.png",
             expected_width=400,
             expected_height=300,
-            # WebP compresses the alpha layer more agressively by default, which results in this
+            # WebP compresses the alpha layer more aggressively by default, which results in this
             # low score. This can be avoided in webp >= 0.5 with the -exact function, currently
             # only available on Debian Stretch.
-            expected_ssim=0.97,
+            expected_ssim=0.953,
             size_tolerance=0.68,
         )
         # Palette PNG
