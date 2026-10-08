@@ -24,6 +24,10 @@ from thumbor.utils import logger
 from wikimedia_thumbor.logging import log_extra, record_timing
 from wikimedia_thumbor.shell_runner import ShellRunner
 
+# Originals are streamed from Swift in chunks of this size, rather than being
+# read into memory in one go.
+SWIFT_CHUNK_SIZE = 64 * 1024 * 1024
+
 
 def should_run(url):  # pragma: no cover
     return True
@@ -55,6 +59,33 @@ def swift(context):
     return conn
 
 
+def fetch_to_temp_file(context, container, path, excerpt_length):
+    """Stream an object from Swift into a temp file, chunk by chunk.
+
+    Returns the object headers, the (closed) temp file, the first
+    excerpt_length bytes of the object and its total size."""
+    headers, chunks = swift(context).get_object(container, path, resp_chunk_size=SWIFT_CHUNK_SIZE)
+
+    f = NamedTemporaryFile(delete=False)
+    excerpt = b""
+    size = 0
+
+    try:
+        for chunk in chunks:
+            if len(excerpt) < excerpt_length:
+                excerpt += chunk[: excerpt_length - len(excerpt)]
+            f.write(chunk)
+            size += len(chunk)
+    except BaseException:
+        f.close()
+        cleanup_temp_file(context, f.name)
+        raise
+
+    f.close()
+
+    return headers, f, excerpt, size
+
+
 async def load(context, url):
     logger.debug(f"[SWIFT_LOADER] load: {url}", extra=log_extra(context))
 
@@ -69,7 +100,9 @@ async def load(context, url):
         start = datetime.datetime.now()
 
         # logging.disable(logging.ERROR)
-        headers, response = await tornado.ioloop.IOLoop.instance().run_in_executor(None, swift(context).get_object, container, path)
+        excerpt_length = context.config.LOADER_EXCERPT_LENGTH
+
+        headers, f, body, size = await tornado.ioloop.IOLoop.instance().run_in_executor(None, fetch_to_temp_file, context, container, path, excerpt_length)
         # logging.disable(logging.NOTSET)
 
         record_timing(context, datetime.datetime.now() - start, "swift.original.read.success", "Thumbor-Swift-Original-Success-Time")
@@ -81,20 +114,12 @@ async def load(context, url):
         except (AttributeError, TypeError, ValueError):
             context.wikimedia_original_timestamp = None
 
+        logger.debug("[SWIFT_LOADER] wrote %d bytes to temp file" % size, extra=log_extra(context))
+
         # XXX hack: If the file is an STL, we overwrite the first five bytes
         # with the word "solid", to trick the MIME detection pipeline.
         extension = path[-4:].lower()
         isSTL = extension == ".stl"
-
-        f = NamedTemporaryFile(delete=False)
-        logger.debug("[SWIFT_LOADER] writing %d bytes to temp file" % len(response), extra=log_extra(context))
-        f.write(response)
-        f.close()
-
-        excerpt_length = context.config.LOADER_EXCERPT_LENGTH
-
-        # First kb of the body for MIME detection
-        body = response[:excerpt_length]
 
         # See above - text STLs have this string here anyway, and
         # binary STLs ignore the first 80 bytes, so this string will

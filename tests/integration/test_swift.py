@@ -108,9 +108,15 @@ class WikimediaSwiftTestCase(WikimediaTestCase):
             assert container == "wikipedia-en-local-public.d3", f"Unexpected swift container: {container!r}"
             assert obj == "d/d3/1Mcolors.png", f"Unexpected swift obj: {obj!r}"
 
+            assert resp_chunk_size == 64 * 1024 * 1024, f"Unexpected swift resp_chunk_size: {resp_chunk_size!r}"
+
             path = os.path.join(os.path.dirname(__file__), "originals", "1Mcolors.png")
             with open(path, "rb") as f:
-                return self.original_headers, f.read()
+                content = f.read()
+
+            # Emulate swiftclient's chunked body, with small chunks to exercise
+            # reassembly across chunk boundaries.
+            return self.original_headers, iter([content[i : i + 1000] for i in range(0, len(content), 1000)])
         else:
             assert container == "wikipedia-en-local-thumb.d3", f"Unexpected swift container: {container!r}"
             assert obj == "thumbor/d/d3/1Mcolors.png/400px-1Mcolors.png", f"Unexpected swift obj: {obj!r}"
