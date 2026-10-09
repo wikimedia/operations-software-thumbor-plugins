@@ -26,7 +26,7 @@ from wikimedia_thumbor.shell_runner import ShellRunner
 
 # Originals are streamed from Swift in chunks of this size, rather than being
 # read into memory in one go.
-SWIFT_CHUNK_SIZE = 64 * 1024 * 1024
+SWIFT_CHUNK_SIZE = 16 * 1024 * 1024
 
 
 def should_run(url):  # pragma: no cover
