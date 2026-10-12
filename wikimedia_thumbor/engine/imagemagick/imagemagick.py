@@ -438,19 +438,9 @@ class Engine(BaseEngine):
 
         self.debug(f"[IM] Queued operators: {self.operators!r}")
 
-    @property
-    def magick_path(self):
-        """Path to the ImageMagick CLI.
-
-        ImageMagick 7 renamed `convert` to `magick`; `convert` survives only
-        as a deprecated compatibility shim that warns on every invocation and
-        is slated for removal.
-        """
-        return self.context.config.get("MAGICK_PATH", None) or self.context.config.get("CONVERT_PATH", None)
-
     def run_operators(self, input_file, output_operators):
         command = [
-            self.magick_path,
+            self.context.config.get("MAGICK_PATH", None),
             "-define",
             "tiff:exif-properties=no",  # Otherwise IM treats a bunch of warnings as errors
         ]
