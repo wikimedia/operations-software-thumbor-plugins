@@ -83,6 +83,14 @@ Also, you can use the current Thumbor Plugins configurations that are used in th
 
 ## Installation and running
 
+To make the container user match your local user, create a `.env` file in the
+project folder (Docker Compose picks it up automatically):
+
+```bash
+$ echo "THUMBOR_DOCKER_UID=$(id -u)" > .env
+$ echo "THUMBOR_DOCKER_GID=$(id -g)" >> .env
+```
+
 To build and start the Thumbor server:
 
 ```bash
@@ -94,6 +102,9 @@ There is also a healthcheck of the Thumbor custom application at http://localhos
 To understand how to make requests to the local Thumbor server, it will be useful to learn how tests work.
 For instance, here is the link which returns a cropped image: http://localhost:8800/thumbor/unsafe/450x/Carrie.jpg
 For this case, the minimal Thumbor configurations that are mentioned above will be enough.
+
+The `wikimedia_thumbor`, `tests` folders and `thumbor.conf` are mounted into
+the container, so local changes are picked up without a rebuild.
 
 In addition to `build`, the `up` and `down` targets can be used to start and stop the project,
 and `bash` will get you a shell inside the container.
@@ -121,7 +132,7 @@ To run it in the container instead:
 
 ```bash
 $ make build-test
-$ docker run thumbor-test lint
+$ docker compose run --rm test lint
 ```
 
 `make docker_test` already runs the linter before the tests.

@@ -1,4 +1,4 @@
-.PHONY: unit-test lock docker_lock code-coverage docker_code-coverage test offline-test online-test lint up down build bash docker_test docker_offline-test docker_online-test 3d2png needs-docker install
+.PHONY: unit-test lock docker_lock code-coverage docker_code-coverage test offline-test online-test lint up down build build-test bash docker_test docker_offline-test docker_online-test 3d2png needs-docker install
 
 .DEFAULT_GOAL := test
 
@@ -23,12 +23,18 @@ code-coverage: needs-docker
 	coverage html -d coverage; \
 	exit $$status
 
+# All Docker targets go through docker compose, so they honour the same
+# overrides as the dev setup
+COMPOSE = docker compose
+COMPOSE_TEST = $(COMPOSE) --profile test
+DOCKER_RUN_TEST = $(COMPOSE_TEST) run --rm --env ASYNC_TEST_TIMEOUT=$(ENV_ASYNC_TEST_TIMEOUT)
+
 build-test:
-	docker build -t thumbor-test --target test -f .pipeline/blubber.yaml .
+	$(COMPOSE_TEST) build test
 
 docker_code-coverage: build-test
-	mkdir -m a+w coverage
-	docker run --env ASYNC_TEST_TIMEOUT=$(ENV_ASYNC_TEST_TIMEOUT) -it --mount type=bind,source=`pwd`/coverage,dst=/srv/service/coverage thumbor-test code-coverage
+	mkdir -p -m a+w coverage
+	$(DOCKER_RUN_TEST) --volume "$(CURDIR)/coverage:/srv/service/coverage" test code-coverage
 
 # Tests
 #
@@ -40,7 +46,7 @@ test: needs-docker lint
 	@ASYNC_TEST_TIMEOUT=$(ENV_ASYNC_TEST_TIMEOUT) pytest tests/
 
 docker_test: build-test
-	docker run --env ASYNC_TEST_TIMEOUT=$(ENV_ASYNC_TEST_TIMEOUT) thumbor-test test
+	$(DOCKER_RUN_TEST) test test
 
 offline-test: needs-docker
 	@ASYNC_TEST_TIMEOUT=$(ENV_ASYNC_TEST_TIMEOUT) pytest tests/ --ignore 'tests/integration/test_proxy_loader.py' --ignore 'tests/integration/test_huge_video.py' --ignore 'tests/integration/test_https_loader.py' --ignore 'tests/integration/test_vips_https_loader.py'
@@ -48,7 +54,7 @@ offline-test: needs-docker
 # Unlike the online tests, the Docker container for this group of tests can
 # be run without an internet connection since all necessary data is local.
 docker_offline-test: build-test
-	docker run --env ASYNC_TEST_TIMEOUT=$(ENV_ASYNC_TEST_TIMEOUT) thumbor-test offline-test
+	$(DOCKER_RUN_TEST) test offline-test
 
 online-test: needs-docker
 	@ASYNC_TEST_TIMEOUT=$(ENV_ASYNC_TEST_TIMEOUT) pytest tests/integration/test_proxy_loader.py tests/integration/test_huge_video.py tests/integration/test_https_loader.py tests/integration/test_vips_https_loader.py
@@ -56,7 +62,7 @@ online-test: needs-docker
 # This group of tests requires an internet connection because there are test
 # cases that make HTTP requests to third-party services.
 docker_online-test: build-test
-	docker run --env ASYNC_TEST_TIMEOUT=$(ENV_ASYNC_TEST_TIMEOUT) thumbor-test online-test
+	$(DOCKER_RUN_TEST) test online-test
 
 # Dependency locking
 #
@@ -69,7 +75,7 @@ lock: needs-docker
 	pip-compile --output-file=requirements.lock --strip-extras requirements.txt
 
 docker_lock: build-test
-	docker run --mount type=bind,source=`pwd`,dst=/srv/service thumbor-test lock
+	$(COMPOSE_TEST) run --rm --volume "$(CURDIR):/srv/service" test lock
 
 # Linter
 lint:
@@ -78,16 +84,16 @@ lint:
 
 # Docker
 up:
-	docker compose up -d
+	$(COMPOSE) up -d
 
 down:
-	docker compose down
+	$(COMPOSE) down
 
 build:
-	docker compose up -d --build
+	$(COMPOSE) up -d --build
 
 bash:
-	docker compose exec thumbor bash
+	$(COMPOSE) exec thumbor bash
 
 3d2png: needs-docker
 	git clone https://github.com/wikimedia/3d2png.git

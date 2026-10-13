@@ -1,7 +1,35 @@
+x-build: &build
+  # Set THUMBOR_BLUBBER_CONFIG env var to build from a different
+  # blubber config. Useful for local development in an arm64 environment
+  # where the default blubber base image may not be compatible.
+  dockerfile: ${THUMBOR_BLUBBER_CONFIG:-./.pipeline/blubber.yaml}
+  # Set THUMBOR_DOCKER_UID/THUMBOR_DOCKER_GID env vars to run
+  # as the local user. Defaults to blubber's own runtime user.
+  args:
+    LIVES_UID: ${THUMBOR_DOCKER_UID:-65533}
+    LIVES_GID: ${THUMBOR_DOCKER_GID:-65533}
+
 services:
   thumbor:
     build:
-      dockerfile: ./.pipeline/blubber.yaml
+      <<: *build
       target: dev
     ports:
       - 8800:8800
+    # Mount the source folders over the copies baked into the image, so local
+    # edits are picked up without rebuilding.
+    volumes:
+      - ./wikimedia_thumbor:/srv/service/wikimedia_thumbor
+      - ./tests:/srv/service/tests
+      - ./thumbor.conf:/srv/service/thumbor.conf
+
+  # Test image, used by the docker_* Makefile targets. Its entrypoint is
+  # `make`, so the command is the Makefile target to run, e.g.
+  # `docker compose run --rm test lint`. Behind a profile so that
+  # `docker compose up` does not start it.
+  test:
+    profiles: [test]
+    image: thumbor-test
+    build:
+      <<: *build
+      target: test
