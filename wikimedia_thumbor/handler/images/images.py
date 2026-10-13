@@ -165,7 +165,6 @@ class ImagesHandler(ImagingHandler):
             r"(?P<shard2>[0-9a-zA-Z]+)/"
             r"(?P<filename>[^/]+)\."
             r"(?P<extension>[^/]+)/"
-            r"(?:(?P<qlow>qlow-))?"
             r"(?:(?P<lossy>lossy-))?"
             r"(?:(?P<lossless>lossless-))?"
             r"(?:page(?P<page>\d+)-)?"
@@ -187,9 +186,6 @@ class ImagesHandler(ImagingHandler):
             if kw["specialpath"] == "temp":
                 kw["specialpath"] = "thumb"
             path = "/".join((kw["specialpath"], path))
-
-        if kw["qlow"] == "qlow-":
-            path += kw["qlow"]
 
         if kw["lossy"] == "lossy-":  # pragma: no cover
             path += kw["lossy"]
@@ -303,10 +299,6 @@ class ImagesHandler(ImagingHandler):
                 self._error(422, f"Requested size {self.context.request.width} is larger than maximum ({self.context.config.SVG_MAX_SIZE})")
 
         if kw["extension"].lower() in ("jpg", "jpe", "jpeg"):
-            if kw["qlow"] == "qlow-" and hasattr(self.context.config, "QUALITY_LOW"):
-                logger.debug("[ImagesHandler] apply JPG low quality")
-                filters.append("quality(%d)" % self.context.config.QUALITY_LOW)
-
             if hasattr(self.context.config, "DEFAULT_FILTERS_JPEG"):
                 logger.debug("[ImagesHandler] apply JPG default filters")
                 filters.append(self.context.config.DEFAULT_FILTERS_JPEG)

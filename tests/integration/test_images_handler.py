@@ -40,7 +40,6 @@ class WikimediaImagesHandlerTestCase(WikimediaTestCase):
         cfg.SWIFT_RETRIES = 0
         cfg.SWIFT_PRIVATE_SECRET = "topsecret1234"
 
-        cfg.QUALITY_LOW = 10
         cfg.DEFAULT_FILTERS_JPEG = "conditional_sharpen(0.0,0.8,1.0,0.0,0.85)"
 
         return cfg
@@ -145,21 +144,6 @@ class WikimediaImagesHandlerTestCase(WikimediaTestCase):
             "http://swifthost/swift/v1/api/path/wikipedia-en-local-public.d3/d/d3/1Mcolors.png",
             "format(png)",
             "inline;filename*=UTF-8''1Mcolors.png",
-        )
-
-    def test_qlow(self):
-        self.run_and_check_headers(
-            "/wikipedia/en/thumb/d/d3/1Mcolors.jpg/qlow-400px-1Mcolors.jpg",
-            None,
-            "File:1Mcolors.jpg",
-            "wikipedia-en-local-public.d3",
-            "d/d3/1Mcolors.jpg",
-            "wikipedia-en-local-thumb.d3",
-            "thumbor/d/d3/1Mcolors.jpg/qlow-400px-1Mcolors.jpg",
-            "400",
-            "http://swifthost/swift/v1/api/path/wikipedia-en-local-public.d3/d/d3/1Mcolors.jpg",
-            "quality(10):conditional_sharpen(0.0,0.8,1.0,0.0,0.85):format(jpg)",
-            "inline;filename*=UTF-8''1Mcolors.jpg",
         )
 
     def test_page(self):

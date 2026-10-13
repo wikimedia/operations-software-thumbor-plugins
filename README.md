@@ -39,7 +39,6 @@ SUBPROCESS_TIMEOUT = 60
 
 CHROMA_SUBSAMPLING = '4:2:0'
 QUALITY = 79
-QUALITY_LOW = 40
 DEFAULT_FILTERS_JPEG = 'conditional_sharpen(0.0,0.8,1.0,0.0,0.85)'
 MAX_ANIMATED_GIF_AREA = 500 * 200 * 60
 
@@ -74,7 +73,6 @@ FILTERS = [
     'wikimedia_thumbor.filter.page',
     'wikimedia_thumbor.filter.crop',
     'wikimedia_thumbor.filter.flip',
-    'thumbor.filters.quality',
     'thumbor.filters.rotate'
 ]
 ```

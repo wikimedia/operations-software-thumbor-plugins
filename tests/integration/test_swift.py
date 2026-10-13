@@ -68,7 +68,6 @@ class WikimediaSwiftTestCase(WikimediaTestCase):
         cfg.SWIFT_CONNECTION_TIMEOUT = 1
         cfg.SWIFT_RETRIES = 0
 
-        cfg.QUALITY_LOW = 10
         cfg.DEFAULT_FILTERS_JPEG = "conditional_sharpen(0.0,0.8,1.0,0.0,0.85)"
         cfg.LOADER = "wikimedia_thumbor.loader.proxy"
         cfg.PROXY_LOADER_LOADERS = ["wikimedia_thumbor.loader.swift"]
