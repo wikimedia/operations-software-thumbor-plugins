@@ -14,7 +14,7 @@ class WikimediaShellRunnerWrapCommandTest(WikimediaTestCase):
 
         result = ShellRunner.wrap_command(command, self.ctx)
 
-        expected = ["/usr/bin/timeout", "--foreground", "--kill-after", "5s", "60", "echo", "hello"]
+        expected = ["/usr/bin/timeout", "--kill-after", "5s", "60", "echo", "hello"]
 
         assert result == expected
 
@@ -28,7 +28,7 @@ class WikimediaShellRunnerWrapCommandTest(WikimediaTestCase):
 
         result = ShellRunner.wrap_command(command, self.ctx)
 
-        expected = ["/usr/bin/timeout", "--foreground", "30", "echo", "world"]
+        expected = ["/usr/bin/timeout", "30", "echo", "world"]
 
         assert result == expected
 

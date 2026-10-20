@@ -26,7 +26,6 @@ class TestWrapCommand:
 
         assert ShellRunner.wrap_command(["/usr/bin/vips", "copy"], ctx) == [
             "/usr/bin/timeout",
-            "--foreground",
             "60",
             "/usr/bin/vips",
             "copy",
@@ -42,7 +41,6 @@ class TestWrapCommand:
 
         assert ShellRunner.wrap_command(["/usr/bin/vips"], ctx) == [
             "/usr/bin/timeout",
-            "--foreground",
             "--kill-after",
             "5s",
             "60",
