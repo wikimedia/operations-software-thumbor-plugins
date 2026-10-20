@@ -450,6 +450,10 @@ class ImagesHandler(ImagingHandler):
         if mc:
             mc.disconnect_all()
 
+        # Remove temp files left behind by requests that failed part way
+        if self.context.modules and self.context.modules.engine:
+            self.context.modules.engine.cleanup()
+
         self.context.metrics.incr("response.status." + str(self.get_status()))
 
         super().on_finish()

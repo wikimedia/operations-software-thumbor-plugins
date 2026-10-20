@@ -72,6 +72,7 @@ class Engine(BaseEngine):
         else:
             self.debug("[IM] Dumping buffer into temp file")
             temp_file = NamedTemporaryFile(delete=False)
+            self.temp_image_path = temp_file.name
             temp_file.write(buffer)
             temp_file.close()
 
@@ -498,6 +499,12 @@ class Engine(BaseEngine):
             return jpg_result
 
         return webp_result
+
+    def cleanup(self):
+        if getattr(self, "temp_image_path", None):
+            ShellRunner.rm_f(self.temp_image_path)
+
+        super().cleanup()
 
     def debug(self, message):
         logger.debug(message, extra=log_extra(self.context))

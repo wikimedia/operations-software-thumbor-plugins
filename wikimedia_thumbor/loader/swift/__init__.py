@@ -33,8 +33,8 @@ def should_run(url):  # pragma: no cover
     return True
 
 
-def cleanup_temp_file(context, path):
-    logger.debug(f"[SWIFT_LOADER] cleanup_temp_file: {path}", extra=log_extra(context))
+def cleanup_temp_file(path, extra=None):
+    logger.debug(f"[SWIFT_LOADER] cleanup_temp_file: {path}", extra=extra)
     ShellRunner.rm_f(path)
 
 
@@ -78,7 +78,7 @@ def fetch_to_temp_file(context, container, path, excerpt_length):
             size += len(chunk)
     except BaseException:
         f.close()
-        cleanup_temp_file(context, f.name)
+        cleanup_temp_file(f.name, log_extra(context))
         raise
 
     f.close()
@@ -131,10 +131,10 @@ async def load(context, url):
             logger.debug(f"[SWIFT_LOADER] return_contents: {f.name}", extra=log_extra(context))
             context.wikimedia_original_file = f
 
-            tornado.ioloop.IOLoop.instance().call_later(context.config.HTTP_LOADER_TEMP_FILE_TIMEOUT, partial(cleanup_temp_file, context, context.wikimedia_original_file.name))
+            tornado.ioloop.IOLoop.instance().call_later(context.config.HTTP_LOADER_TEMP_FILE_TIMEOUT, partial(cleanup_temp_file, f.name, log_extra(context)))
         else:
             logger.debug("[SWIFT_LOADER] return_contents: small body")
-            cleanup_temp_file(context, f.name)
+            cleanup_temp_file(f.name, log_extra(context))
 
         result.buffer = body
     except ClientException as e:

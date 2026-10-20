@@ -195,6 +195,11 @@ async def _process_done(process, context, normalized_url, seek, output_file, sta
     # If rendering the desired frame fails, attempt to render the
     # first frame instead
     if status != 0 and seek > 0:
+        process.stdout.close()
+        process.stderr.close()
+        output_file.close()
+        ShellRunner.rm_f(output_file.name)
+
         return await seek_and_screenshot(context, normalized_url, 0)
 
     result = LoaderResult()
