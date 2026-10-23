@@ -141,10 +141,10 @@ BaseHandler.failure_memcache = _mc
 BaseHandler._error = _error
 
 
-def close_poolcounter(pc):
+async def close_poolcounter(pc):
     logger.debug("[ImagesHandler] PoolCounter cleanup callback")
     if pc:
-        pc.release()
+        await pc.release()
         pc.close()
 
 
@@ -442,8 +442,7 @@ class ImagesHandler(ImagingHandler):
 
     def on_finish(self):
         if hasattr(self, "pc") and self.pc:
-            self.pc.release()
-            self.pc.close()
+            tornado.ioloop.IOLoop.instance().call_later(0, close_poolcounter, self.pc)
             self.pc = None
             self.poolcounter_time = datetime.timedelta(0)
 
