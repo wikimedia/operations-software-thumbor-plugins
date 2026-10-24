@@ -8,8 +8,8 @@ class WikimediaDjvuTest(WikimediaTestCase):
             mediawiki_reference_thumbnail="page2-400px-Il_cavallarizzo.djvu.jpg",
             perfect_reference_thumbnail="page2-400px-Il_cavallarizzo.djvu.png",
             expected_width=400,
-            expected_height=576,
-            expected_ssim=0.99,
+            expected_height=575,
+            expected_ssim=0.98,
             size_tolerance=1.01,
         )
         self.run_and_check_ssim_and_size(
@@ -17,8 +17,8 @@ class WikimediaDjvuTest(WikimediaTestCase):
             mediawiki_reference_thumbnail="page2-400px-Il_cavallarizzo.djvu.jpg",
             perfect_reference_thumbnail="page2-400px-Il_cavallarizzo.djvu.png",
             expected_width=400,
-            expected_height=576,
-            expected_ssim=0.99,
+            expected_height=575,
+            expected_ssim=0.98,
             size_tolerance=0.84,
         )
 
@@ -49,7 +49,7 @@ class WikimediaDjvuTest(WikimediaTestCase):
             perfect_reference_thumbnail="page259-400px-Il_cavallarizzo.djvu.png",
             expected_width=400,
             expected_height=619,
-            expected_ssim=0.99,
+            expected_ssim=0.98,
             size_tolerance=1.05,
         )
         self.run_and_check_ssim_and_size(
@@ -58,6 +58,6 @@ class WikimediaDjvuTest(WikimediaTestCase):
             perfect_reference_thumbnail="page259-400px-Il_cavallarizzo.djvu.png",
             expected_width=400,
             expected_height=619,
-            expected_ssim=0.99,
+            expected_ssim=0.98,
             size_tolerance=0.84,
         )

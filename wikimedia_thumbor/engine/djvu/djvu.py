@@ -26,6 +26,10 @@ class Engine(BaseWikimediaEngine):
 
         command = [self.context.config.DDJVU_PATH, "-format=ppm", "-page=%d" % page, self.source, "-"]
 
+        width = self.context.request.width
+        if width:
+            command.insert(-2, "-size=%dx100000" % (2 * width))
+
         ppm = self.command(command)
 
         return super().create_image(ppm)
