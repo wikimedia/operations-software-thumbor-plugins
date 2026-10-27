@@ -11,6 +11,7 @@
 # ImageMagick engine
 
 import json
+import threading
 from decimal import ROUND_HALF_DOWN, Decimal
 from tempfile import NamedTemporaryFile
 
@@ -25,6 +26,18 @@ from wikimedia_thumbor.shell_runner import ShellRunner
 
 class ImageMagickException(Exception):
     pass
+
+
+# Protect py3exiv2 reads with a lock to avoid concurrency issue when engine is async loaded
+EXIV2_LOCK = threading.Lock()
+
+
+def read_metadata(path):
+    """py3exiv2 metadata of the file at path, read under EXIV2_LOCK."""
+    metadata = ImageMetadata(path)
+    with EXIV2_LOCK:
+        metadata.read()
+    return metadata
 
 
 class Engine(BaseEngine):
@@ -125,9 +138,8 @@ class Engine(BaseEngine):
         # Which would make the sRGB replacement more difficult (it's unclear how many
         # variations of the binary content for that family of profiles there are).
 
-        metadata = ImageMetadata(input_temp_file.name)
         try:
-            metadata.read()
+            metadata = read_metadata(input_temp_file.name)
 
             if "Exif.Image.Orientation" in metadata.exif_keys:
                 # Distinctive key name to avoid colliding with EXIF_FIELDS_TO_KEEP
