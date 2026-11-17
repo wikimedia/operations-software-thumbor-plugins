@@ -21,6 +21,7 @@ from thumbor.handlers import BaseHandler
 from thumbor.handlers.imaging import ImagingHandler
 from thumbor.utils import logger
 
+from wikimedia_thumbor.denylist import deny_reason
 from wikimedia_thumbor.logging import log_extra, record_timing
 from wikimedia_thumbor.poolcounter import PoolCounter
 
@@ -37,8 +38,12 @@ def _error(self, status, msg=None):
     # avoid re-trying thumbnails bound to fail too many times
     xkey = self._headers.get("xkey", False)
     mc = self.failure_memcache()
+    # Set when a deny rule matched, before or after fetching the original
+    denied = getattr(self.context, "wikimedia_deny_reason", None) if status == 422 else None
+    if denied:
+        msg = denied
 
-    if status != 429 and status != 404 and xkey and mc:
+    if status != 429 and status != 404 and not denied and xkey and mc:
         key = self._mc_encode_key(xkey)
 
         start = datetime.datetime.now()
@@ -55,8 +60,8 @@ def _error(self, status, msg=None):
 
         record_timing(self.context, datetime.datetime.now() - start, "memcache.set", "Thumbor-Memcache-Set-Time")
 
-    if status == 404:
-        # The CDN should cache 404 errors
+    if status == 404 or denied:
+        # The CDN should cache 404s and denied files
         self.set_header("Cache-Control", "s-maxage=600")
     else:
         # Other errors should explicitely not be cached
@@ -391,6 +396,14 @@ class ImagesHandler(ImagingHandler):
                 return
 
         xkey = self.set_headers(translated_kw)
+
+        reason = deny_reason(self.context.server.denylist, self.context.wikimedia_original_filepath)
+        if reason:
+            self.context.metrics.incr("denied")
+            self.context.wikimedia_deny_reason = reason
+            self._error(422)
+            return
+
         mc = self.failure_memcache()
 
         if mc and xkey:

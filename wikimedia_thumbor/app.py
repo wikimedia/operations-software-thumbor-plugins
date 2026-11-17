@@ -15,6 +15,8 @@ from tc_core.app import App as CommunityCoreApp
 from thumbor.handlers import ContextHandler
 from thumbor.utils import logger
 
+from wikimedia_thumbor import denylist
+
 
 class App(CommunityCoreApp):
     def __init__(self, context):
@@ -34,6 +36,8 @@ class App(CommunityCoreApp):
         # to parse our truncated buffer. EXIF parsing is done in our
         # imagemagick engine instead.
         thumbor.engines.METADATA_AVAILABLE = False
+
+        context.server.denylist = denylist.load_denylist(denylist.PATH)
 
         super().__init__(context)
 

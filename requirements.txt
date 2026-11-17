@@ -8,6 +8,7 @@ py3exiv2==0.12.0
 manhole==1.8.1
 ecs-logging==2.3.0
 pillow==12.3.0
+pyyaml==6.0.3
 
 # Transitive dependencies pinned here on purpose.
 # pycurl: thumbor's http_loader imports it when USE_CURL is enabled.

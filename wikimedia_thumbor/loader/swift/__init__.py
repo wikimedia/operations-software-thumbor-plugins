@@ -21,6 +21,7 @@ from swiftclient.exceptions import ClientException
 from thumbor.loaders import LoaderResult
 from thumbor.utils import logger
 
+from wikimedia_thumbor.denylist import deny_reason
 from wikimedia_thumbor.logging import log_extra, record_timing
 from wikimedia_thumbor.shell_runner import ShellRunner
 
@@ -59,12 +60,26 @@ def swift(context):
     return conn
 
 
+class Denied(Exception):
+    """An original matched a size deny rule; the message is the reason."""
+
+
+def check_size(context, path, headers, chunks):
+    """Raise Denied if the original's size matches a deny rule."""
+    reason = deny_reason(context.server.denylist, path, int(headers.get("content-length", 0)))
+    if reason:
+        # Drop the connection rather than stream the rest of the original
+        chunks.close()
+        raise Denied(reason)
+
+
 def fetch_to_temp_file(context, container, path, excerpt_length):
     """Stream an object from Swift into a temp file, chunk by chunk.
 
     Returns the object headers, the (closed) temp file, the first
     excerpt_length bytes of the object and its total size."""
     headers, chunks = swift(context).get_object(container, path, resp_chunk_size=SWIFT_CHUNK_SIZE)
+    check_size(context, path, headers, chunks)
 
     f = NamedTemporaryFile(delete=False)
     excerpt = b""
@@ -137,6 +152,12 @@ async def load(context, url):
             cleanup_temp_file(f.name, log_extra(context))
 
         result.buffer = body
+    except Denied as e:
+        result.successful = False
+        # thumbor passes integer loader errors through as the status
+        result.error = 422
+        context.wikimedia_deny_reason = str(e)
+        context.metrics.incr("denied")
     except ClientException as e:
         record_timing(context, datetime.datetime.now() - start, "swift.original.read.miss", "Thumbor-Swift-Original-Miss-Time")
         # logging.disable(logging.NOTSET)

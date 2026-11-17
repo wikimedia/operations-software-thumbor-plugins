@@ -112,6 +112,22 @@ $ make down
 $ make bash
 ```
 
+## Deny rules
+
+Thumbnail requests for originals matching a rule get a 422. Rules are read at
+startup from `DENY_RULES_PATH` (default `/etc/thumbor/deny-rules.yaml`); an
+invalid file is logged and denies nothing.
+
+`glob` matches the original's Swift path (e.g. `d/d2/Foo.png`), ignoring case.
+With `min_bytes`, the Swift loader denies matching originals at least that large,
+before downloading them.
+
+```yaml
+rules:
+  - {glob: "*.stl", reason: "T445144"}
+  - {glob: "*.png", min_bytes: 134217728}
+```
+
 ## Linting
 
 Linting is [ruff](https://docs.astral.sh/ruff/), and it needs no media binaries, so it
